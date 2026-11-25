@@ -9,24 +9,103 @@ datasource db {
   provider = "postgresql"
 }
 
-// User & Authentication
+enum Role {
+  SUPER_ADMIN
+  HR_ADMIN
+  DEPARTMENT_HEAD
+  TEAM_LEADER
+  EMPLOYEE
+}
+
+enum EmploymentStatus {
+  ACTIVE
+  ON_NOTICE
+  INACTIVE
+  ARCHIVED
+}
+
+// Shared Identity & Auth (Single Source of Truth across CRM & HRMS)
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?
-  role      Role      @default(EMPLOYEE)
-  employee  Employee?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id               String           @id @default(uuid())
+  employeeId       String           @unique
+  email            String           @unique
+  username         String?          @unique
+  passwordHash     String
+  name             String
+  phone            String?
+  role             Role             @default(EMPLOYEE)
+  employmentStatus EmploymentStatus @default(ACTIVE)
+  canImpersonate   Boolean          @default(false)
+  isArchived       Boolean          @default(false)
+  qrCodeUrl        String?
+  dateOfJoining    DateTime?
+  refreshTokenHash String?
+  lastLoginAt      DateTime?
+
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  roleId         String?
+  roleDefinition RoleDefinition? @relation(fields: [roleId], references: [id], onDelete: SetNull)
+
+  employee      Employee?
+  actorAudits   SystemAuditLog[] @relation("AuditActor")
+  targetAudits  SystemAuditLog[] @relation("AuditTarget")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("users")
 }
 
-enum Role {
-  ADMIN
-  HR_MANAGER
-  MANAGER
-  EMPLOYEE
+// Dynamic RBAC: Manageable Roles & Granular Permissions
+model RoleDefinition {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  displayName String
+  description String?
+  isSystem    Boolean          @default(false)
+  users       User[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  key         String           @unique
+  module      String
+  description String?
+  roles       RolePermission[]
+  createdAt   DateTime         @default(now())
+
+  @@index([module])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String         @id @default(uuid())
+  roleId       String
+  role         RoleDefinition @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission     @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime       @default(now())
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("teams")
 }
 
 // Departments
@@ -55,4 +134,24 @@ model Employee {
   updatedAt    DateTime    @updatedAt
 
   @@map("employees")
+}
+
+// Tier 2: Enterprise Security & Impersonation Audit Logs (Strictly Append-Only)
+model SystemAuditLog {
+  id              String   @id @default(uuid())
+  actorUserId     String
+  actorUser       User     @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  targetUserId    String?
+  targetUser      User?    @relation("AuditTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+  actionType      String
+  ipAddress       String?
+  userAgent       String?
+  oldValuePayload Json?
+  newValuePayload Json?
+  createdAt       DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([targetUserId])
+  @@index([actionType])
+  @@map("system_audit_logs")
 }
