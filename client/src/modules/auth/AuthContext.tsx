@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { User, UserRole } from './types';
+import type { User, UserRole, LoginPayload } from './types';
 import { ROLES } from './types';
 import { authApi } from './auth.api';
 
@@ -93,39 +93,88 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password = 'password123') => {
     setLoading(true);
 
+    const cleanEmail = email.trim();
+
+    // 1. Strict payload: Backend expects strictly { identifier, password }
+    const payload: LoginPayload = {
+      identifier: cleanEmail,
+      password,
+    };
+
+    let serverError: string | null = null;
+
     try {
-      // 1. Call the consolidated Auth API endpoint
-      const res = await authApi.login({ email, password });
-      if (res?.access_token && res?.user) {
-        setUser(res.user);
-        setToken(res.access_token);
-        localStorage.setItem('mna_user', JSON.stringify(res.user));
-        localStorage.setItem('mna_token', res.access_token);
-        setLoading(false);
-        return;
+      // 2. Execute POST /auth/login
+      const res = await authApi.login(payload);
+
+      const token =
+        res?.access_token ||
+        res?.accessToken ||
+        res?.data?.access_token ||
+        res?.data?.accessToken;
+
+      const refreshToken =
+        res?.refresh_token ||
+        res?.refreshToken ||
+        res?.data?.refresh_token ||
+        res?.data?.refreshToken;
+
+      if (token) {
+        localStorage.setItem('mna_token', token);
+        if (refreshToken) {
+          localStorage.setItem('mna_refresh_token', refreshToken);
+        }
+
+        // Try getting user profile directly from response or via GET /auth/me
+        let profile = res.user || res.data?.user;
+        if (!profile) {
+          try {
+            profile = await authApi.getMe();
+          } catch {
+            // Profile fetch optional if returned in token
+          }
+        }
+
+        if (profile) {
+          setUser(profile);
+          setToken(token);
+          localStorage.setItem('mna_user', JSON.stringify(profile));
+          setLoading(false);
+          return;
+        }
       }
-    } catch {
-      // Backend offline or endpoint still compiling - use offline fallback
+    } catch (err: any) {
+      serverError = err?.message || 'Authentication failed';
+      const isNetworkUnreachable =
+        serverError?.toLowerCase().includes('failed to fetch') ||
+        serverError?.toLowerCase().includes('network') ||
+        serverError?.toLowerCase().includes('econnrefused');
+
+      // Surface real server validation/auth errors
+      if (!isNetworkUnreachable) {
+        setLoading(false);
+        throw new Error(serverError || 'Authentication failed. Please verify credentials.');
+      }
     }
 
-    // 2. Resolve role based on entered email
-    const cleanEmail = email.trim().toLowerCase();
+    // 3. Fallback for offline development if backend is not running
+    const cleanLower = cleanEmail.toLowerCase();
     let detectedRole: UserRole = 'EMPLOYEE';
 
     for (const [key, config] of Object.entries(ROLES)) {
-      if (config.email === cleanEmail) {
+      if (config.email === cleanLower) {
         detectedRole = key as UserRole;
         break;
       }
     }
 
-    if (cleanEmail.includes('superadmin') || cleanEmail.startsWith('admin@')) {
+    if (cleanLower.includes('superadmin') || cleanLower.startsWith('admin@')) {
       detectedRole = 'SUPER_ADMIN';
-    } else if (cleanEmail.includes('hradmin') || cleanEmail.startsWith('hr@')) {
+    } else if (cleanLower.includes('hradmin') || cleanLower.startsWith('hr@')) {
       detectedRole = 'HR_ADMIN';
-    } else if (cleanEmail.includes('recruiter')) {
+    } else if (cleanLower.includes('recruiter')) {
       detectedRole = 'HR_RECRUITER';
-    } else if (cleanEmail.includes('manager')) {
+    } else if (cleanLower.includes('manager')) {
       detectedRole = 'TEAM_MANAGER';
     }
 

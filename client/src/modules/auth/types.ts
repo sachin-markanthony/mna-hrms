@@ -10,10 +10,13 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  employeeId?: string;
   department?: string;
   designation?: string;
   avatar?: string;
   biometricId?: string;
+  isImpersonating?: boolean;
+  originalAdminId?: string;
 }
 
 export interface RoleConfig {
@@ -26,13 +29,23 @@ export interface RoleConfig {
 }
 
 export interface LoginPayload {
-  email: string;
+  identifier: string;
   password?: string;
 }
 
 export interface AuthResponse {
-  access_token: string;
-  user: User;
+  access_token?: string;
+  accessToken?: string;
+  refresh_token?: string;
+  refreshToken?: string;
+  user?: User;
+  data?: {
+    access_token?: string;
+    accessToken?: string;
+    refresh_token?: string;
+    refreshToken?: string;
+    user?: User;
+  };
 }
 
 export interface ForgotPasswordPayload {

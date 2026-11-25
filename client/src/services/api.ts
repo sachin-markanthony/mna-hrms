@@ -11,7 +11,7 @@ export * from '../modules/auth/auth.api';
 export const api = {
   // 1. Auth Module
   auth: authApi,
-  login: (email: string, password?: string) => authApi.login({ email, password }),
+  login: (identifier: string, password?: string) => authApi.login({ identifier, password }),
   getCurrentUser: () => authApi.getMe(),
   logout: () => authApi.logout(),
   forgotPassword: (email: string) => authApi.forgotPassword({ email }),
