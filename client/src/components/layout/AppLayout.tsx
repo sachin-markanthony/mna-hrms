@@ -22,6 +22,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useAuth, ROLES } from '../../modules/auth';
+import { useTrainingSummary } from '../../modules/onboarding/hooks/useInductionStore';
 import { useTheme } from '../../services/theme';
 import { BrandLogo } from '../ui/BrandLogo';
 
@@ -95,7 +96,7 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER'],
       },
       {
-        name: 'Onboarding & QR Identity',
+        name: 'Training & Induction',
         path: '/training',
         icon: GraduationCap,
         roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER', 'EMPLOYEE'],
@@ -124,6 +125,7 @@ const NAVIGATION_SECTIONS: NavSection[] = [
 export function AppLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+  const trainingSummary = useTrainingSummary();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -173,6 +175,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 {visibleItems.map((item) => {
                   const Icon = item.icon;
                   const active = location.pathname === item.path;
+                  const badge =
+                    item.path === '/training'
+                      ? `${trainingSummary.overallPercentage}%`
+                      : item.badge;
 
                   return (
                     <button
@@ -194,7 +200,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                         {!collapsed && <span className="truncate">{item.name}</span>}
                       </div>
 
-                      {!collapsed && item.badge && (
+                      {!collapsed && badge && (
                         <span
                           className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${
                             active
@@ -202,7 +208,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                               : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                           }`}
                         >
-                          {item.badge}
+                          {badge}
                         </span>
                       )}
                     </button>

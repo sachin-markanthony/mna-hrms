@@ -4,6 +4,7 @@ import type { InductionChapter } from '../types/induction.types';
 
 export type InductionTabType =
   | 'overview'
+  | 'documents'
   | 'curriculum'
   | 'roadmap'
   | 'compliance'
@@ -47,6 +48,7 @@ export const InductionSubNav: React.FC<InductionSubNavProps> = ({
 
   const tabs: { id: InductionTabType; label: string; badge?: string }[] = [
     { id: 'overview', label: 'Induction Overview', badge: 'Active' },
+    { id: 'documents', label: 'Training Document', badge: 'Handbook' },
     { id: 'curriculum', label: 'Sessions & Chapters', badge: '7 Sessions' },
     { id: 'roadmap', label: 'Interactive Roadmap' },
     { id: 'compliance', label: 'Before You Begin' },
