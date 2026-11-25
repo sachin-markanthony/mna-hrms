@@ -26,7 +26,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
   const response = await fetch(url, { ...customConfig, headers });
 
-  if (response.status === 401) {
+  if (response.status === 401 && !endpoint.includes('/auth/login')) {
     localStorage.removeItem('mna_token');
     localStorage.removeItem('mna_user');
     window.dispatchEvent(new CustomEvent('auth:expired'));
@@ -36,7 +36,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const errorMsg = data?.message || `Request failed with status ${response.status}`;
+    const errorMsg = data?.message || data?.error || `Request failed with status ${response.status}`;
     throw new Error(Array.isArray(errorMsg) ? errorMsg[0] : errorMsg);
   }
 
