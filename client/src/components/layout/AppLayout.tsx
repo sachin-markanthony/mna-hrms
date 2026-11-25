@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -14,15 +14,16 @@ import {
   ChevronRight,
   Bell,
   HelpCircle,
-  Play,
-  Pause,
+  Sun,
+  Moon,
   LogOut,
   ChevronDown,
   Building2,
   ShieldCheck,
 } from 'lucide-react';
 import { useAuth, ROLES } from '../../modules/auth';
-import logoImg from '../../assets/malogo.png';
+import { useTheme } from '../../services/theme';
+import { BrandLogo } from '../ui/BrandLogo';
 
 interface NavItem {
   name: string;
@@ -124,29 +125,15 @@ const NAVIGATION_SECTIONS: NavSection[] = [
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [collapsed, setCollapsed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [clockRunning, setClockRunning] = useState(true);
-  const [elapsedSeconds, setElapsedSeconds] = useState(1774); // 00:29:34 like screenshot
-
-  useEffect(() => {
-    if (!clockRunning) return;
-    const timer = setInterval(() => setElapsedSeconds((s) => s + 1), 1000);
-    return () => clearInterval(timer);
-  }, [clockRunning]);
 
   if (!user) return null;
   const roleConfig = ROLES[user.role];
-
-  const formatClock = (sec: number) => {
-    const h = String(Math.floor(sec / 3600)).padStart(2, '0');
-    const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
-    const s = String(sec % 60).padStart(2, '0');
-    return `${h}:${m}:${s}`;
-  };
 
   const handleLogout = () => {
     logout();
@@ -154,54 +141,34 @@ export function AppLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex font-sans antialiased">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#0b1324] text-slate-800 dark:text-slate-100 flex font-sans antialiased transition-colors duration-200">
       {/* ====================================================
-          ENLARGED SIDEBAR (Width 280px / w-[280px])
-          Spacious padding, categorized sections, clean typography
+          ENLARGED SIDEBAR (280px) - Mark Anthony Brand Style
           ==================================================== */}
       <aside
-        className={`bg-white border-r border-slate-200/90 flex flex-col transition-all duration-300 z-20 shrink-0 ${
+        className={`bg-white dark:bg-[#0f172a] border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-300 z-20 shrink-0 ${
           collapsed ? 'w-22' : 'w-[280px]'
         }`}
       >
-        {/* Brand Header with Official Logo */}
-        <div className="h-20 px-5 border-b border-slate-100 flex items-center justify-between">
-          {!collapsed ? (
-            <div className="flex items-center gap-3 overflow-hidden">
-              <img
-                src={logoImg}
-                alt="Mark Anthony Ventures"
-                className="h-10 w-auto object-contain shrink-0 drop-shadow-xs"
-              />
-              <div className="truncate">
-                <h1 className="text-xs font-black tracking-tight text-slate-900 uppercase">
-                  Mark Anthony
-                </h1>
-                <p className="text-[10px] font-bold text-[#d97706] tracking-wider uppercase">
-                  Ventures Portal
-                </p>
-              </div>
-            </div>
-          ) : (
-            <img
-              src={logoImg}
-              alt="Mark Anthony Ventures"
-              className="h-9 w-auto mx-auto object-contain shrink-0"
-            />
-          )}
+        {/* Brand Header */}
+        <div className="h-20 px-5 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+          <BrandLogo
+            size="md"
+            collapsed={collapsed}
+            showSubtitle={true}
+          />
         </div>
 
         {/* Dynamic Categorized Navigation */}
         <nav className="flex-1 px-4 py-5 space-y-6 overflow-y-auto">
           {NAVIGATION_SECTIONS.map((section) => {
-            // Filter items by role permissions
             const visibleItems = section.items.filter((item) => item.roles.includes(user.role));
             if (visibleItems.length === 0) return null;
 
             return (
               <div key={section.title} className="space-y-1.5">
                 {!collapsed && (
-                  <div className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">
+                  <div className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
                     {section.title}
                   </div>
                 )}
@@ -214,16 +181,16 @@ export function AppLayout({ children }: { children: ReactNode }) {
                       key={item.path}
                       onClick={() => navigate(item.path)}
                       title={collapsed ? item.name : undefined}
-                      className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all duration-150 ${
+                      className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer ${
                         active
-                          ? 'bg-[#eb5744] text-white shadow-sm'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                          ? 'bg-[#072b53] dark:bg-[#1e3a8a] text-white shadow-sm border-l-4 border-amber-400'
+                          : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70'
                       }`}
                     >
                       <div className="flex items-center gap-3 truncate">
                         <Icon
                           className={`w-5 h-5 shrink-0 ${
-                            active ? 'text-white' : 'text-slate-400'
+                            active ? 'text-amber-300' : 'text-slate-400 dark:text-slate-500'
                           }`}
                         />
                         {!collapsed && <span className="truncate">{item.name}</span>}
@@ -234,7 +201,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                           className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${
                             active
                               ? 'bg-white/20 text-white'
-                              : 'bg-slate-100 text-slate-500'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                           }`}
                         >
                           {item.badge}
@@ -248,17 +215,17 @@ export function AppLayout({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        {/* Sidebar Footer with Collapse Toggle */}
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-bold text-slate-700">Self-Hosted Cluster</span>
-              <span className="text-[10px] text-slate-400">v1.0.0 &bull; Postgres Verified</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300">Self-Hosted Cluster</span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500">v1.0.0 &bull; Postgres</span>
             </div>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition mx-auto border border-slate-200"
+            className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition mx-auto border border-slate-200 dark:border-slate-700 cursor-pointer"
             title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -271,67 +238,63 @@ export function AppLayout({ children }: { children: ReactNode }) {
           ==================================================== */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Navbar */}
-        <header className="h-20 bg-white border-b border-slate-200/90 px-8 flex items-center justify-between sticky top-0 z-10 shadow-xs">
+        <header className="h-20 bg-white dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between sticky top-0 z-10 shadow-xs transition-colors duration-200">
           <div className="flex items-center gap-2.5">
-            <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+            <span className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
               WORKSPACE
             </span>
-            <span className="text-slate-300">/</span>
-            <span className="text-sm font-bold text-slate-800">
+            <span className="text-slate-300 dark:text-slate-600">/</span>
+            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
               {roleConfig.title} Portal
             </span>
-            <span className="hidden sm:inline-block ml-3 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+            <span className="hidden sm:inline-block ml-3 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
               {roleConfig.scope} Scope
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Live Shift Work Timer */}
+          <div className="flex items-center gap-3.5">
+            {/* Light / Dark Mode Toggle Button */}
             <button
-              onClick={() => setClockRunning(!clockRunning)}
-              className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-mono font-bold border transition shadow-xs ${
-                clockRunning
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
-                  : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
-              }`}
-              title={clockRunning ? 'Click to Pause Shift Clock' : 'Click to Resume Shift Clock'}
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer shadow-xs"
+              title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+              aria-label="Toggle Theme"
             >
-              {clockRunning ? (
-                <Play className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600 animate-pulse" />
+              {isDark ? (
+                <Sun className="w-4 h-4 text-amber-400" />
               ) : (
-                <Pause className="w-3.5 h-3.5 text-slate-500" />
+                <Moon className="w-4 h-4 text-slate-600" />
               )}
-              <span className="tracking-wider">{formatClock(elapsedSeconds)}</span>
             </button>
 
-            <button className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition relative">
+            <button className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition relative cursor-pointer">
               <Bell className="w-4 h-4" />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" />
             </button>
 
-            <button className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+            <button className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
               <HelpCircle className="w-4 h-4" />
             </button>
 
-            <div className="h-6 w-px bg-slate-200" />
+            <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
 
             {/* Profile Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-50 transition"
+                className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-full bg-[#072b53] text-white flex items-center justify-center text-xs font-black ring-2 ring-slate-100">
+                <div className="w-10 h-10 rounded-full bg-[#072b53] text-white flex items-center justify-center text-xs font-black ring-2 ring-slate-100 dark:ring-slate-700">
                   {user.name
                     .split(' ')
                     .map((n) => n[0])
                     .join('')}
                 </div>
                 <div className="hidden md:flex flex-col text-left">
-                  <span className="text-xs font-bold text-slate-900 leading-tight">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
                     {user.name}
                   </span>
-                  <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Online
                   </span>
                 </div>
@@ -339,12 +302,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50">
-                  <div className="p-3 border-b border-slate-100">
-                    <div className="text-xs font-bold text-slate-900">{user.name}</div>
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#111c35] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-2 z-50">
+                  <div className="p-3 border-b border-slate-100 dark:border-slate-800">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white">{user.name}</div>
                     <div className="text-[11px] text-slate-400 truncate">{user.email}</div>
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
-                      <ShieldCheck className="w-3.5 h-3.5 text-blue-700" />
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-700 dark:text-blue-400" />
                       {roleConfig.title} &bull; {roleConfig.scope} Scope
                     </div>
                   </div>
@@ -355,7 +318,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                         setMenuOpen(false);
                         navigate('/training');
                       }}
-                      className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-100 rounded-lg flex items-center gap-2"
+                      className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer"
                     >
                       <Building2 className="w-4 h-4 text-slate-400" />
                       My Profile &amp; QR Badge
@@ -365,17 +328,17 @@ export function AppLayout({ children }: { children: ReactNode }) {
                         setMenuOpen(false);
                         navigate('/settings');
                       }}
-                      className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-100 rounded-lg flex items-center gap-2"
+                      className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer"
                     >
                       <Settings className="w-4 h-4 text-slate-400" />
                       Security &amp; Preferences
                     </button>
                   </div>
 
-                  <div className="pt-1 border-t border-slate-100">
+                  <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-2"
+                      className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg flex items-center gap-2 cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
                       Sign Out
