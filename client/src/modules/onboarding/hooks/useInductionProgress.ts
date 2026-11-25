@@ -1,120 +1,67 @@
-import { useState, useEffect } from 'react';
-import type {
-  Employee,
-  InductionProgress,
-  InductionSession,
-  InductionChapter,
-  InductionNotification,
-  HandbookHighlight,
-} from '../types/induction.types';
-import { inductionService } from '../services/induction.service';
+import { useMemo } from 'react';
+import type { Employee } from '../types/induction.types';
+import type { QuizAttempt, QuizEvaluation } from '../types/training.types';
+import { MOCK_EMPLOYEE } from '../data/mockEmployee';
+import { WORKING_PRINCIPLES } from '../data/inductionSessions';
+import { inductionStore } from '../store/inductionStore';
+import { useInductionSnapshot } from './useInductionStore';
 
 export function useInductionProgress(authEmployee?: Partial<Employee>) {
-  const [employee, setEmployee] = useState<Employee | null>(null);
-  const [sessions, setSessions] = useState<InductionSession[]>([]);
-  const [chapters, setChapters] = useState<InductionChapter[]>([]);
-  const [progress, setProgress] = useState<InductionProgress | null>(null);
-  const [nextStep, setNextStep] = useState<{
-    chapter: InductionChapter;
-    session: InductionSession;
-  } | null>(null);
-  const [principles, setPrinciples] = useState<HandbookHighlight[]>([]);
-  const [notifications, setNotifications] = useState<InductionNotification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const snapshot = useInductionSnapshot();
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const [emp, sess, chaps, prog, next, princs, notifs] = await Promise.all([
-        inductionService.getEmployeeInduction(authEmployee),
-        inductionService.getInductionSessions(),
-        inductionService.getInductionChapters(),
-        inductionService.getInductionProgress(),
-        inductionService.getNextIncompleteChapter(),
-        inductionService.getWorkingPrinciples(),
-        inductionService.getNotifications(),
-      ]);
-
-      setEmployee(emp);
-      setSessions(sess);
-      setChapters(chaps);
-      setProgress(prog);
-      setNextStep(next);
-      setPrinciples(princs);
-      setNotifications(notifs);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load induction data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let ignore = false;
-
-    const execute = async () => {
-      try {
-        const [emp, sess, chaps, prog, next, princs, notifs] = await Promise.all([
-          inductionService.getEmployeeInduction(authEmployee),
-          inductionService.getInductionSessions(),
-          inductionService.getInductionChapters(),
-          inductionService.getInductionProgress(),
-          inductionService.getNextIncompleteChapter(),
-          inductionService.getWorkingPrinciples(),
-          inductionService.getNotifications(),
-        ]);
-
-        if (!ignore) {
-          setEmployee(emp);
-          setSessions(sess);
-          setChapters(chaps);
-          setProgress(prog);
-          setNextStep(next);
-          setPrinciples(princs);
-          setNotifications(notifs);
-          setLoading(false);
-        }
-      } catch (err: unknown) {
-        if (!ignore) {
-          setError(err instanceof Error ? err.message : 'Failed to load induction data');
-          setLoading(false);
-        }
-      }
-    };
-
-    execute();
-
-    return () => {
-      ignore = true;
-    };
-  }, [authEmployee]);
+  const { id, fullName, email, department, designation } = authEmployee ?? {};
+  const employee = useMemo<Employee>(
+    () => ({
+      ...MOCK_EMPLOYEE,
+      ...(id ? { id } : {}),
+      ...(fullName ? { fullName } : {}),
+      ...(email ? { email } : {}),
+      ...(department ? { department } : {}),
+      ...(designation ? { designation } : {}),
+    }),
+    [id, fullName, email, department, designation],
+  );
 
   const markNotificationAsRead = async (id: string) => {
-    await inductionService.markNotificationRead(id);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    inductionStore.markNotificationRead(id);
   };
 
   const markChapterAsComplete = async (chapterId: string) => {
-    await inductionService.completeChapter(chapterId);
-    await loadData();
+    inductionStore.completeChapter(chapterId);
   };
+
+  const startChapter = (chapterId: string) => {
+    inductionStore.startChapter(chapterId);
+  };
+
+  const submitChapterQuiz = (
+    chapterId: string,
+    answers: Record<string, string>,
+  ): QuizEvaluation => inductionStore.submitQuiz(chapterId, answers);
+
+  const getDocument = (chapterId: string) => inductionStore.getDocument(chapterId);
+
+  const getQuizAttempts = (chapterId: string): QuizAttempt[] =>
+    inductionStore.getAttempts(chapterId);
 
   return {
     employee,
-    sessions,
-    chapters,
-    progress,
-    nextStep,
-    principles,
-    notifications,
-    loading,
-    error,
-    refresh: loadData,
+    sessions: snapshot.sessions,
+    chapters: snapshot.chapters,
+    progress: snapshot.progress,
+    nextStep: snapshot.nextStep,
+    principles: WORKING_PRINCIPLES,
+    notifications: snapshot.notifications,
+    summary: snapshot.summary,
+    loading: false,
+    error: null as string | null,
+    refresh: async () => inductionStore.refreshFromStorage(),
     markNotificationAsRead,
     markChapterAsComplete,
+    startChapter,
+    submitChapterQuiz,
+    getDocument,
+    getQuizAttempts,
+    resetProgress: async () => inductionStore.resetProgress(),
   };
 }

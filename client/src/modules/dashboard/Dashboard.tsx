@@ -16,6 +16,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useAuth, ROLES } from '../auth';
+import { TrainingProgressCard } from './components/TrainingProgressCard';
 import logoImg from '../../assets/malogo.png';
 
 export function Dashboard() {
@@ -395,6 +396,9 @@ export function Dashboard() {
           );
         })}
       </div>
+
+      {/* Induction & Training Progress — updates live from the Training Document module */}
+      <TrainingProgressCard />
 
       {/* Spacious Attendance Sync Feeds & Real-Time Stream */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
