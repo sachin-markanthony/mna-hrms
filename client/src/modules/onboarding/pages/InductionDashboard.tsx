@@ -1,0 +1,261 @@
+import React, { useState } from 'react';
+import { useAuth } from '../../auth';
+import { useInductionProgress } from '../hooks/useInductionProgress';
+import { WelcomeBanner } from '../components/WelcomeBanner';
+import { OverallProgressCard } from '../components/OverallProgressCard';
+import { ContinueLearningCard } from '../components/ContinueLearningCard';
+import { LearningSessionsGrid } from '../components/LearningSessionsGrid';
+import { LearningRoadmap } from '../components/LearningRoadmap';
+import { BeforeYouBegin } from '../components/BeforeYouBegin';
+import { WorkingPrinciples } from '../components/WorkingPrinciples';
+import { LearningNotifications } from '../components/LearningNotifications';
+import { PlaceholderLearningRoute } from '../components/PlaceholderLearningRoute';
+import { InductionSubNav } from '../components/InductionSubNav';
+import type { InductionTabType } from '../components/InductionSubNav';
+import type { InductionSession, InductionChapter } from '../types/induction.types';
+import { AlertCircle, RefreshCw, ShieldCheck } from 'lucide-react';
+
+export const InductionDashboard: React.FC = () => {
+  const { user } = useAuth();
+
+  const authEmployee = user
+    ? {
+        fullName: user.name,
+        department: user.department || 'Real Estate Advisory & Investments',
+        designation: user.designation || 'Senior Investment Advisor',
+        email: user.email,
+      }
+    : undefined;
+
+  const {
+    employee,
+    sessions,
+    chapters,
+    progress,
+    nextStep,
+    principles,
+    notifications,
+    loading,
+    error,
+    refresh,
+    markNotificationAsRead,
+    markChapterAsComplete,
+  } = useInductionProgress(authEmployee);
+
+  const [currentTab, setCurrentTab] = useState<InductionTabType>('overview');
+
+  // Selected state for interactive learning session/chapter viewer
+  const [activeLearningState, setActiveLearningState] = useState<{
+    isOpen: boolean;
+    session: InductionSession | null;
+    chapter: InductionChapter | null;
+  }>({
+    isOpen: false,
+    session: null,
+    chapter: null,
+  });
+
+  const handleContinueLearning = () => {
+    if (nextStep) {
+      setActiveLearningState({
+        isOpen: true,
+        session: nextStep.session,
+        chapter: nextStep.chapter,
+      });
+    } else {
+      setActiveLearningState({
+        isOpen: true,
+        session: sessions[0] || null,
+        chapter: chapters[0] || null,
+      });
+    }
+  };
+
+  const handleSelectSession = (session: InductionSession) => {
+    const sessionFirstChapter =
+      chapters.find((c) => c.sessionId === session.id) || null;
+
+    setActiveLearningState({
+      isOpen: true,
+      session,
+      chapter: sessionFirstChapter,
+    });
+  };
+
+  const handleSelectChapter = (chapter: InductionChapter) => {
+    const session =
+      sessions.find((s) => s.id === chapter.sessionId) || null;
+
+    setActiveLearningState({
+      isOpen: true,
+      session,
+      chapter,
+    });
+  };
+
+  const handleNavigateAction = (route: string) => {
+    if (route === '#session-3') {
+      const sess3 = sessions.find((s) => s.sessionNumber === 3);
+      if (sess3) handleSelectSession(sess3);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center text-slate-500 gap-3">
+        <div className="w-9 h-9 rounded-full border-3 border-[#1e3a8a] border-t-transparent animate-spin" />
+        <p className="text-xs font-semibold tracking-wider uppercase text-slate-500">
+          Loading MA Ventures Learning Dashboard...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-16 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+        <h3 className="text-base font-bold text-slate-900 mb-1">Failed to load induction modules</h3>
+        <p className="text-xs text-slate-500 max-w-sm mb-4">{error}</p>
+        <button
+          onClick={refresh}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Retry Loading</span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Module Title & Global Scope Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Employee Induction &amp; Learning Portal
+            </h1>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+              MA Ventures
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Phase 1 Module &bull; 7 Core Learning Sessions &bull; 22 Handbook Chapters &bull; Neon PostgreSQL Connected
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>Progress: {progress?.overallPercentage ?? 35}% Completed</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Induction Sub-navigation & Search (Non-duplicated, page-level) */}
+      <InductionSubNav
+        currentTab={currentTab}
+        onTabChange={(tab) => {
+          setCurrentTab(tab);
+          setActiveLearningState({ isOpen: false, session: null, chapter: null });
+        }}
+        chapters={chapters}
+        onSelectChapter={handleSelectChapter}
+      />
+
+      {/* Main Content Area */}
+      {activeLearningState.isOpen ? (
+        /* Interactive Learning Route View */
+        <PlaceholderLearningRoute
+          session={activeLearningState.session}
+          chapter={activeLearningState.chapter}
+          onBack={() => setActiveLearningState({ isOpen: false, session: null, chapter: null })}
+          onCompleteChapter={async (chapterId) => {
+            await markChapterAsComplete(chapterId);
+            setActiveLearningState((prev) => ({
+              ...prev,
+              chapter: prev.chapter
+                ? { ...prev.chapter, status: 'completed', progressPercentage: 100 }
+                : null,
+            }));
+          }}
+        />
+      ) : currentTab === 'overview' ? (
+        /* Overview Master View */
+        <>
+          {/* 1. Welcome / Hero Section */}
+          <WelcomeBanner
+            employee={employee}
+            progress={progress}
+            onContinue={handleContinueLearning}
+          />
+
+          {/* 2. Overall Progress Section */}
+          <OverallProgressCard progress={progress} />
+
+          {/* 3. Continue Learning Card */}
+          <ContinueLearningCard
+            chapter={nextStep?.chapter || null}
+            session={nextStep?.session || null}
+            onContinue={handleContinueLearning}
+          />
+
+          {/* 4. Interactive Learning Roadmap */}
+          <LearningRoadmap
+            sessions={sessions}
+            onSelectSession={handleSelectSession}
+          />
+
+          {/* 5. Learning Sessions Grid (All 7 sessions) */}
+          <LearningSessionsGrid
+            sessions={sessions}
+            onSelectSession={handleSelectSession}
+          />
+
+          {/* 6. Before You Begin Matrix */}
+          <BeforeYouBegin />
+
+          {/* 7. Working Principles & Notifications */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <WorkingPrinciples principles={principles} />
+            <LearningNotifications
+              notifications={notifications}
+              onMarkRead={markNotificationAsRead}
+              onNavigateAction={handleNavigateAction}
+            />
+          </div>
+        </>
+      ) : currentTab === 'curriculum' ? (
+        /* Curriculum Sessions & Chapters View */
+        <div className="space-y-6">
+          <LearningSessionsGrid
+            sessions={sessions}
+            onSelectSession={handleSelectSession}
+          />
+        </div>
+      ) : currentTab === 'roadmap' ? (
+        /* Roadmap View */
+        <div className="space-y-6">
+          <LearningRoadmap
+            sessions={sessions}
+            onSelectSession={handleSelectSession}
+          />
+        </div>
+      ) : currentTab === 'compliance' ? (
+        /* Compliance & Criteria View */
+        <div className="space-y-6">
+          <BeforeYouBegin />
+        </div>
+      ) : (
+        /* Working Principles View */
+        <div className="max-w-3xl mx-auto">
+          <WorkingPrinciples principles={principles} />
+        </div>
+      )}
+    </div>
+  );
+};
