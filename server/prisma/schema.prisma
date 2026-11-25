@@ -5,38 +5,105 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-
-model User {
-  id                                                      String              @id @default(uuid())
-  employeeId                                              String              @unique
-  email                                                   String              @unique
-  username                                                String?             @unique
-  passwordHash                                            String
-  name                                                    String
-  phone                                                   String?
-  role                                                    Role                @default(EMPLOYEE)
-  employmentStatus                                        EmploymentStatus    @default(ACTIVE)
-  canImpersonate                                          Boolean             @default(false)
-  isArchived                                              Boolean             @default(false)
-  qrCodeUrl                                               String?
-  dateOfJoining                                           DateTime?
-  refreshTokenHash                                        String?
-  lastLoginAt                                             DateTime?
-  teamId                                                  String?
-  createdAt                                               DateTime            @default(now())
-  updatedAt                                               DateTime            @updatedAt
-  roleId                                                  String?
-  employee                                                Employee?
-  system_audit_logs_system_audit_logs_actorUserIdTousers  system_audit_logs[] @relation("system_audit_logs_actorUserIdTousers")
-  system_audit_logs_system_audit_logs_targetUserIdTousers system_audit_logs[] @relation("system_audit_logs_targetUserIdTousers")
-  roles                                                   roles?              @relation(fields: [roleId], references: [id])
-  teams                                                   teams?              @relation(fields: [teamId], references: [id])
-  induction_progress                                      InductionProgress[]
-  induction_notifications                                 InductionNotification[]
-
-  @@map("users")
+enum Role {
+  SUPER_ADMIN
+  HR_ADMIN
+  DEPARTMENT_HEAD
+  TEAM_LEADER
+  EMPLOYEE
 }
 
+enum EmploymentStatus {
+  ACTIVE
+  ON_NOTICE
+  INACTIVE
+  ARCHIVED
+}
+
+// Shared Identity & Auth (Single Source of Truth across CRM & HRMS)
+model User {
+  id               String           @id @default(uuid())
+  employeeId       String           @unique
+  email            String           @unique
+  username         String?          @unique
+  passwordHash     String
+  name             String
+  phone            String?
+  role             Role             @default(EMPLOYEE)
+  employmentStatus EmploymentStatus @default(ACTIVE)
+  canImpersonate   Boolean          @default(false)
+  isArchived       Boolean          @default(false)
+  qrCodeUrl        String?
+  dateOfJoining    DateTime?
+  refreshTokenHash String?
+  lastLoginAt      DateTime?
+
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  roleId         String?
+  roleDefinition RoleDefinition? @relation(fields: [roleId], references: [id], onDelete: SetNull)
+
+  employee      Employee?
+  actorAudits   SystemAuditLog[] @relation("AuditActor")
+  targetAudits  SystemAuditLog[] @relation("AuditTarget")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("users")
+}
+// Dynamic RBAC: Manageable Roles & Granular Permissions
+model RoleDefinition {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  displayName String
+  description String?
+  isSystem    Boolean          @default(false)
+  users       User[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  key         String           @unique
+  module      String
+  description String?
+  roles       RolePermission[]
+  createdAt   DateTime         @default(now())
+
+  @@index([module])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String         @id @default(uuid())
+  roleId       String
+  role         RoleDefinition @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission     @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime       @default(now())
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("teams")
+}
+
+// Departments
 model Department {
   id          String     @id @default(uuid())
   name        String     @unique
@@ -62,158 +129,22 @@ model Employee {
 
   @@map("employees")
 }
+// Tier 2: Enterprise Security & Impersonation Audit Logs (Strictly Append-Only)
+model SystemAuditLog {
+  id              String   @id @default(uuid())
+  actorUserId     String
+  actorUser       User     @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  targetUserId    String?
+  targetUser      User?    @relation("AuditTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+  actionType      String
+  ipAddress       String?
+  userAgent       String?
+  oldValuePayload Json?
+  newValuePayload Json?
+  createdAt       DateTime @default(now())
 
-model permissions {
-  id               String             @id
-  key              String             @unique
-  module           String
-  description      String?
-  createdAt        DateTime           @default(now())
-  role_permissions role_permissions[]
-
-  @@index([module])
-}
-
-model role_permissions {
-  id           String      @id
-  roleId       String
-  permissionId String
-  createdAt    DateTime    @default(now())
-  permissions  permissions @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  roles        roles       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@unique([roleId, permissionId])
-}
-
-model roles {
-  id               String             @id
-  name             String             @unique
-  displayName      String
-  description      String?
-  isSystem         Boolean            @default(false)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime
-  role_permissions role_permissions[]
-  users            User[]
-}
-
-model system_audit_logs {
-  id                                          String   @id
-  actorUserId                                 String
-  targetUserId                                String?
-  actionType                                  String
-  ipAddress                                   String?
-  userAgent                                   String?
-  oldValuePayload                             Json?
-  newValuePayload                             Json?
-  createdAt                                   DateTime @default(now())
-  users_system_audit_logs_actorUserIdTousers  User     @relation("system_audit_logs_actorUserIdTousers", fields: [actorUserId], references: [id])
-  users_system_audit_logs_targetUserIdTousers User?    @relation("system_audit_logs_targetUserIdTousers", fields: [targetUserId], references: [id])
-
-  @@index([actionType])
   @@index([actorUserId])
   @@index([targetUserId])
-}
-
-model teams {
-  id          String   @id
-  name        String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
-  users       User[]
-}
-
-// ----------------------------------------------------
-// ONBOARDING & INDUCTION LMS SCHEMA (MA VENTURES)
-// ----------------------------------------------------
-
-model InductionSession {
-  id                 String             @id @default(uuid())
-  sessionNumber      Int                @unique
-  title              String
-  subtitle           String?
-  description        String
-  chapterStart       Int
-  chapterEnd         Int
-  estimatedDuration  String
-  orderIndex         Int                @default(0)
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  chapters           InductionChapter[]
-
-  @@map("induction_sessions")
-}
-
-model InductionChapter {
-  id                 String              @id @default(uuid())
-  chapterNumber      Int                 @unique
-  title              String
-  description        String
-  estimatedDuration  String
-  sessionId          String
-  session            InductionSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  isAssessment       Boolean             @default(false)
-  isResource         Boolean             @default(false)
-  orderIndex         Int                 @default(0)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  progress           InductionProgress[]
-
-  @@map("induction_chapters")
-}
-
-model InductionProgress {
-  id                 String              @id @default(uuid())
-  userId             String
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapterId          String
-  chapter            InductionChapter    @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  status             ChapterStatus       @default(NOT_STARTED)
-  progressPercentage Int                 @default(0)
-  lastAccessedAt     DateTime            @default(now())
-  completedAt        DateTime?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-
-  @@unique([userId, chapterId])
-  @@map("induction_progress")
-}
-
-model InductionNotification {
-  id                 String              @id @default(uuid())
-  userId             String?
-  user               User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title              String
-  message            String
-  type               String              @default("info")
-  actionLabel        String?
-  actionRoute        String?
-  read               Boolean             @default(false)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-
-  @@map("induction_notifications")
-}
-
-enum Role {
-  SUPER_ADMIN
-  HR_ADMIN
-  DEPARTMENT_HEAD
-  TEAM_LEADER
-  EMPLOYEE
-}
-
-enum EmploymentStatus {
-  ACTIVE
-  ON_NOTICE
-  INACTIVE
-  ARCHIVED
-}
-
-enum ChapterStatus {
-  NOT_STARTED
-  IN_PROGRESS
-  COMPLETED
-  LOCKED
+  @@index([actionType])
+  @@map("system_audit_logs")
 }

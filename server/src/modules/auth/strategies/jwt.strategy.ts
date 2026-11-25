@@ -1,0 +1,72 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { EmploymentStatus } from '@prisma/client';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { getRequiredEnv } from '../../../core/config/app.config.js';
+import { AppRole } from '../../../core/decorators/roles.decorator.js';
+import { PrismaService } from '../../../prisma/prisma.service.js';
+import type { AuthenticatedUser, JwtPayload } from '../types/jwt-payload.type.js';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+  constructor(private readonly prisma: PrismaService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: getRequiredEnv('JWT_SECRET'),
+    });
+  }
+
+  async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+      select: {
+        id: true,
+        email: true,
+        employeeId: true,
+        name: true,
+        role: true,
+        roleId: true,
+        canImpersonate: true,
+        isArchived: true,
+        employmentStatus: true,
+        roleDefinition: {
+          select: {
+            permissions: {
+              select: {
+                permission: {
+                  select: { key: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (
+      !user ||
+      user.isArchived ||
+      user.employmentStatus === EmploymentStatus.ARCHIVED ||
+      user.employmentStatus === EmploymentStatus.INACTIVE
+    ) {
+      throw new UnauthorizedException('User account is inactive or archived');
+    }
+
+    const permissions =
+      user.roleDefinition?.permissions.map((rp) => rp.permission.key) ?? [];
+
+    return {
+      id: user.id,
+      email: user.email,
+      employeeId: user.employeeId,
+      name: user.name,
+      role: user.role as unknown as AppRole,
+      roleId: user.roleId ?? undefined,
+      permissions,
+      canImpersonate: user.canImpersonate,
+      isImpersonated: Boolean(payload.isImpersonated),
+      originalAdminId: payload.originalAdminId,
+    };
+  }
+}
