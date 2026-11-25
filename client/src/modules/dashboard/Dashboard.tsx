@@ -80,7 +80,7 @@ export function Dashboard() {
       ];
     }
 
-    if (user.role === 'TEAM_MANAGER') {
+    if (user.role === 'TEAM_LEADER') {
       return [
         {
           title: 'Team Strength',
@@ -121,7 +121,7 @@ export function Dashboard() {
       ];
     }
 
-    if (user.role === 'HR_RECRUITER') {
+    if (user.role === 'HR_COORDINATOR') {
       return [
         {
           title: 'Active Pipeline',

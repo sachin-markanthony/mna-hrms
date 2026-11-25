@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { EmploymentStatus, PrismaClient, Role } from '@prisma/client';
+import { DocumentType, EmploymentStatus, LeaveType, PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const adapter = new PrismaPg({
@@ -49,14 +49,15 @@ const SYSTEM_ROLES: Array<{
     ).map((p) => p.key),
   },
   {
-    name: Role.DEPARTMENT_HEAD,
-    displayName: 'Department Head / GM',
-    description: 'Departmental KPIs, cross-team leave approvals, and appraisals',
+    name: Role.HR_COORDINATOR,
+    displayName: 'HR Coordinator',
+    description: 'HR coordination, leave review, recruitment scheduling & onboarding support',
     permissionKeys: [
       'attendance:site_visit_audit',
       'leave:approve_all',
+      'recruitment:manage_all',
       'recruitment:question_bank_manage',
-      'offboarding:noc_final',
+      'onboarding:lms_manage',
     ],
   },
   {
@@ -185,16 +186,16 @@ async function main() {
     },
     {
       employeeId: 'EMP-003',
-      email: 'dh.sales@markanthony.in',
+      email: 'hr.coord@markanthony.in',
       name: 'Vikram Nair',
       phone: '+919800000003',
-      password: 'DeptHead@123',
-      role: Role.DEPARTMENT_HEAD,
+      password: 'HrCoord@123',
+      role: Role.HR_COORDINATOR,
       canImpersonate: false,
-      teamName: 'Bangalore East Sales',
-      departmentName: 'Sales & Leasing',
-      jobTitle: 'General Manager - Sales',
-      salary: 140000,
+      teamName: 'HR & People Ops',
+      departmentName: 'Human Resources',
+      jobTitle: 'HR Coordinator',
+      salary: 65000,
     },
     {
       employeeId: 'EMP-004',
@@ -235,20 +236,77 @@ async function main() {
       jobTitle: 'Field Sales Representative',
       salary: 42000,
     },
+    {
+      employeeId: 'EMP-007',
+      email: 'sneha.marketing@markanthony.in',
+      name: 'Sneha Iyer',
+      phone: '+919800000007',
+      password: 'Employee@123',
+      role: Role.EMPLOYEE,
+      canImpersonate: false,
+      teamName: 'HR & People Ops',
+      departmentName: 'Marketing',
+      jobTitle: 'Digital Marketing Specialist',
+      salary: 48000,
+    },
+    {
+      employeeId: 'EMP-008',
+      email: 'rohan.finance@markanthony.in',
+      name: 'Rohan Deshmukh',
+      phone: '+919800000008',
+      password: 'Employee@123',
+      role: Role.EMPLOYEE,
+      canImpersonate: false,
+      teamName: 'Executive Leadership',
+      departmentName: 'Accounts & Finance',
+      jobTitle: 'Senior Accounts Executive',
+      salary: 58000,
+    },
+    {
+      employeeId: 'EMP-009',
+      email: 'kavya.sales@markanthony.in',
+      name: 'Kavya Rao',
+      phone: '+919800000009',
+      password: 'Employee@123',
+      role: Role.EMPLOYEE,
+      canImpersonate: false,
+      teamName: 'Bangalore East Sales',
+      departmentName: 'Sales & Leasing',
+      jobTitle: 'Property Advisor',
+      salary: 44000,
+    },
+    {
+      employeeId: 'EMP-010',
+      email: 'tl.karthik@markanthony.in',
+      name: 'Karthik Hegde',
+      phone: '+919800000010',
+      password: 'TeamLead@123',
+      role: Role.TEAM_LEADER,
+      canImpersonate: false,
+      teamName: 'Bangalore South Sales',
+      departmentName: 'Sales & Leasing',
+      jobTitle: 'South Zone Team Lead',
+      salary: 78000,
+    },
   ];
 
-  for (const u of seedUsers) {
+  const bloodGroups = ['O+', 'A+', 'B+', 'AB+', 'O-'];
+  const currentYear = 2026;
+
+  for (let i = 0; i < seedUsers.length; i++) {
+    const u = seedUsers[i];
     const passwordHash = await bcrypt.hash(u.password, 10);
     const roleId = roleIdByName.get(u.role);
     const teamId = teamIdByName.get(u.teamName);
     const departmentId = deptIdByName.get(u.departmentName);
 
     const user = await prisma.user.upsert({
-      where: { email: u.email },
+      where: { employeeId: u.employeeId },
       update: {
-        employeeId: u.employeeId,
+        email: u.email,
         name: u.name,
         phone: u.phone,
+        passwordHash,
         role: u.role,
         roleId,
         teamId,
@@ -270,12 +328,19 @@ async function main() {
       },
     });
 
-    await prisma.employee.upsert({
+    const emp = await prisma.employee.upsert({
       where: { userId: user.id },
       update: {
         departmentId,
         jobTitle: u.jobTitle,
         salary: u.salary,
+        bloodGroup: bloodGroups[i % bloodGroups.length],
+        emergencyContactName: `${u.name.split(' ')[0]} Family Contact`,
+        emergencyContactPhone: `+9199000000${String(i + 10).padStart(2, '0')}`,
+        bankName: 'HDFC Bank',
+        bankIfsc: 'HDFC0000240',
+        panNumber: `ABCDE10${String(i + 10).padStart(2, '0')}F`,
+        aadhaarNumber: `4567890123${String(i + 10).padStart(2, '0')}`,
       },
       create: {
         userId: user.id,
@@ -283,11 +348,61 @@ async function main() {
         jobTitle: u.jobTitle,
         hireDate: new Date('2025-01-15T00:00:00Z'),
         salary: u.salary,
+        bloodGroup: bloodGroups[i % bloodGroups.length],
+        emergencyContactName: `${u.name.split(' ')[0]} Family Contact`,
+        emergencyContactPhone: `+9199000000${String(i + 10).padStart(2, '0')}`,
+        bankName: 'HDFC Bank',
+        bankIfsc: 'HDFC0000240',
+        panNumber: `ABCDE10${String(i + 10).padStart(2, '0')}F`,
+        aadhaarNumber: `4567890123${String(i + 10).padStart(2, '0')}`,
       },
     });
+
+    // Seed 2026 leave balances so Leave & Employee sections are synced
+    for (const lb of [
+      { leaveType: LeaveType.CASUAL, days: 12 },
+      { leaveType: LeaveType.SICK, days: 8 },
+      { leaveType: LeaveType.EARNED, days: 15 },
+      { leaveType: LeaveType.LOP, days: 0 },
+    ]) {
+      await prisma.leaveBalance.upsert({
+        where: {
+          userId_leaveType_year: {
+            userId: user.id,
+            leaveType: lb.leaveType,
+            year: currentYear,
+          },
+        },
+        update: {},
+        create: {
+          userId: user.id,
+          leaveType: lb.leaveType,
+          year: currentYear,
+          allocatedDays: lb.days,
+          usedDays: 0,
+          remainingDays: lb.days,
+        },
+      });
+    }
+
+    // Seed sample KYC document if none exists
+    const existingDocs = await prisma.employeeDocument.count({
+      where: { employeeId: emp.id },
+    });
+    if (existingDocs === 0) {
+      await prisma.employeeDocument.create({
+        data: {
+          employeeId: emp.id,
+          docType: DocumentType.PAN,
+          fileName: `${u.employeeId}_PAN.pdf`,
+          fileUrl: `https://vault.markanthony.in/kyc/${u.employeeId}/pan.pdf`,
+          isVerified: i < 5,
+        },
+      });
+    }
   }
 
-  console.log('Seeded RBAC roles, permissions, departments, teams, and 6 employees successfully.');
+  console.log('Seeded RBAC roles, permissions, departments, teams, and 10 employees successfully.');
 }
 
 try {

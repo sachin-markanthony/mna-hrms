@@ -11,14 +11,14 @@ export * from '../modules/auth/auth.api';
 export const api = {
   // 1. Auth Module
   auth: authApi,
-  login: (identifier: string, password?: string) => authApi.login({ identifier, password }),
+  login: (email: string, password = '') => authApi.login({ email, password }),
   getCurrentUser: () => authApi.getMe(),
   logout: () => authApi.logout(),
   forgotPassword: (email: string) => authApi.forgotPassword({ email }),
   resetPassword: (token: string, newPassword: string) =>
     authApi.resetPassword({ token, newPassword }),
-  changePassword: (oldPassword: string, newPassword: string) =>
-    authApi.changePassword(oldPassword, newPassword),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    authApi.changePassword(currentPassword, newPassword),
 
   // 2. Dashboard Module
   getDashboardStats: (period?: string) =>

@@ -8,7 +8,7 @@ datasource db {
 enum Role {
   SUPER_ADMIN
   HR_ADMIN
-  DEPARTMENT_HEAD
+  HR_COORDINATOR
   TEAM_LEADER
   EMPLOYEE
 }
@@ -44,13 +44,20 @@ model User {
   roleId         String?
   roleDefinition RoleDefinition? @relation(fields: [roleId], references: [id], onDelete: SetNull)
 
-  employee      Employee?
-  actorAudits   SystemAuditLog[] @relation("AuditActor")
-  targetAudits  SystemAuditLog[] @relation("AuditTarget")
+  employee               Employee?
+  actorAudits            SystemAuditLog[]   @relation("AuditActor")
+  targetAudits           SystemAuditLog[]   @relation("AuditTarget")
+  leaveBalances          LeaveBalance[]
+  leaveRequests          LeaveRequest[]     @relation("LeaveApplicant")
+  teamLeadLeaveApprovals LeaveRequest[]     @relation("LeaveTeamLeadApprover")
+  hrLeaveApprovals       LeaveRequest[]     @relation("LeaveHrApprover")
+  attendanceMaster       AttendanceMaster[]
+  inductionProgress      InductionProgress[]
+  inductionNotifications InductionNotification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("users")
 }
 // Dynamic RBAC: Manageable Roles & Granular Permissions
@@ -115,19 +122,59 @@ model Department {
   @@map("departments")
 }
 
+enum DocumentType {
+  AADHAAR
+  PAN
+  DEGREE
+  OFFER_LETTER
+  NDA
+  OTHER
+}
+
 model Employee {
-  id           String      @id @default(uuid())
-  userId       String      @unique
-  departmentId String?
-  jobTitle     String?
-  hireDate     DateTime?
-  salary       Float?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  department   Department? @relation(fields: [departmentId], references: [id])
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                    String             @id @default(uuid())
+  userId                String             @unique
+  departmentId          String?
+  jobTitle              String?
+  hireDate              DateTime?
+  salary                Float?
+  gender                String?
+  dateOfBirth           DateTime?          @db.Date
+  bloodGroup            String?
+  address               String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  bankAccountNumber     String?
+  bankIfsc              String?
+  bankName              String?
+  panNumber             String?
+  aadhaarNumber         String?
+  uanNumber             String?
+  reportingManagerId    String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  department            Department?        @relation(fields: [departmentId], references: [id])
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents             EmployeeDocument[]
 
   @@map("employees")
+}
+
+model EmployeeDocument {
+  id           String       @id @default(uuid())
+  employeeId   String
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  docType      DocumentType
+  fileName     String
+  fileUrl      String
+  isVerified   Boolean      @default(false)
+  verifiedById String?
+  verifiedAt   DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([employeeId])
+  @@map("employee_documents")
 }
 // Tier 2: Enterprise Security & Impersonation Audit Logs (Strictly Append-Only)
 model SystemAuditLog {
@@ -147,4 +194,182 @@ model SystemAuditLog {
   @@index([targetUserId])
   @@index([actionType])
   @@map("system_audit_logs")
+}
+
+enum LeaveType {
+  CASUAL
+  SICK
+  EARNED
+  LOP
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ApprovalDecision {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  HALF_DAY
+  ABSENT
+  ON_LEAVE
+  LOP
+}
+
+// Leave Balance Ledger (Casual, Sick, Earned, LOP)
+model LeaveBalance {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveType     LeaveType
+  year          Int
+  allocatedDays Float     @default(0)
+  usedDays      Float     @default(0)
+  remainingDays Float     @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([userId, leaveType, year])
+  @@index([userId, year])
+  @@map("leave_balances")
+}
+
+// Leave Requests (Two-stage approval: Team Lead AND HR must both approve)
+model LeaveRequest {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation("LeaveApplicant", fields: [userId], references: [id], onDelete: Cascade)
+  leaveType LeaveType
+  startDate DateTime    @db.Date
+  endDate   DateTime    @db.Date
+  totalDays Float
+  reason    String
+  status    LeaveStatus @default(PENDING)
+
+  // Stage 1: Team Lead Approval
+  teamLeadStatus       ApprovalDecision @default(PENDING)
+  teamLeadApprovedById String?
+  teamLeadApprovedBy   User?            @relation("LeaveTeamLeadApprover", fields: [teamLeadApprovedById], references: [id], onDelete: SetNull)
+  teamLeadApprovedAt   DateTime?
+  teamLeadRemarks      String?
+
+  // Stage 2: HR Approval
+  hrStatus       ApprovalDecision @default(PENDING)
+  hrApprovedById String?
+  hrApprovedBy   User?            @relation("LeaveHrApprover", fields: [hrApprovedById], references: [id], onDelete: SetNull)
+  hrApprovedAt   DateTime?
+  hrRemarks      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([startDate, endDate])
+  @@map("leave_requests")
+}
+
+// Attendance Master (Reconciled daily records; synced on final leave approval)
+model AttendanceMaster {
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attendanceDate DateTime         @db.Date
+  firstPunchIn   DateTime?
+  lastPunchOut   DateTime?
+  officeHours    Float            @default(0)
+  siteVisitHours Float            @default(0)
+  totalWorkHours Float            @default(0)
+  status         AttendanceStatus @default(ABSENT)
+  isLate         Boolean          @default(false)
+  remarks        String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([userId, attendanceDate])
+  @@index([attendanceDate])
+  @@map("attendance_master")
+}
+
+enum ChapterStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  LOCKED
+}
+
+model InductionSession {
+  id                String             @id @default(uuid())
+  sessionNumber     Int                @unique
+  title             String
+  subtitle          String?
+  description       String
+  chapterStart      Int
+  chapterEnd        Int
+  estimatedDuration String
+  orderIndex        Int                @default(0)
+  chapters          InductionChapter[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@map("induction_sessions")
+}
+
+model InductionChapter {
+  id                String              @id @default(uuid())
+  chapterNumber     Int                 @unique
+  title             String
+  description       String
+  estimatedDuration String
+  sessionId         String
+  session           InductionSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  isAssessment      Boolean             @default(false)
+  isResource        Boolean             @default(false)
+  orderIndex        Int                 @default(0)
+  progress          InductionProgress[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@map("induction_chapters")
+}
+
+model InductionProgress {
+  id                 String           @id @default(uuid())
+  userId             String
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapterId          String
+  chapter            InductionChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  status             ChapterStatus    @default(NOT_STARTED)
+  progressPercentage Int              @default(0)
+  lastAccessedAt     DateTime         @default(now())
+  completedAt        DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@unique([userId, chapterId])
+  @@map("induction_progress")
+}
+
+model InductionNotification {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  message     String
+  type        String   @default("info")
+  actionLabel String?
+  actionRoute String?
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("induction_notifications")
 }

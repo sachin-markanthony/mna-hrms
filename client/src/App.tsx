@@ -4,6 +4,8 @@ import { AuthProvider, useAuth, Login } from './modules/auth';
 import { Dashboard } from './modules/dashboard/Dashboard';
 import { AppLayout } from './components/layout/AppLayout';
 import { Induction } from './modules/onboarding/Induction';
+import { LeaveManagement } from './modules/leave';
+import { EmployeeDirectory } from './modules/employees';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -62,10 +64,7 @@ function AppRoutes() {
         path="/employees"
         element={
           <ProtectedRoute>
-            <SectionPlaceholder
-              title="Employee Directory & KYC Vault"
-              description="Centralized employee profiles, offline manual KYC verification, Document Vault & unique QR codes."
-            />
+            <EmployeeDirectory />
           </ProtectedRoute>
         }
       />
@@ -84,10 +83,7 @@ function AppRoutes() {
         path="/leave"
         element={
           <ProtectedRoute>
-            <SectionPlaceholder
-              title="Leave Management"
-              description="Balance tracking, locking balance on apply, manager approval workflow & calendar integration."
-            />
+            <LeaveManagement />
           </ProtectedRoute>
         }
       />
