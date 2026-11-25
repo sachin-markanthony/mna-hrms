@@ -6,6 +6,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { Induction } from './modules/onboarding/Induction';
 import { LeaveManagement } from './modules/leave';
 import { EmployeeDirectory } from './modules/employees';
+import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -102,10 +103,7 @@ function AppRoutes() {
         path="/recruitment"
         element={
           <ProtectedRoute>
-            <SectionPlaceholder
-              title="Hiring & Recruitment Pipeline"
-              description="Candidate pipeline (Applied → HR → Tech → Selected), calendar invites & structured scorecards."
-            />
+            <RecruitmentPipeline />
           </ProtectedRoute>
         }
       />
