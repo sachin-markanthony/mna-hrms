@@ -373,3 +373,72 @@ model InductionNotification {
 
   @@map("induction_notifications")
 }
+
+
+enum RecruitmentDepartment {
+  DIGITAL
+  SALES
+}
+
+enum CandidateRecruitmentStatus {
+  REGISTERED
+  HR_ROUND
+  MR_ROUND
+  SELECTED
+  REJECTED_HR
+  REJECTED_MR
+}
+
+enum InterviewRoundType {
+  HR_ROUND
+  MR_ROUND
+}
+
+enum RoundEvaluationResult {
+  PASSED
+  REJECTED
+}
+
+model Candidate {
+  id              String                     @id @default(uuid())
+  fullName        String
+  email           String
+  phone           String
+  department      RecruitmentDepartment
+  appliedRole     String
+  visitDate       DateTime                   @default(now())
+  status          CandidateRecruitmentStatus @default(REGISTERED)
+  experienceYears Float                      @default(0)
+  currentCompany  String?
+  expectedSalary  String?
+  tags            String[]                   @default([])
+  hrInterviewer   String?
+  hrRating        Float?
+  hrFeedback      String?
+  hrEvaluatedAt   DateTime?
+  mrInterviewer   String?
+  mrRating        Float?
+  mrFeedback      String?
+  mrEvaluatedAt   DateTime?
+  rejectionReason String?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  evaluations     RoundEvaluation[]
+
+  @@map("candidates")
+}
+
+model RoundEvaluation {
+  id              String                @id @default(uuid())
+  candidateId     String
+  candidate       Candidate             @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  round           InterviewRoundType
+  result          RoundEvaluationResult
+  interviewerName String
+  rating          Float
+  feedback        String
+  rejectionReason String?
+  evaluatedAt     DateTime              @default(now())
+
+  @@map("round_evaluations")
+}
