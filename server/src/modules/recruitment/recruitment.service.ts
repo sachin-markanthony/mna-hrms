@@ -300,6 +300,37 @@ export class RecruitmentService {
   ) {
     const candidate = await this.getCandidateById(candidateId);
 
+    // 1. Guard against re-evaluating already finalized candidates
+    if (
+      candidate.status === CandidateRecruitmentStatus.SELECTED ||
+      candidate.status === CandidateRecruitmentStatus.REJECTED_HR ||
+      candidate.status === CandidateRecruitmentStatus.REJECTED_MR
+    ) {
+      throw new BadRequestException(
+        `Candidate has already received a final decision (${candidate.status}) and cannot be evaluated further.`
+      );
+    }
+
+    // 2. Non-reversible: Cannot go back to HR Round if candidate has already progressed to MR Round
+    if (
+      dto.round === InterviewRoundType.HR_ROUND &&
+      candidate.status === CandidateRecruitmentStatus.MR_ROUND
+    ) {
+      throw new BadRequestException(
+        'Candidate has already cleared Round 1 (HR Round) and progressed to MR Round. They cannot be returned to HR Round.'
+      );
+    }
+
+    // 3. Sequential: Cannot jump straight to MR Round if HR Round is pending
+    if (
+      dto.round === InterviewRoundType.MR_ROUND &&
+      candidate.status === CandidateRecruitmentStatus.REGISTERED
+    ) {
+      throw new BadRequestException(
+        'Candidate must first be evaluated and clear Round 1 (HR Round) before Round 2 (MR Round).'
+      );
+    }
+
     if (dto.result === RoundEvaluationResult.REJECTED && !dto.rejectionReason) {
       throw new BadRequestException('A mandatory rejection reason must be provided when rejecting a candidate.');
     }

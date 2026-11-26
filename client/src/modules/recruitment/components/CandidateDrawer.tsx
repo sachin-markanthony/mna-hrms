@@ -18,6 +18,7 @@ import { STATUS_CONFIG } from '../types';
 interface CandidateDrawerProps {
   candidate: Candidate | null;
   isOpen: boolean;
+  canEvaluate?: boolean;
   onClose: () => void;
   onEvaluateRound: (candidate: Candidate) => void;
 }
@@ -25,6 +26,7 @@ interface CandidateDrawerProps {
 export function CandidateDrawer({
   candidate,
   isOpen,
+  canEvaluate = true,
   onClose,
   onEvaluateRound,
 }: CandidateDrawerProps) {
@@ -97,7 +99,7 @@ export function CandidateDrawer({
               <Calendar className="w-4 h-4 text-[#072b53] dark:text-amber-400" />
               <span>
                 <strong>Visit Date: </strong>
-                {candidate.visitDate}
+                {candidate.visitDate?.split('T')[0] || candidate.visitDate}
               </span>
             </div>
             <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
@@ -280,12 +282,13 @@ export function CandidateDrawer({
             Close
           </button>
 
-          {candidate.status !== 'SELECTED' &&
+          {canEvaluate &&
+            candidate.status !== 'SELECTED' &&
             candidate.status !== 'REJECTED_HR' &&
             candidate.status !== 'REJECTED_MR' && (
               <button
                 onClick={() => onEvaluateRound(candidate)}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 cursor-pointer"
               >
                 <Award className="w-4 h-4 text-amber-400" />
                 Evaluate {candidate.status === 'MR_ROUND' ? 'MR Round' : 'HR Round'}

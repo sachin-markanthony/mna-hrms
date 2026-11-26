@@ -4,6 +4,7 @@ import { STATUS_CONFIG } from '../types';
 
 interface CandidateCardProps {
   candidate: Candidate;
+  canEvaluate?: boolean;
   onOpenDetails: (candidate: Candidate) => void;
   onEvaluateRound: (candidate: Candidate) => void;
   onQuickAdvance?: (candidateId: string, nextStatus: CandidateStatus) => void;
@@ -11,6 +12,7 @@ interface CandidateCardProps {
 
 export function CandidateCard({
   candidate,
+  canEvaluate = true,
   onOpenDetails,
   onEvaluateRound,
 }: CandidateCardProps) {
@@ -55,7 +57,7 @@ export function CandidateCard({
       <div className="mt-2 text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
         <span className="flex items-center gap-1">
           <Calendar className="w-3 h-3 text-slate-400" />
-          Walk-In: <strong className="text-slate-700 dark:text-slate-300">{candidate.visitDate}</strong>
+          Walk-In: <strong className="text-slate-700 dark:text-slate-300">{candidate.visitDate?.split('T')[0] || candidate.visitDate}</strong>
         </span>
         <span>
           {candidate.experienceYears} yrs exp &bull; {candidate.currentCompany || 'Direct'}
@@ -105,21 +107,33 @@ export function CandidateCard({
           Expected: {candidate.expectedSalary || 'N/A'}
         </span>
 
-        {candidate.status !== 'SELECTED' &&
-          candidate.status !== 'REJECTED_HR' &&
-          candidate.status !== 'REJECTED_MR' && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEvaluateRound(candidate);
-              }}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-2xs"
-            >
-              <Award className="w-3 h-3 text-amber-400" />
-              Evaluate {candidate.status === 'MR_ROUND' ? 'MR' : 'HR'}
-              <ChevronRight className="w-3 h-3" />
-            </button>
-          )}
+        {canEvaluate &&
+        candidate.status !== 'SELECTED' &&
+        candidate.status !== 'REJECTED_HR' &&
+        candidate.status !== 'REJECTED_MR' ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEvaluateRound(candidate);
+            }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-2xs cursor-pointer"
+          >
+            <Award className="w-3 h-3 text-amber-400" />
+            Evaluate {candidate.status === 'MR_ROUND' ? 'MR' : 'HR'}
+            <ChevronRight className="w-3 h-3" />
+          </button>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails(candidate);
+            }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
+          >
+            <span>View Details</span>
+            <ChevronRight className="w-3 h-3 text-slate-400" />
+          </button>
+        )}
       </div>
     </div>
   );

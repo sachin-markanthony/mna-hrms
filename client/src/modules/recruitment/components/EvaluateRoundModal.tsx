@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { X, Star, CheckCircle2, XCircle, Award, AlertTriangle } from 'lucide-react';
+import { X, Star, CheckCircle2, XCircle, Award, AlertTriangle, Lock } from 'lucide-react';
 import type { Candidate, InterviewRoundType, RoundEvaluationResult, EvaluateRoundPayload } from '../types';
 
 interface EvaluateRoundModalProps {
@@ -15,14 +15,24 @@ export function EvaluateRoundModal({
   onClose,
   onSubmit,
 }: EvaluateRoundModalProps) {
-  // If candidate is already in MR_ROUND, default to MR_ROUND, else HR_ROUND
-  const initialRound: InterviewRoundType =
-    candidate.status === 'MR_ROUND' ? 'MR_ROUND' : 'HR_ROUND';
+  const isFinalized =
+    candidate.status === 'SELECTED' ||
+    candidate.status === 'REJECTED_HR' ||
+    candidate.status === 'REJECTED_MR';
 
-  const [round, setRound] = useState<InterviewRoundType>(initialRound);
+  const hasClearedHr =
+    candidate.status === 'MR_ROUND' ||
+    Boolean(candidate.hrEvaluatedAt) ||
+    candidate.status === 'SELECTED' ||
+    candidate.status === 'REJECTED_MR';
+
+  // If candidate is already in MR_ROUND, strictly enforce MR_ROUND; otherwise HR_ROUND
+  const activeRound: InterviewRoundType = hasClearedHr ? 'MR_ROUND' : 'HR_ROUND';
+
+  const [round, setRound] = useState<InterviewRoundType>(activeRound);
   const [result, setResult] = useState<RoundEvaluationResult>('PASSED');
   const [interviewerName, setInterviewerName] = useState(
-    initialRound === 'HR_ROUND' ? 'Sarah Jenkins (HR)' : 'Alexander Anthony (MR)'
+    activeRound === 'HR_ROUND' ? 'Sarah Jenkins (HR)' : 'Alexander Anthony (MR)'
   );
   const [rating, setRating] = useState(4);
   const [feedback, setFeedback] = useState('');
@@ -33,6 +43,11 @@ export function EvaluateRoundModal({
   if (!isOpen) return null;
 
   const handleRoundChange = (newRound: InterviewRoundType) => {
+    // Prevent switching back to HR Round if HR is already cleared
+    if (hasClearedHr && newRound === 'HR_ROUND') return;
+    // Prevent switching to MR Round if HR is not yet cleared
+    if (!hasClearedHr && newRound === 'MR_ROUND') return;
+
     setRound(newRound);
     setInterviewerName(
       newRound === 'HR_ROUND' ? 'Sarah Jenkins (HR)' : 'Alexander Anthony (MR)'
@@ -42,6 +57,11 @@ export function EvaluateRoundModal({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (isFinalized) {
+      setError('Candidate is already finalized and cannot be re-evaluated.');
+      return;
+    }
 
     if (result === 'REJECTED' && !rejectionReason.trim()) {
       setError('Please provide a specific reason for rejection to maintain our audit record.');
@@ -100,45 +120,87 @@ export function EvaluateRoundModal({
           </div>
         )}
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* 1. Select Round (HR Round vs MR Round) */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-              Select Round to Evaluate
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => handleRoundChange('HR_ROUND')}
-                className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all text-left flex flex-col ${
-                  round === 'HR_ROUND'
-                    ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
-                }`}
-              >
-                <span className="text-sm font-extrabold">Round 1: HR Round</span>
-                <span className="text-[10px] font-normal opacity-80 mt-0.5">
-                  Initial screening, culture & basic fit
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleRoundChange('MR_ROUND')}
-                className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all text-left flex flex-col ${
-                  round === 'MR_ROUND'
-                    ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
-                }`}
-              >
-                <span className="text-sm font-extrabold">Round 2: MR Round</span>
-                <span className="text-[10px] font-normal opacity-80 mt-0.5">
-                  Management round & final commercial sign-off
-                </span>
-              </button>
+        {/* If candidate is already finalized, show confirmation view */}
+        {isFinalized ? (
+          <div className="p-8 text-center space-y-4">
+            <div className="w-12 h-12 mx-auto rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Final Result Confirmed
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-sm mx-auto">
+                Candidate is already in final decision state: <strong className="text-slate-800 dark:text-slate-200">{candidate.status}</strong>. All interview rounds are complete and permanently locked.
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] cursor-pointer"
+            >
+              Close
+            </button>
           </div>
+        ) : (
+          /* Form Body */
+          <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            {/* 1. Select Round (HR Round vs MR Round) */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                Interview Round Selection
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {/* Round 1: HR Round */}
+                <button
+                  type="button"
+                  disabled={hasClearedHr}
+                  onClick={() => handleRoundChange('HR_ROUND')}
+                  className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all text-left flex flex-col ${
+                    hasClearedHr
+                      ? 'opacity-60 bg-slate-100 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 cursor-not-allowed'
+                      : round === 'HR_ROUND'
+                      ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
+                      : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
+                  }`}
+                >
+                  <span className="text-sm font-extrabold">Round 1: HR Round</span>
+                  {hasClearedHr ? (
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 mt-0.5">
+                      <CheckCircle2 className="w-3 h-3" /> Cleared &amp; Locked
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-normal opacity-80 mt-0.5">
+                      Initial screening &amp; fit
+                    </span>
+                  )}
+                </button>
+
+                {/* Round 2: MR Round */}
+                <button
+                  type="button"
+                  disabled={!hasClearedHr}
+                  onClick={() => handleRoundChange('MR_ROUND')}
+                  className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all text-left flex flex-col ${
+                    !hasClearedHr
+                      ? 'opacity-60 bg-slate-100 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 cursor-not-allowed'
+                      : round === 'MR_ROUND'
+                      ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
+                      : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
+                  }`}
+                >
+                  <span className="text-sm font-extrabold">Round 2: MR Round</span>
+                  {!hasClearedHr ? (
+                    <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-0.5">
+                      <Lock className="w-3 h-3" /> Must clear HR first
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-normal opacity-80 mt-0.5">
+                      Management round &amp; final sign-off
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
 
           {/* 2. Decision Result (Pass vs Reject) */}
           <div>
@@ -275,6 +337,7 @@ export function EvaluateRoundModal({
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );
