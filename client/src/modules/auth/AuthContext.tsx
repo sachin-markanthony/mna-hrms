@@ -6,6 +6,7 @@ interface AuthContextValue {
   user: User | null;
   token: string | null;
   loading: boolean;
+  hasPermission: (permission: string) => boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -25,6 +26,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         setUser(JSON.parse(savedUser));
         setToken(savedToken);
+        // Sync live role & permissions from backend on reload
+        authApi
+          .getMe()
+          .then((freshProfile) => {
+            if (freshProfile) {
+              setUser(freshProfile);
+              localStorage.setItem('mna_user', JSON.stringify(freshProfile));
+            }
+          })
+          .catch(() => {
+            // Token refresh/expiry handled by httpClient
+          });
       } catch {
         localStorage.removeItem('mna_user');
         localStorage.removeItem('mna_token');
@@ -104,8 +117,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('mna_refresh_token');
   };
 
+  const hasPermission = (permission: string): boolean => {
+    if (!user) return false;
+    if (user.role === 'SUPER_ADMIN') return true;
+    return Array.isArray(user.permissions) && user.permissions.includes(permission);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, hasPermission, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

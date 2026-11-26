@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   BadgeCheck,
   Building2,
@@ -34,7 +34,7 @@ function formatCurrency(amount?: number | null) {
 }
 
 export function EmployeeDirectory() {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const [employees, setEmployees] = useState<EmployeeRecord[]>([]);
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
   const [teams, setTeams] = useState<TeamOption[]>([]);
@@ -78,9 +78,13 @@ export function EmployeeDirectory() {
   const [copiedVCard, setCopiedVCard] = useState(false);
 
   const isHrAdminOrSuper =
-    user?.role === 'SUPER_ADMIN' || user?.role === 'HR_ADMIN';
+    user?.role === 'SUPER_ADMIN' ||
+    user?.role === 'HR_ADMIN' ||
+    hasPermission('employees:manage_all');
   const canVerifyKyc =
-    isHrAdminOrSuper || user?.role === 'HR_COORDINATOR';
+    isHrAdminOrSuper ||
+    user?.role === 'HR_COORDINATOR' ||
+    hasPermission('documents:vault_all');
 
   const loadDirectory = useCallback(async () => {
     setLoading(true);
@@ -238,9 +242,6 @@ export function EmployeeDirectory() {
             <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Employee Directory &amp; KYC Vault
             </h1>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              Synced with Leave Balances
-            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Centralized personnel dossiers, KYC verification vault, and digital QR ID badges.

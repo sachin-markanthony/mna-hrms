@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   Briefcase,
   Building2,
@@ -27,8 +27,8 @@ import type {
 type TabId = 'users' | 'rbac' | 'org' | 'designations' | 'shifts';
 
 export function SettingsManagement() {
-  const { user } = useAuth();
-  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+  const { user, hasPermission } = useAuth();
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN' || hasPermission('roles:manage');
 
   const [activeTab, setActiveTab] = useState<TabId>('users');
   const [loading, setLoading] = useState(true);
@@ -347,9 +347,6 @@ export function SettingsManagement() {
             <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Master Settings &amp; Access Control
             </h1>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-              Admin Governance
-            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Manage users, dynamic RBAC permissions, departments, teams, designations &amp; shift grace periods.

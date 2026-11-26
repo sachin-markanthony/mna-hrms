@@ -17,6 +17,9 @@ export class AuthUserViewDto {
   @ApiProperty({ enum: AppRole })
   role: AppRole;
 
+  @ApiProperty({ type: [String], description: 'Dynamic permissions assigned to the user role' })
+  permissions: string[];
+
   @ApiProperty()
   isImpersonated: boolean;
 

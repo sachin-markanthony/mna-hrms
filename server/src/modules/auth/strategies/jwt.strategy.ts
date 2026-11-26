@@ -53,8 +53,20 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException('User account is inactive or archived');
     }
 
-    const permissions =
+    let permissions =
       user.roleDefinition?.permissions.map((rp) => rp.permission.key) ?? [];
+
+    if (!user.roleId && permissions.length === 0) {
+      const fallbackRole = await this.prisma.roleDefinition.findUnique({
+        where: { name: user.role },
+        select: {
+          permissions: {
+            select: { permission: { select: { key: true } } },
+          },
+        },
+      });
+      permissions = fallbackRole?.permissions.map((rp) => rp.permission.key) ?? [];
+    }
 
     return {
       id: user.id,

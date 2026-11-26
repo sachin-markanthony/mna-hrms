@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -52,7 +52,7 @@ function formatTime(iso?: string | null) {
 }
 
 export function AttendanceManagement() {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const [master, setMaster] = useState<AttendanceMasterRecord[]>([]);
   const [rawLogs, setRawLogs] = useState<AttendanceRawLog[]>([]);
   const [siteVisits, setSiteVisits] = useState<SiteVisitRecord[]>([]);
@@ -74,7 +74,9 @@ export function AttendanceManagement() {
   const [regError, setRegError] = useState<string | null>(null);
 
   const isHrAdminOrSuper =
-    user?.role === 'SUPER_ADMIN' || user?.role === 'HR_ADMIN';
+    user?.role === 'SUPER_ADMIN' ||
+    user?.role === 'HR_ADMIN' ||
+    hasPermission('attendance:latecomer_control');
   const canReviewReg =
     isHrAdminOrSuper ||
     user?.role === 'HR_COORDINATOR' ||
@@ -169,9 +171,6 @@ export function AttendanceManagement() {
             <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Attendance &amp; Time Management
             </h1>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Dual-Stream: Facial + 300m GPS
-            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Immutable Tier 1 punch logs, field sales GPS site visits, 09:45 AM latecomer engine &amp; leave-synced reconciliation.

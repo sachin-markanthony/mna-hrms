@@ -27,6 +27,7 @@ interface NavItem {
   path: string;
   icon: typeof LayoutDashboard;
   roles: string[];
+  permissions?: string[];
   badge?: string;
 }
 
@@ -78,6 +79,7 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         path: '/payroll',
         icon: Receipt,
         roles: ['SUPER_ADMIN', 'HR_ADMIN', 'EMPLOYEE'],
+        permissions: ['payroll:run', 'payroll:salary_manage'],
         badge: 'Nov 26',
       },
     ],
@@ -90,12 +92,14 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         path: '/recruitment',
         icon: Briefcase,
         roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER'],
+        permissions: ['recruitment:manage_all', 'recruitment:question_bank_manage'],
       },
       {
         name: 'Official Letters Releasing',
         path: '/letters',
         icon: FileCheck,
         roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR'],
+        permissions: ['letters:release'],
       },
     ],
   },
@@ -107,18 +111,20 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         path: '/settings',
         icon: Settings,
         roles: ['SUPER_ADMIN', 'HR_ADMIN'],
+        permissions: ['roles:manage'],
       },
     ],
   },
 ];
 
 export function AppLayout({ children }: { children: ReactNode }) {
-  const { user, logout } = useAuth();
+  const { user, logout, hasPermission } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
   if (!user) return null;
   const roleConfig = ROLES[user.role] || { title: user.role, scope: 'Global' };
@@ -188,7 +194,11 @@ export function AppLayout({ children }: { children: ReactNode }) {
         {/* Dynamic Categorized Navigation (Independent Scroll) */}
         <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto overflow-x-hidden">
           {NAVIGATION_SECTIONS.map((section) => {
-            const visibleItems = section.items.filter((item) => item.roles.includes(user.role));
+            const visibleItems = section.items.filter(
+              (item) =>
+                item.roles.includes(user.role) ||
+                Boolean(item.permissions?.some((perm) => hasPermission(perm))),
+            );
             if (visibleItems.length === 0) return null;
 
             return (
@@ -256,26 +266,39 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </div>
 
             {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-bold text-slate-900 dark:text-white truncate leading-tight">
-                  {user.name}
+              <>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-bold text-slate-900 dark:text-white truncate leading-tight">
+                    {user.name}
+                  </div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
+                    {roleConfig.title}
+                  </div>
                 </div>
-                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
-                  {roleConfig.title}
-                </div>
-              </div>
+                <button
+                  type="button"
+                  onClick={() => setLogoutModalOpen(true)}
+                  title="Logout"
+                  aria-label="Logout"
+                  className="p-2 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer shrink-0"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </>
             )}
           </div>
 
-          <button
-            onClick={handleLogout}
-            title={collapsed ? 'Logout' : undefined}
-            className={`w-full flex items-center ${collapsed ? 'justify-center' : 'gap-2.5 px-3'
-              } py-2.5 mt-2 text-[13px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-all cursor-pointer`}
-          >
-            <LogOut className="w-[17px] h-[17px] text-rose-500 shrink-0" />
-            {!collapsed && <span>Logout</span>}
-          </button>
+          {collapsed && (
+            <button
+              type="button"
+              onClick={() => setLogoutModalOpen(true)}
+              title="Logout"
+              aria-label="Logout"
+              className="w-full flex items-center justify-center py-2.5 mt-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-all cursor-pointer"
+            >
+              <LogOut className="w-[17px] h-[17px] text-rose-500 shrink-0" />
+            </button>
+          )}
         </div>
       </aside>
 
@@ -355,6 +378,51 @@ export function AppLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {logoutModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-sm bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <LogOut className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Confirm Logout
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  Are you sure you want to log out of{' '}
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {user.name}
+                  </span>
+                  &apos;s session?
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setLogoutModalOpen(false)}
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLogoutModalOpen(false);
+                  handleLogout();
+                }}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-xs cursor-pointer"
+              >
+                Yes, Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

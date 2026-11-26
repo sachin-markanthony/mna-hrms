@@ -11,6 +11,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { CurrentUser } from '../../core/decorators/current-user.decorator.js';
+import { RequirePermissions } from '../../core/decorators/permissions.decorator.js';
 import { AppRole, Roles } from '../../core/decorators/roles.decorator.js';
 import type { RequestMeta } from '../auth/auth.service.js';
 import type { AuthenticatedUser } from '../auth/types/jwt-payload.type.js';
@@ -66,6 +67,7 @@ export class EmployeesController {
   }
 
   @Roles(AppRole.SUPER_ADMIN, AppRole.HR_ADMIN)
+  @RequirePermissions('employees:manage_all')
   @Post()
   @ApiOperation({
     summary:
@@ -91,6 +93,7 @@ export class EmployeesController {
   }
 
   @Roles(AppRole.SUPER_ADMIN, AppRole.HR_ADMIN)
+  @RequirePermissions('employees:manage_all')
   @Patch(':id/archive')
   @ApiOperation({ summary: 'Soft-archive an employee account (HR Admin / SuperAdmin)' })
   archiveEmployee(
