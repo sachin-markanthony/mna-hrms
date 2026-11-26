@@ -7,6 +7,7 @@ import {
   Body,
   Query,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import type { Request } from 'express';
@@ -26,6 +27,13 @@ import { CandidateFilterDto } from './dto/candidate-filter.dto.js';
 export class RecruitmentController {
   constructor(private readonly recruitmentService: RecruitmentService) {}
 
+  @Get('team-leaders')
+  @ApiOperation({ summary: 'Get list of active Team Leaders for walk-in candidate assignment' })
+  @ApiResponse({ status: 200, description: 'Team leaders list retrieved.' })
+  async getTeamLeaders() {
+    return this.recruitmentService.getTeamLeaders();
+  }
+
   @Get('stats')
   @ApiOperation({
     summary: 'Get walk-in candidate metrics, selection rate & HR/MR rejection counts',
@@ -36,18 +44,36 @@ export class RecruitmentController {
     example: '2026-11-25',
     description: 'Filter stats by specific walk-in date (YYYY-MM-DD)',
   })
+  @ApiQuery({
+    name: 'teamLeaderId',
+    required: false,
+    description: 'Filter stats by specific team leader ID',
+  })
+  @ApiQuery({
+    name: 'teamLeaderName',
+    required: false,
+    description: 'Filter stats by specific team leader name',
+  })
   @ApiResponse({ status: 200, description: 'Recruitment statistics computed successfully.' })
-  async getRecruitmentStats(@Query('visitDate') visitDate?: string) {
-    return this.recruitmentService.getRecruitmentStats(visitDate);
+  async getRecruitmentStats(
+    @Query('visitDate') visitDate?: string,
+    @Query('teamLeaderId') teamLeaderId?: string,
+    @Query('teamLeaderName') teamLeaderName?: string,
+    @CurrentUser() actor?: AuthenticatedUser,
+  ) {
+    return this.recruitmentService.getRecruitmentStats(visitDate, actor, teamLeaderId, teamLeaderName);
   }
 
   @Get('candidates')
   @ApiOperation({
-    summary: 'List walk-in candidates with filters for Department (DIGITAL/SALES), Status & Visit Date',
+    summary: 'List walk-in candidates with filters for Department, Status, Visit Date & Team Leader',
   })
   @ApiResponse({ status: 200, description: 'Candidates list retrieved.' })
-  async getCandidates(@Query() filter: CandidateFilterDto) {
-    return this.recruitmentService.getCandidates(filter);
+  async getCandidates(
+    @Query() filter: CandidateFilterDto,
+    @CurrentUser() actor?: AuthenticatedUser,
+  ) {
+    return this.recruitmentService.getCandidates(filter, actor);
   }
 
   @Get('candidates/:id')
@@ -66,6 +92,9 @@ export class RecruitmentController {
     @CurrentUser() actor: AuthenticatedUser,
     @Req() req: Request,
   ) {
+    if (actor?.role === 'TEAM_LEADER') {
+      throw new ForbiddenException('Team Leaders are not authorized to register walk-in candidates.');
+    }
     return this.recruitmentService.createCandidate(dto, actor?.id, this.extractMeta(req));
   }
 

@@ -24,7 +24,41 @@ export class RecruitmentService {
     private readonly auditService: AuditService,
   ) {}
 
-  async getRecruitmentStats(visitDate?: string) {
+  async getTeamLeaders() {
+    const teamLeaders = await this.prisma.user.findMany({
+      where: {
+        role: 'TEAM_LEADER',
+        isArchived: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        employeeId: true,
+        employee: {
+          select: {
+            jobTitle: true,
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    return teamLeaders.map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      employeeId: u.employeeId,
+      jobTitle: u.employee?.jobTitle || 'Team Leader',
+    }));
+  }
+
+  async getRecruitmentStats(
+    visitDate?: string,
+    actor?: { id: string; name?: string; role?: string },
+    teamLeaderId?: string,
+    teamLeaderName?: string,
+  ) {
     const where: any = {};
     if (visitDate) {
       const start = new Date(visitDate);
@@ -32,6 +66,21 @@ export class RecruitmentService {
       const end = new Date(visitDate);
       end.setHours(23, 59, 59, 999);
       where.visitDate = { gte: start, lte: end };
+    }
+
+    const tlId = (actor?.role === 'TEAM_LEADER' ? actor.id : null) || teamLeaderId;
+    const tlName = (actor?.role === 'TEAM_LEADER' ? actor.name : null) || teamLeaderName;
+
+    if (tlId || tlName) {
+      const tlOr: any[] = [];
+      if (tlId) tlOr.push({ teamLeaderId: tlId });
+      if (tlName) {
+        tlOr.push({ teamLeaderName: { contains: tlName, mode: 'insensitive' } });
+        tlOr.push({ tags: { has: `TL:${tlName}` } });
+        tlOr.push({ tags: { has: `TL: ${tlName}` } });
+      }
+      where.AND = where.AND || [];
+      where.AND.push({ OR: tlOr });
     }
 
     const [
@@ -94,7 +143,10 @@ export class RecruitmentService {
     };
   }
 
-  async getCandidates(filter?: CandidateFilterDto) {
+  async getCandidates(
+    filter?: CandidateFilterDto,
+    actor?: { id: string; name?: string; role?: string },
+  ) {
     const where: any = {};
     if (filter?.department) {
       where.department = filter.department;
@@ -109,13 +161,32 @@ export class RecruitmentService {
       end.setHours(23, 59, 59, 999);
       where.visitDate = { gte: start, lte: end };
     }
+
+    const tlId = (actor?.role === 'TEAM_LEADER' ? actor.id : null) || filter?.teamLeaderId;
+    const tlName = (actor?.role === 'TEAM_LEADER' ? actor.name : null) || filter?.teamLeaderName;
+
+    if (tlId || tlName) {
+      const tlOr: any[] = [];
+      if (tlId) tlOr.push({ teamLeaderId: tlId });
+      if (tlName) {
+        tlOr.push({ teamLeaderName: { contains: tlName, mode: 'insensitive' } });
+        tlOr.push({ tags: { has: `TL:${tlName}` } });
+        tlOr.push({ tags: { has: `TL: ${tlName}` } });
+      }
+      where.AND = where.AND || [];
+      where.AND.push({ OR: tlOr });
+    }
+
     if (filter?.search) {
-      where.OR = [
+      const searchOr = [
         { fullName: { contains: filter.search, mode: 'insensitive' } },
         { email: { contains: filter.search, mode: 'insensitive' } },
         { appliedRole: { contains: filter.search, mode: 'insensitive' } },
         { phone: { contains: filter.search, mode: 'insensitive' } },
+        { teamLeaderName: { contains: filter.search, mode: 'insensitive' } },
       ];
+      where.AND = where.AND || [];
+      where.AND.push({ OR: searchOr });
     }
 
     return this.prisma.candidate.findMany({
@@ -147,6 +218,32 @@ export class RecruitmentService {
   async createCandidate(dto: CreateCandidateDto, actorUserId?: string, meta?: RequestMeta) {
     const visitDate = dto.visitDate ? new Date(dto.visitDate) : new Date();
 
+    let finalTeamLeaderId = dto.teamLeaderId;
+    let finalTeamLeaderName = dto.teamLeaderName;
+
+    // Check tags if teamLeaderName was not directly passed
+    if (!finalTeamLeaderName && dto.tags && Array.isArray(dto.tags)) {
+      const tagTl = dto.tags.find((t) => t.startsWith('TL:'))?.replace('TL:', '').trim();
+      if (tagTl) finalTeamLeaderName = tagTl;
+    }
+
+    if (finalTeamLeaderId && !finalTeamLeaderName) {
+      const tl = await this.prisma.user.findUnique({
+        where: { id: finalTeamLeaderId },
+        select: { name: true },
+      });
+      if (tl) finalTeamLeaderName = tl.name;
+    } else if (!finalTeamLeaderId && finalTeamLeaderName) {
+      const tl = await this.prisma.user.findFirst({
+        where: { name: { contains: finalTeamLeaderName.trim(), mode: 'insensitive' }, role: 'TEAM_LEADER' },
+        select: { id: true, name: true },
+      });
+      if (tl) {
+        finalTeamLeaderId = tl.id;
+        finalTeamLeaderName = tl.name;
+      }
+    }
+
     const created = await this.prisma.candidate.create({
       data: {
         fullName: dto.fullName,
@@ -159,6 +256,8 @@ export class RecruitmentService {
         currentCompany: dto.currentCompany,
         expectedSalary: dto.expectedSalary,
         tags: dto.tags ?? [],
+        teamLeaderId: finalTeamLeaderId,
+        teamLeaderName: finalTeamLeaderName,
         status: CandidateRecruitmentStatus.REGISTERED,
       },
       include: {
@@ -184,6 +283,8 @@ export class RecruitmentService {
           visitDate: created.visitDate,
           experienceYears: created.experienceYears,
           expectedSalary: created.expectedSalary,
+          teamLeaderId: created.teamLeaderId,
+          teamLeaderName: created.teamLeaderName,
         },
       });
     }

@@ -5,13 +5,18 @@ import type {
   CreateCandidatePayload,
   EvaluateRoundPayload,
   CandidateStatus,
+  TeamLeaderSummary,
 } from './types';
 
 export const recruitmentApi = {
   // 1. Get real-time stats directly from Neon PostgreSQL
-  getStats: async (visitDate?: string): Promise<RecruitmentStats> => {
+  getStats: async (params?: {
+    visitDate?: string;
+    teamLeaderId?: string;
+    teamLeaderName?: string;
+  }): Promise<RecruitmentStats> => {
     return httpClient.get<RecruitmentStats>('/recruitment/stats', {
-      params: visitDate ? { visitDate } : undefined,
+      params,
     });
   },
 
@@ -21,16 +26,48 @@ export const recruitmentApi = {
     status?: string;
     visitDate?: string;
     search?: string;
+    teamLeaderId?: string;
+    teamLeaderName?: string;
   }): Promise<Candidate[]> => {
     return httpClient.get<Candidate[]>('/recruitment/candidates', { params });
   },
 
-  // 3. Register a walk-in candidate into Neon PostgreSQL
-  createCandidate: async (payload: CreateCandidatePayload): Promise<Candidate> => {
-    return httpClient.post<Candidate>('/recruitment/candidates', payload);
+  // 3. Get team leaders for walk-in candidate assignment
+  getTeamLeaders: async (): Promise<TeamLeaderSummary[]> => {
+    return httpClient.get<TeamLeaderSummary[]>('/recruitment/team-leaders');
   },
 
-  // 4. Evaluate HR or MR Round in Neon PostgreSQL
+  // 4. Register a walk-in candidate into Neon PostgreSQL
+  createCandidate: async (payload: CreateCandidatePayload): Promise<Candidate> => {
+    // Preserve TL assignment in tags for compatibility with any older remote server instances
+    const tagsWithTl = [...(payload.tags || [])];
+    if (payload.teamLeaderName && !tagsWithTl.some((t) => t.startsWith('TL:'))) {
+      tagsWithTl.push(`TL:${payload.teamLeaderName}`);
+    }
+
+    try {
+      return await httpClient.post<Candidate>('/recruitment/candidates', {
+        ...payload,
+        tags: tagsWithTl,
+      });
+    } catch (err: any) {
+      // If connected to an older remote backend (e.g. devtunnels) that doesn't yet have teamLeaderName in its DTO
+      const errMsg = err?.message || String(err);
+      if (
+        errMsg.includes('teamLeaderName should not exist') ||
+        errMsg.includes('teamLeaderId should not exist')
+      ) {
+        const { teamLeaderName, teamLeaderId, ...legacyPayload } = payload;
+        return await httpClient.post<Candidate>('/recruitment/candidates', {
+          ...legacyPayload,
+          tags: tagsWithTl,
+        });
+      }
+      throw err;
+    }
+  },
+
+  // 5. Evaluate HR or MR Round in Neon PostgreSQL
   evaluateRound: async (
     candidateId: string,
     payload: EvaluateRoundPayload
@@ -41,7 +78,7 @@ export const recruitmentApi = {
     );
   },
 
-  // 5. Update status directly in Neon PostgreSQL
+  // 6. Update status directly in Neon PostgreSQL
   updateStatus: async (
     candidateId: string,
     status: CandidateStatus,

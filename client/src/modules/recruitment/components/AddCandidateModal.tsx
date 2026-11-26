@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react';
-import { X, UserPlus } from 'lucide-react';
-import type { CreateCandidatePayload, RecruitmentDepartment } from '../types';
+import { useState, useEffect, type FormEvent } from 'react';
+import { X, UserPlus, Users } from 'lucide-react';
+import type { CreateCandidatePayload, RecruitmentDepartment, TeamLeaderSummary } from '../types';
+import { recruitmentApi } from '../recruitment.api';
 
 interface AddCandidateModalProps {
   isOpen: boolean;
@@ -20,7 +21,42 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
   const [experienceYears, setExperienceYears] = useState(3);
   const [currentCompany, setCurrentCompany] = useState('');
   const [expectedSalary, setExpectedSalary] = useState('₹12,00,000 / yr');
+  const [teamLeaderName, setTeamLeaderName] = useState('');
+  const [teamLeaders, setTeamLeaders] = useState<TeamLeaderSummary[]>([]);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      recruitmentApi
+        .getTeamLeaders()
+        .then((tls) => {
+          if (tls && tls.length > 0) {
+            setTeamLeaders(tls);
+          } else {
+            setTeamLeaders([
+              {
+                id: 'EMP-004',
+                name: 'Dhinesh Kumar',
+                email: 'tl.dhinesh@markanthony.in',
+                employeeId: 'EMP-004',
+                jobTitle: 'Sales Team Leader',
+              },
+            ]);
+          }
+        })
+        .catch(() => {
+          setTeamLeaders([
+            {
+              id: 'EMP-004',
+              name: 'Dhinesh Kumar',
+              email: 'tl.dhinesh@markanthony.in',
+              employeeId: 'EMP-004',
+              jobTitle: 'Sales Team Leader',
+            },
+          ]);
+        });
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -36,6 +72,11 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
+    const matchedTl = teamLeaders.find(
+      (tl) => tl.name.trim().toLowerCase() === teamLeaderName.trim().toLowerCase(),
+    );
+
     try {
       await onSubmit({
         fullName,
@@ -47,6 +88,8 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
         experienceYears,
         currentCompany: currentCompany || undefined,
         expectedSalary,
+        teamLeaderName: teamLeaderName.trim() || undefined,
+        teamLeaderId: matchedTl?.id,
       });
       onClose();
     } finally {
@@ -194,6 +237,39 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
               }
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
             />
+          </div>
+
+          {/* Assigned Team Leader (Links directly to Team Leader Dashboard) */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-amber-500" />
+                Team Leader (Team Assignment)
+              </label>
+              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">
+                Filters to TL Portal
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                list="team-leaders-list"
+                value={teamLeaderName}
+                onChange={(e) => setTeamLeaderName(e.target.value)}
+                placeholder="e.g. Dhinesh Kumar (or select from list)"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+              />
+              <datalist id="team-leaders-list">
+                {teamLeaders.map((tl) => (
+                  <option key={tl.id} value={tl.name}>
+                    {tl.name} ({tl.jobTitle || 'Team Leader'})
+                  </option>
+                ))}
+              </datalist>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1">
+              Select or type a Team Leader (e.g. <strong>Dhinesh Kumar</strong>) to allow them to track hiring progress from their dashboard.
+            </p>
           </div>
 
           {/* Experience, Employer & Expected Salary */}
