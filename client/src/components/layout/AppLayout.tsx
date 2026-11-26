@@ -13,6 +13,8 @@ import {
   Bell,
   Sun,
   Moon,
+  GraduationCap ,
+  HelpCircle ,
   LogOut,
   ChevronDown,
   ShieldCheck,
@@ -122,7 +124,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-
+  const[menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
   if (!user) return null;
