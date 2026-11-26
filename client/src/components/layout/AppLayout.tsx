@@ -7,7 +7,6 @@ import {
   CalendarDays,
   Receipt,
   Briefcase,
-  GraduationCap,
   FileCheck,
   Settings,
   ChevronLeft,
@@ -15,7 +14,6 @@ import {
   Sun,
   Moon,
   GraduationCap ,
-  HelpCircle ,
   LogOut,
 } from 'lucide-react';
 import { useAuth, ROLES } from '../../modules/auth';
