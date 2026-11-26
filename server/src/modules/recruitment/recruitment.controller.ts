@@ -6,10 +6,14 @@ import {
   Param,
   Body,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
+import type { Request } from 'express';
+import { CurrentUser } from '../../core/decorators/current-user.decorator.js';
 import { Public } from '../../core/decorators/public.decorator.js';
-import { RecruitmentService } from './recruitment.service.js';
+import type { AuthenticatedUser } from '../auth/types/jwt-payload.type.js';
+import { RecruitmentService, type RequestMeta } from './recruitment.service.js';
 import { CreateCandidateDto } from './dto/create-candidate.dto.js';
 import { EvaluateRoundDto } from './dto/evaluate-round.dto.js';
 import { UpdateCandidateStatusDto } from './dto/update-candidate-status.dto.js';
@@ -57,8 +61,12 @@ export class RecruitmentController {
   @Post('candidates')
   @ApiOperation({ summary: 'Register a new walk-in candidate visiting the office' })
   @ApiResponse({ status: 201, description: 'Candidate walk-in registered in REGISTERED status.' })
-  async createCandidate(@Body() dto: CreateCandidateDto) {
-    return this.recruitmentService.createCandidate(dto);
+  async createCandidate(
+    @Body() dto: CreateCandidateDto,
+    @CurrentUser() actor: AuthenticatedUser,
+    @Req() req: Request,
+  ) {
+    return this.recruitmentService.createCandidate(dto, actor?.id, this.extractMeta(req));
   }
 
   @Post('candidates/:id/evaluate-round')
@@ -69,14 +77,31 @@ export class RecruitmentController {
     status: 200,
     description: 'Round evaluated: status transitioned to next round, selected, or rejected.',
   })
-  async evaluateRound(@Param('id') id: string, @Body() dto: EvaluateRoundDto) {
-    return this.recruitmentService.evaluateRound(id, dto);
+  async evaluateRound(
+    @Param('id') id: string,
+    @Body() dto: EvaluateRoundDto,
+    @CurrentUser() actor: AuthenticatedUser,
+    @Req() req: Request,
+  ) {
+    return this.recruitmentService.evaluateRound(id, dto, actor?.id, this.extractMeta(req));
   }
 
   @Patch('candidates/:id/status')
   @ApiOperation({ summary: 'Manual candidate status override' })
   @ApiResponse({ status: 200, description: 'Status updated.' })
-  async updateStatus(@Param('id') id: string, @Body() dto: UpdateCandidateStatusDto) {
-    return this.recruitmentService.updateStatus(id, dto);
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateCandidateStatusDto,
+    @CurrentUser() actor: AuthenticatedUser,
+    @Req() req: Request,
+  ) {
+    return this.recruitmentService.updateStatus(id, dto, actor?.id, this.extractMeta(req));
+  }
+
+  private extractMeta(req: Request): RequestMeta {
+    return {
+      ipAddress: (req.ip as string) || (req.headers['x-forwarded-for'] as string) || undefined,
+      userAgent: req.headers['user-agent'],
+    };
   }
 }

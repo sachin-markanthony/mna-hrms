@@ -40,7 +40,6 @@ type Listener = () => void;
 
 const CHAPTER_BY_ID = new Map(HANDBOOK_CHAPTERS.map((chapter) => [chapter.id, chapter]));
 const SESSION_BY_ID = new Map(HANDBOOK_SESSIONS.map((session) => [session.id, session]));
-const FINAL_ASSESSMENT_NUMBER = 21;
 
 function createInitialState(): InductionState {
   const chapters: Record<string, ChapterProgressRecord> = {};
@@ -134,22 +133,36 @@ function latestAttempt(state: InductionState): QuizAttempt | null {
 }
 
 function buildChapters(state: InductionState): InductionChapter[] {
-  const coreBeforeFinal = HANDBOOK_CHAPTERS.filter(
-    (chapter) => !chapter.isResource && chapter.chapterNumber < FINAL_ASSESSMENT_NUMBER,
+  const orderedChapters = HANDBOOK_CHAPTERS.filter((chapter) => !chapter.isResource).sort(
+    (first, second) => first.chapterNumber - second.chapterNumber,
   );
-  const finalUnlocked = coreBeforeFinal.every(
-    (chapter) => (state.chapters[chapter.id]?.status ?? chapter.status) === 'completed',
-  );
+  const statusById = new Map<string, InductionChapter['status']>();
+  let hasIncompleteChapter = false;
+
+  for (const chapter of orderedChapters) {
+    const record = state.chapters[chapter.id];
+    let status = record?.status ?? chapter.status;
+    const passedAssessment = state.attempts.some(
+      (attempt) => attempt.chapterId === chapter.id && attempt.passed,
+    );
+
+    if (status === 'completed' && chapter.status !== 'completed' && !passedAssessment) {
+      status = 'not_started';
+    }
+
+    if (hasIncompleteChapter) {
+      status = 'locked';
+    } else if (status === 'locked') {
+      status = 'not_started';
+    }
+
+    statusById.set(chapter.id, status);
+    if (status !== 'completed') hasIncompleteChapter = true;
+  }
 
   return HANDBOOK_CHAPTERS.map((chapter) => {
     const record = state.chapters[chapter.id];
-    let status = record?.status ?? chapter.status;
-
-    if (chapter.chapterNumber === FINAL_ASSESSMENT_NUMBER) {
-      if (status !== 'completed') status = finalUnlocked ? (record?.status ?? 'not_started') : 'locked';
-    } else if (!chapter.isResource && status === 'locked') {
-      status = 'not_started';
-    }
+    const status = chapter.isResource ? 'locked' : statusById.get(chapter.id) ?? 'locked';
 
     const progressPercentage =
       status === 'completed' ? 100 : (record?.progressPercentage ?? chapter.progressPercentage);
@@ -176,7 +189,9 @@ function buildSessions(chapters: InductionChapter[]): InductionSession[] {
     let status: InductionSession['status'] = 'not_started';
     if (total > 0 && completed === total) status = 'completed';
     else if (completed > 0 || inProgress > 0) status = 'in_progress';
-    else if (session.sessionNumber === 7) status = 'locked';
+    else if (sessionChapters.length > 0 && sessionChapters.every((chapter) => chapter.status === 'locked')) {
+      status = 'locked';
+    }
 
     return {
       ...session,
@@ -389,7 +404,11 @@ class InductionStore {
 
   startChapter = (chapterId: string): void => {
     const chapter = CHAPTER_BY_ID.get(chapterId);
-    if (!chapter) return;
+    if (!chapter) throw new Error('Chapter not found.');
+    const availableChapter = this.snapshot.chapters.find((item) => item.id === chapterId);
+    if (!availableChapter || availableChapter.status === 'locked') {
+      throw new Error('Complete and pass the previous chapter assessment before continuing.');
+    }
 
     const current = this.state.chapters[chapterId] ?? {
       status: 'not_started',
@@ -414,13 +433,25 @@ class InductionStore {
 
   completeChapter = (chapterId: string, score?: number): void => {
     const chapter = CHAPTER_BY_ID.get(chapterId);
-    if (!chapter) return;
+    if (!chapter) throw new Error('Chapter not found.');
+
+    const currentChapter = this.snapshot.chapters.find((item) => item.id === chapterId);
+    if (!currentChapter || currentChapter.status === 'locked') {
+      throw new Error('Complete and pass the previous chapter assessment before continuing.');
+    }
+
+    const passedAttempt = this.state.attempts.find(
+      (attempt) => attempt.chapterId === chapterId && attempt.passed,
+    );
+    if (!passedAttempt) {
+      throw new Error('A chapter can only be completed after passing its assessment.');
+    }
 
     const current = this.state.chapters[chapterId] ?? {
       status: 'not_started',
       progressPercentage: 0,
     };
-    const now = new Date().toISOString();
+    const completedAt = passedAttempt.attemptedAt;
 
     this.commit({
       ...this.state,
@@ -430,13 +461,11 @@ class InductionStore {
           ...current,
           status: 'completed',
           progressPercentage: 100,
-          lastAccessedAt: now,
-          completedAt: now,
-          lastScore: score ?? current.lastScore,
+          lastAccessedAt: completedAt,
+          completedAt,
+          lastScore: score ?? passedAttempt.score,
           bestScore:
-            score === undefined
-              ? current.bestScore
-              : Math.max(current.bestScore ?? 0, score),
+            Math.max(current.bestScore ?? 0, score ?? passedAttempt.score),
         },
       },
     });
@@ -448,18 +477,22 @@ class InductionStore {
     if (!chapter || !document?.quiz) {
       throw new Error('This chapter does not have an assessment.');
     }
+    const availableChapter = this.snapshot.chapters.find((item) => item.id === chapterId);
+    if (!availableChapter || availableChapter.status === 'locked') {
+      throw new Error('Complete and pass the previous chapter assessment before continuing.');
+    }
 
     const quiz = document.quiz;
-    const results = quiz.questions.map((question) => {
-      const selected = answers[question.id] ?? '';
-      return {
-        questionId: question.id,
-        selected,
-        correctOption: question.correctOption,
-        isCorrect: selected === question.correctOption,
-      };
-    });
-    const correctCount = results.filter((result) => result.isCorrect).length;
+    const allQuestionsAnswered = quiz.questions.every((question) =>
+      question.options.some((option) => option.key === answers[question.id]),
+    );
+    if (!allQuestionsAnswered) {
+      throw new Error('Answer every question before submitting the assessment.');
+    }
+
+    const correctCount = quiz.questions.filter(
+      (question) => (answers[question.id] ?? '') === question.correctOption,
+    ).length;
     const total = quiz.questions.length;
     const score = total > 0 ? Math.round((correctCount / total) * 100) : 0;
     const passed = correctCount >= quiz.passingScore;
@@ -508,7 +541,6 @@ class InductionStore {
       ...attempt,
       answers,
       passingScore: quiz.passingScore,
-      results,
     };
   };
 

@@ -2,19 +2,16 @@ import React, { useMemo, useState } from 'react';
 import {
   AlertTriangle,
   ArrowRight,
-  Check,
   CheckCircle2,
   ClipboardCheck,
   RotateCcw,
-  X,
-  XCircle,
 } from 'lucide-react';
-import type { HandbookQuiz, QuizEvaluation } from '../types/training.types';
+import type { HandbookQuizForLearner, QuizEvaluation } from '../types/training.types';
 
 interface ChapterQuizProps {
   chapterNumber: number;
   chapterTitle: string;
-  quiz: HandbookQuiz;
+  quiz: HandbookQuizForLearner;
   onSubmit: (answers: Record<string, string>) => QuizEvaluation;
   onReviewDocument: () => void;
   onNextChapter?: () => void;
@@ -55,10 +52,6 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
     setAnswers({});
     setEvaluation(null);
   };
-
-  const resultByQuestion = new Map(
-    evaluation?.results.map((result) => [result.questionId, result]) ?? [],
-  );
 
   return (
     <div className="space-y-5">
@@ -126,7 +119,7 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
                 >
                   {evaluation.passed
                     ? `Chapter ${chapterNumber} completed`
-                    : `You need ${evaluation.passingScore} correct answers to pass`}
+                    : 'Assessment not passed'}
                 </h3>
                 <p
                   className={`mt-0.5 text-xs ${
@@ -135,21 +128,25 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
                 >
                   Score: {evaluation.score}% ({evaluation.correctCount}/{evaluation.total} correct).
                   {evaluation.passed
-                    ? ' Your induction progress and dashboard metrics have been updated automatically.'
-                    : ' Review the highlighted answers below, revisit the document, then retake the assessment.'}
+                    ? onNextChapter
+                      ? ' You can now continue to the next chapter.'
+                      : ' You have completed the final assessment.'
+                    : ' Review the learning material and retry the assessment. Correct answers are not shown.'}
                 </p>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-[#DDD3C9] bg-white px-3.5 py-2 text-xs font-bold text-[#2B1810] transition hover:bg-[#FAF7F2] cursor-pointer"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                Retake MCQ
-              </button>
+              {!evaluation.passed && (
+                <button
+                  type="button"
+                  onClick={handleRetry}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-[#DDD3C9] bg-white px-3.5 py-2 text-xs font-bold text-[#2B1810] transition hover:bg-[#FAF7F2] cursor-pointer"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Retry assessment
+                </button>
+              )}
               {evaluation.passed && onNextChapter && (
                 <button
                   type="button"
@@ -167,19 +164,12 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
 
       <div className="space-y-4">
         {quiz.questions.map((question) => {
-          const result = resultByQuestion.get(question.id);
           const selected = answers[question.id];
 
           return (
             <div
               key={question.id}
-              className={`rounded-2xl border bg-white p-5 shadow-xs transition ${
-                result
-                  ? result.isCorrect
-                    ? 'border-emerald-200'
-                    : 'border-rose-200'
-                  : 'border-[#E5DDD5]'
-              }`}
+              className="rounded-2xl border border-[#E5DDD5] bg-white p-5 shadow-xs transition"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
@@ -190,80 +180,40 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
                     {question.prompt}
                   </p>
                 </div>
-                {result && (
-                  <span
-                    className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      result.isCorrect
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'bg-rose-50 text-rose-700'
-                    }`}
-                  >
-                    {result.isCorrect ? (
-                      <Check className="h-3 w-3" />
-                    ) : (
-                      <X className="h-3 w-3" />
-                    )}
-                    {result.isCorrect ? 'Correct' : 'Incorrect'}
-                  </span>
-                )}
               </div>
 
               <div className="mt-4 grid gap-2">
                 {question.options.map((option, index) => {
                   const isSelected = selected === option.key;
-                  const isCorrectOption = result?.correctOption === option.key;
-                  const isWrongSelection = Boolean(result && isSelected && !isCorrectOption);
 
                   let optionClass =
                     'border-[#E5DDD5] bg-white text-stone-700 hover:border-[#D4AF37] hover:bg-[#FBF7EE]';
-                  if (!result && isSelected) {
+                  if (isSelected) {
                     optionClass = 'border-[#D4AF37] bg-[#FBF7EE] text-[#2B1810] ring-2 ring-[#D4AF37]/20';
-                  }
-                  if (result && isCorrectOption) {
-                    optionClass = 'border-emerald-300 bg-emerald-50 text-emerald-900';
-                  } else if (result && isWrongSelection) {
-                    optionClass = 'border-rose-300 bg-rose-50 text-rose-900';
                   }
 
                   return (
                     <button
                       key={option.key}
                       type="button"
-                      disabled={Boolean(result)}
+                      disabled={Boolean(evaluation)}
                       onClick={() => selectAnswer(question.id, option.key)}
                       className={`flex w-full items-start gap-3 rounded-xl border px-3.5 py-2.5 text-left text-xs font-medium transition cursor-pointer disabled:cursor-default ${optionClass}`}
                     >
                       <span
                         className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-[10px] font-bold ${
-                          result && isCorrectOption
-                            ? 'border-emerald-500 bg-emerald-600 text-white'
-                            : result && isWrongSelection
-                              ? 'border-rose-500 bg-rose-600 text-white'
-                              : isSelected
-                                ? 'border-[#D4AF37] bg-[#D4AF37] text-[#1A120B]'
-                                : 'border-[#DDD3C9] bg-white text-stone-500'
+                          isSelected
+                            ? 'border-[#D4AF37] bg-[#D4AF37] text-[#1A120B]'
+                            : 'border-[#DDD3C9] bg-white text-stone-500'
                         }`}
                       >
-                        {result && isCorrectOption ? (
-                          <Check className="h-3 w-3" />
-                        ) : result && isWrongSelection ? (
-                          <X className="h-3 w-3" />
-                        ) : (
-                          OPTION_LETTERS[index] ?? option.key
-                        )}
+                        {OPTION_LETTERS[index] ?? option.key}
                       </span>
                       <span className="pt-0.5 leading-relaxed">{option.text}</span>
                     </button>
                   );
                 })}
               </div>
-
-              {result && !result.isCorrect && (
-                <p className="mt-3 rounded-xl bg-[#FAF7F2] px-3 py-2 text-[11px] font-semibold text-[#8C6D37] border border-[#EFE7DE]">
-                  Correct answer: {result.correctOption}.{' '}
-                  {question.options.find((option) => option.key === result.correctOption)?.text}
-                </p>
-              )}
             </div>
           );
         })}
@@ -295,13 +245,6 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
           </button>
         )}
 
-        {evaluation && !evaluation.passed && (
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-700">
-            <XCircle className="h-3.5 w-3.5" />
-            {quiz.passingScore - evaluation.correctCount} more correct answer
-            {quiz.passingScore - evaluation.correctCount === 1 ? '' : 's'} needed
-          </span>
-        )}
       </div>
     </div>
   );

@@ -32,6 +32,10 @@ export interface HandbookQuiz {
   questions: HandbookQuizQuestion[];
 }
 
+export type HandbookQuizForLearner = Omit<HandbookQuiz, 'questions'> & {
+  questions: Array<Omit<HandbookQuizQuestion, 'correctOption'>>;
+};
+
 export interface HandbookDocument {
   chapterNumber: number;
   title: string;
@@ -51,17 +55,9 @@ export interface QuizAttempt {
   attemptedAt: string;
 }
 
-export interface QuizQuestionResult {
-  questionId: string;
-  selected: string;
-  correctOption: string;
-  isCorrect: boolean;
-}
-
 export interface QuizEvaluation extends QuizAttempt {
   answers: Record<string, string>;
   passingScore: number;
-  results: QuizQuestionResult[];
 }
 
 export interface ChapterProgressRecord {

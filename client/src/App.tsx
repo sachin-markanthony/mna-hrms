@@ -3,14 +3,20 @@ import { Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth, Login } from './modules/auth';
 import { Dashboard } from './modules/dashboard/Dashboard';
 import { AppLayout } from './components/layout/AppLayout';
+import { inductionRoutes } from './modules/onboarding/routes/induction.routes';
 import { Induction } from './modules/onboarding/Induction';
 import { LeaveManagement } from './modules/leave';
 import { EmployeeDirectory } from './modules/employees';
 import { AttendanceManagement } from './modules/attendance';
 import { SettingsManagement } from './modules/settings';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
-
-function ProtectedRoute({ children }: { children: ReactNode }) {
+function ProtectedRoute({
+  children,
+  withLayout = true,
+}: {
+  children: ReactNode;
+  withLayout?: boolean;
+}) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -25,7 +31,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
-  return <AppLayout>{children}</AppLayout>;
+  return withLayout ? <AppLayout>{children}</AppLayout> : children;
 }
 
 function SectionPlaceholder({ title, description }: { title: string; description: string }) {
@@ -63,6 +69,13 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {inductionRoutes.map(({ path, element }) => (
+        <Route
+          key={path}
+          path={path}
+          element={<ProtectedRoute withLayout={false}>{element}</ProtectedRoute>}
+        />
+      ))}
       <Route
         path="/employees"
         element={
@@ -103,14 +116,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <RecruitmentPipeline />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/training"
-        element={
-          <ProtectedRoute>
-            <Induction />
           </ProtectedRoute>
         }
       />

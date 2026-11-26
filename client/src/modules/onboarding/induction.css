@@ -1,0 +1,282 @@
+.induction-page {
+  --kindle-orange: #ff9900;
+  --kindle-orange-hover: #e88b00;
+  --kindle-black: #1a1a1a;
+  --kindle-blue: #1a98ff;
+
+  --bg-primary: #ffffff;
+  --bg-secondary: #f4f2ee;
+  --bg-card: #ffffff;
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --text-white: #ffffff;
+
+  --border-color: #e4e2dd;
+
+  --button-primary: #ff9900;
+  --button-hover: #e88b00;
+
+  --reader-white: #ffffff;
+  --reader-sepia: #fbf0d9;
+  --reader-green: #c5e1c5;
+  --reader-dark: #2a2a2a;
+  --reader-black: #000000;
+
+  --dark-bg: #0e0e0e;
+  --dark-surface: #1a1a1a;
+  --dark-card: #242424;
+  --dark-border: #2e2e2e;
+  --dark-text: #e8e8e8;
+  --dark-muted: #9a9a9a;
+
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  padding: clamp(1rem, 3vw, 2rem);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+.induction-page *,
+.induction-page *::before,
+.induction-page *::after {
+  box-sizing: border-box;
+}
+
+.induction-page--state {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.induction-page.induction-page--dark {
+  --bg-primary: var(--dark-bg);
+  --bg-secondary: var(--dark-surface);
+  --bg-card: var(--dark-card);
+  --text-primary: var(--dark-text);
+  --text-secondary: var(--dark-muted);
+  --border-color: var(--dark-border);
+}
+
+.induction-page :is(
+  [class~="bg-white"],
+  [class~="bg-[#FFFFFF]"]
+) {
+  background-color: var(--bg-card) !important;
+}
+
+.induction-page :is(
+  [class~="bg-slate-50"],
+  [class~="bg-slate-100"],
+  [class~="bg-stone-50"],
+  [class~="bg-stone-100"],
+  [class~="bg-[#FAF7F2]"],
+  [class~="bg-[#FBF7EE]"]
+) {
+  background-color: var(--bg-secondary) !important;
+}
+
+.induction-page [class~="bg-[#1e3a8a]"] {
+  background-color: var(--kindle-blue) !important;
+}
+
+.induction-page :is(
+  [class~="bg-[#D4AF37]"],
+  [class~="bg-amber-500"],
+  [class~="bg-amber-600"]
+) {
+  background-color: var(--button-primary) !important;
+}
+
+.induction-page :is(
+  [class~="bg-slate-900"],
+  [class~="bg-slate-800"],
+  [class~="bg-[#1A120B]"],
+  [class~="bg-[#2B1810]"],
+  [class~="bg-[#422616]"]
+) {
+  background-color: var(--kindle-black) !important;
+}
+
+.induction-page :is(
+  [class~="text-slate-900"],
+  [class~="text-slate-800"],
+  [class~="text-stone-900"],
+  [class~="text-stone-800"],
+  [class~="text-[#2B1810]"],
+  [class~="text-[#1A120B]"]
+) {
+  color: var(--text-primary) !important;
+}
+
+.induction-page :is(
+  [class~="text-slate-700"],
+  [class~="text-slate-600"],
+  [class~="text-slate-500"],
+  [class~="text-slate-400"],
+  [class~="text-stone-700"],
+  [class~="text-stone-600"],
+  [class~="text-stone-500"],
+  [class~="text-stone-400"]
+) {
+  color: var(--text-secondary) !important;
+}
+
+.induction-page [class~="text-stone-300"] {
+  color: var(--dark-muted) !important;
+}
+
+.induction-page [class~="text-[#FAF7F2]"] {
+  color: var(--text-white) !important;
+}
+
+.induction-page :is(
+  [class~="text-[#D4AF37]"],
+  [class~="text-[#8C6D37]"],
+  [class~="text-[#E6C687]"],
+  [class~="text-amber-700"],
+  [class~="text-amber-800"]
+) {
+  color: var(--kindle-orange-hover) !important;
+}
+
+.induction-page :is(
+  [class~="text-emerald-300"],
+  [class~="text-emerald-400"],
+  [class~="text-emerald-600"],
+  [class~="text-emerald-800"],
+  [class~="text-blue-600"],
+  [class~="text-blue-700"]
+) {
+  color: var(--kindle-blue) !important;
+}
+
+.induction-page :is(
+  [class~="text-rose-600"],
+  [class~="text-rose-700"],
+  [class~="text-rose-900"]
+) {
+  color: var(--kindle-orange-hover) !important;
+}
+
+.induction-page :is(
+  [class~="border-slate-200"],
+  [class~="border-slate-300"],
+  [class~="border-stone-200"],
+  [class~="border-stone-300"],
+  [class~="border-[#E5DDD5]"],
+  [class~="border-[#E4E2DD]"],
+  [class~="border-[#EFE7DE]"],
+  [class~="border-[#F0EAE1]"]
+) {
+  border-color: var(--border-color) !important;
+}
+
+.induction-page :is(
+  [class~="border-[#D4AF37]"],
+  [class~="border-amber-200"],
+  [class~="border-amber-300"]
+) {
+  border-color: var(--kindle-orange) !important;
+}
+
+.induction-page :is(
+  [class~="bg-emerald-50"],
+  [class~="bg-emerald-100"],
+  [class~="bg-blue-50"]
+) {
+  background-color: color-mix(in srgb, var(--kindle-blue) 10%, white) !important;
+}
+
+.induction-page :is(
+  [class~="bg-rose-50"],
+  [class~="bg-amber-50"]
+) {
+  background-color: color-mix(in srgb, var(--kindle-orange) 12%, white) !important;
+}
+
+.induction-page [class*="border-[#D4AF37]"],
+.induction-page [class*="focus:border-[#1e3a8a]"] {
+  border-color: var(--kindle-orange) !important;
+}
+
+.induction-page [class*="ring-[#1e3a8a]"] {
+  --tw-ring-color: color-mix(in srgb, var(--kindle-orange) 20%, transparent) !important;
+}
+
+.induction-page [class~="hover:bg-slate-800"]:hover,
+.induction-page [class~="hover:bg-amber-600"]:hover {
+  background-color: var(--button-hover) !important;
+}
+
+.induction-page.induction-page--dark :is(
+  [class~="bg-white"],
+  [class~="bg-slate-50"],
+  [class~="bg-stone-50"]
+) {
+  background-color: var(--bg-card) !important;
+}
+
+.induction-page .induction-hero-surface {
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 30px rgb(26 26 26 / 7%);
+}
+
+.induction-page .induction-hero-pattern {
+  opacity: 0.045;
+}
+
+.induction-page .induction-hero-glow {
+  background-color: color-mix(in srgb, var(--kindle-orange) 7%, transparent);
+}
+
+.induction-page .induction-hero-badge {
+  color: var(--text-primary);
+  background-color: color-mix(in srgb, var(--kindle-orange) 10%, white);
+  border: 1px solid color-mix(in srgb, var(--kindle-orange) 38%, white);
+}
+
+.induction-page .induction-hero-chip {
+  color: var(--text-secondary);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+
+.induction-page .induction-hero-muted {
+  color: var(--text-secondary);
+}
+
+.induction-page .induction-hero-title {
+  color: var(--text-primary);
+}
+
+.induction-page .induction-hero-accent {
+  color: var(--kindle-orange);
+}
+
+.induction-page .induction-primary-button {
+  color: var(--kindle-black);
+  background-color: var(--button-primary);
+  border: 1px solid var(--button-primary);
+  box-shadow: 0 8px 20px rgb(255 153 0 / 18%);
+}
+
+.induction-page .induction-primary-button:hover {
+  background-color: var(--button-hover);
+  border-color: var(--button-hover);
+}
+
+.induction-page .induction-primary-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--kindle-orange) 45%, transparent);
+  outline-offset: 3px;
+}
+
+.induction-page .induction-hero-icon-disc {
+  color: var(--kindle-black);
+  background-color: var(--kindle-orange);
+}

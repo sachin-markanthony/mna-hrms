@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { AuditService } from '../audit/audit.service.js';
 import {
   CandidateRecruitmentStatus,
   InterviewRoundType,
@@ -11,9 +12,17 @@ import { EvaluateRoundDto } from './dto/evaluate-round.dto.js';
 import { UpdateCandidateStatusDto } from './dto/update-candidate-status.dto.js';
 import { CandidateFilterDto } from './dto/candidate-filter.dto.js';
 
+export interface RequestMeta {
+  ipAddress?: string;
+  userAgent?: string;
+}
+
 @Injectable()
 export class RecruitmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async getRecruitmentStats(visitDate?: string) {
     const where: any = {};
@@ -135,10 +144,10 @@ export class RecruitmentService {
     return candidate;
   }
 
-  async createCandidate(dto: CreateCandidateDto) {
+  async createCandidate(dto: CreateCandidateDto, actorUserId?: string, meta?: RequestMeta) {
     const visitDate = dto.visitDate ? new Date(dto.visitDate) : new Date();
 
-    return this.prisma.candidate.create({
+    const created = await this.prisma.candidate.create({
       data: {
         fullName: dto.fullName,
         email: dto.email,
@@ -156,9 +165,38 @@ export class RecruitmentService {
         evaluations: true,
       },
     });
+
+    // Form System Audit Log
+    const actor = actorUserId || (await this.resolveFallbackActorId());
+    if (actor) {
+      await this.auditService.log({
+        actorUserId: actor,
+        actionType: 'CANDIDATE_REGISTERED',
+        ipAddress: meta?.ipAddress,
+        userAgent: meta?.userAgent,
+        newValuePayload: {
+          candidateId: created.id,
+          fullName: created.fullName,
+          department: created.department,
+          appliedRole: created.appliedRole,
+          email: created.email,
+          phone: created.phone,
+          visitDate: created.visitDate,
+          experienceYears: created.experienceYears,
+          expectedSalary: created.expectedSalary,
+        },
+      });
+    }
+
+    return created;
   }
 
-  async evaluateRound(candidateId: string, dto: EvaluateRoundDto) {
+  async evaluateRound(
+    candidateId: string,
+    dto: EvaluateRoundDto,
+    actorUserId?: string,
+    meta?: RequestMeta,
+  ) {
     const candidate = await this.getCandidateById(candidateId);
 
     if (dto.result === RoundEvaluationResult.REJECTED && !dto.rejectionReason) {
@@ -222,16 +260,53 @@ export class RecruitmentService {
       },
     });
 
+    // Form System Audit Log for HR or MR evaluation
+    const actionType =
+      dto.round === InterviewRoundType.HR_ROUND
+        ? 'CANDIDATE_HR_EVALUATED'
+        : 'CANDIDATE_MR_EVALUATED';
+
+    const actor = actorUserId || (await this.resolveFallbackActorId());
+    if (actor) {
+      await this.auditService.log({
+        actorUserId: actor,
+        actionType,
+        ipAddress: meta?.ipAddress,
+        userAgent: meta?.userAgent,
+        oldValuePayload: {
+          candidateId,
+          previousStatus: candidate.status,
+        },
+        newValuePayload: {
+          candidateId,
+          candidateName: candidate.fullName,
+          department: candidate.department,
+          round: dto.round,
+          result: dto.result,
+          newStatus: nextStatus,
+          interviewerName: dto.interviewerName,
+          rating: dto.rating,
+          feedback: dto.feedback,
+          rejectionReason: dto.result === RoundEvaluationResult.REJECTED ? dto.rejectionReason : null,
+        },
+      });
+    }
+
     return {
       candidate: updatedCandidate,
       evaluation,
     };
   }
 
-  async updateStatus(candidateId: string, dto: UpdateCandidateStatusDto) {
-    await this.getCandidateById(candidateId);
+  async updateStatus(
+    candidateId: string,
+    dto: UpdateCandidateStatusDto,
+    actorUserId?: string,
+    meta?: RequestMeta,
+  ) {
+    const candidate = await this.getCandidateById(candidateId);
 
-    return this.prisma.candidate.update({
+    const updated = await this.prisma.candidate.update({
       where: { id: candidateId },
       data: {
         status: dto.status,
@@ -243,5 +318,36 @@ export class RecruitmentService {
         },
       },
     });
+
+    // Form System Audit Log for status override
+    const actor = actorUserId || (await this.resolveFallbackActorId());
+    if (actor) {
+      await this.auditService.log({
+        actorUserId: actor,
+        actionType: 'CANDIDATE_STATUS_OVERRIDE',
+        ipAddress: meta?.ipAddress,
+        userAgent: meta?.userAgent,
+        oldValuePayload: {
+          candidateId,
+          status: candidate.status,
+          rejectionReason: candidate.rejectionReason,
+        },
+        newValuePayload: {
+          candidateId,
+          status: dto.status,
+          rejectionReason: dto.rejectionReason ?? null,
+        },
+      });
+    }
+
+    return updated;
+  }
+
+  private async resolveFallbackActorId(): Promise<string | undefined> {
+    const user = await this.prisma.user.findFirst({
+      where: { role: { in: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR'] } },
+      select: { id: true },
+    });
+    return user?.id;
   }
 }
