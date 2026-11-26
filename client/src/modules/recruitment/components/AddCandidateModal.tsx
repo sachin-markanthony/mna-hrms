@@ -99,7 +99,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-lg overflow-hidden">
+      <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-lg overflow-hidden">
         {/* Header */}
         <div className="px-6 py-5 bg-white dark:bg-[#0f172a] border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -134,11 +134,10 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
               <button
                 type="button"
                 onClick={() => handleDepartmentChange('DIGITAL')}
-                className={`py-2.5 px-4 rounded-xl border text-xs font-bold transition-all text-center ${
-                  department === 'DIGITAL'
-                    ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800'
-                }`}
+                className={`py-2.5 px-4 rounded-lg border text-xs font-bold transition-all text-center ${department === 'DIGITAL'
+                  ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800'
+                  }`}
               >
                 Digital Department
               </button>
@@ -146,11 +145,10 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
               <button
                 type="button"
                 onClick={() => handleDepartmentChange('SALES')}
-                className={`py-2.5 px-4 rounded-xl border text-xs font-bold transition-all text-center ${
-                  department === 'SALES'
-                    ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800'
-                }`}
+                className={`py-2.5 px-4 rounded-lg border text-xs font-bold transition-all text-center ${department === 'SALES'
+                  ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800'
+                  }`}
               >
                 Sales Department
               </button>
@@ -169,7 +167,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g. Siddharth Verma"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
               />
             </div>
 
@@ -183,7 +181,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
                   required
                   value={visitDate}
                   onChange={(e) => setVisitDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
                 />
               </div>
             </div>
@@ -201,7 +199,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="siddharth.v@gmail.com"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
               />
             </div>
 
@@ -215,7 +213,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 98765 43210"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
               />
             </div>
           </div>
@@ -235,7 +233,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
                   ? 'e.g. Performance Marketer, Social Media Executive, SEO Specialist'
                   : 'e.g. Luxury Property Sales Manager, Inside Sales Executive'
               }
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
             />
           </div>
 
@@ -257,7 +255,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
                 value={teamLeaderName}
                 onChange={(e) => setTeamLeaderName(e.target.value)}
                 placeholder="e.g. Dhinesh Kumar (or select from list)"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
               />
               <datalist id="team-leaders-list">
                 {teamLeaders.map((tl) => (
@@ -285,7 +283,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
                 required
                 value={experienceYears}
                 onChange={(e) => setExperienceYears(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
               />
             </div>
 
@@ -298,7 +296,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
                 value={currentCompany}
                 onChange={(e) => setCurrentCompany(e.target.value)}
                 placeholder="e.g. Square Yards"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
               />
             </div>
 
@@ -312,7 +310,7 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
                 value={expectedSalary}
                 onChange={(e) => setExpectedSalary(e.target.value)}
                 placeholder="₹10,00,000 / yr"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
               />
             </div>
           </div>
@@ -322,14 +320,14 @@ export function AddCandidateModal({ isOpen, onClose, onSubmit }: AddCandidateMod
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm"
+              className="px-6 py-2.5 rounded-lg text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm"
             >
               {submitting ? 'Registering...' : 'Log Walk-In Candidate'}
             </button>

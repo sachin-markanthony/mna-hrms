@@ -58,6 +58,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    const permissions = await this.loadUserPermissions(user.roleId, user.role);
+
     const tokens = await this.issueTokens({
       id: user.id,
       email: user.email,
@@ -93,6 +95,7 @@ export class AuthService {
         employeeId: user.employeeId,
         name: user.name,
         role: user.role as unknown as AppRole,
+        permissions,
         isImpersonated: false,
       }),
     };
@@ -148,6 +151,7 @@ export class AuthService {
       employeeId: created.employeeId,
       name: created.name,
       role: created.role as unknown as AppRole,
+      permissions: [],
       isImpersonated: false,
     });
   }
@@ -193,6 +197,8 @@ export class AuthService {
       data: { refreshTokenHash: newRefreshHash },
     });
 
+    const permissions = await this.loadUserPermissions(user.roleId, user.role);
+
     return {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -202,6 +208,7 @@ export class AuthService {
         employeeId: user.employeeId,
         name: user.name,
         role: user.role as unknown as AppRole,
+        permissions,
         isImpersonated: false,
       }),
     };
@@ -280,6 +287,8 @@ export class AuthService {
       },
     });
 
+    const targetPermissions = await this.loadUserPermissions(target.roleId, target.role);
+
     return {
       accessToken,
       user: this.toUserView({
@@ -288,6 +297,7 @@ export class AuthService {
         employeeId: target.employeeId,
         name: target.name,
         role: target.role as unknown as AppRole,
+        permissions: targetPermissions,
         isImpersonated: true,
         originalAdminId: adminUser.id,
       }),
@@ -333,6 +343,11 @@ export class AuthService {
       userAgent: meta.userAgent,
     });
 
+    const adminPermissions = await this.loadUserPermissions(
+      originalAdmin.roleId,
+      originalAdmin.role,
+    );
+
     return {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -342,6 +357,7 @@ export class AuthService {
         employeeId: originalAdmin.employeeId,
         name: originalAdmin.name,
         role: originalAdmin.role as unknown as AppRole,
+        permissions: adminPermissions,
         isImpersonated: false,
       }),
     };
@@ -419,12 +435,28 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  private async loadUserPermissions(
+    roleId: string | null | undefined,
+    roleName: Role,
+  ): Promise<string[]> {
+    const roleDef = await this.prisma.roleDefinition?.findFirst?.({
+      where: roleId ? { id: roleId } : { name: roleName },
+      select: {
+        permissions: {
+          select: { permission: { select: { key: true } } },
+        },
+      },
+    });
+    return roleDef?.permissions.map((rp) => rp.permission.key) ?? [];
+  }
+
   private toUserView(user: {
     id: string;
     employeeId: string;
     email: string;
     name: string;
     role: AppRole;
+    permissions?: string[];
     isImpersonated: boolean;
     originalAdminId?: string;
   }): AuthUserViewDto {
@@ -434,6 +466,7 @@ export class AuthService {
       email: user.email,
       name: user.name,
       role: user.role,
+      permissions: user.permissions ?? [],
       isImpersonated: user.isImpersonated,
       originalAdminId: user.originalAdminId,
     };

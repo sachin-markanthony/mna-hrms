@@ -23,7 +23,7 @@ export function CandidateCard({
   return (
     <div
       onClick={() => onOpenDetails(candidate)}
-      className="group relative bg-white dark:bg-[#0f172a] rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-2xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer"
+      className="group relative bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200 dark:border-slate-800 p-4 shadow-2xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer"
     >
       {/* Top Header: Candidate Name, Dept & Visit Date */}
       <div className="flex items-start justify-between gap-2">
@@ -33,11 +33,10 @@ export function CandidateCard({
               {candidate.fullName}
             </h4>
             <span
-              className={`text-[9px] font-black px-1.5 py-0.2 rounded-md uppercase border ${
-                candidate.department === 'DIGITAL'
+              className={`text-[9px] font-black px-1.5 py-0.2 rounded-md uppercase border ${candidate.department === 'DIGITAL'
                   ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800'
                   : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
-              }`}
+                }`}
             >
               {candidate.department}
             </span>

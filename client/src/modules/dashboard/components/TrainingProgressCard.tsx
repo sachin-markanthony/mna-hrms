@@ -18,10 +18,10 @@ export function TrainingProgressCard() {
   const isCompleted = summary.status === 'Completed';
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-[#111c35]">
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-[#111c35]">
       <div className="flex flex-col gap-3 border-b border-slate-100 px-6 py-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
             <GraduationCap className="h-5 w-5" />
           </span>
           <div>
@@ -41,11 +41,10 @@ export function TrainingProgressCard() {
 
         <div className="flex items-center gap-2">
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold ${
-              isCompleted
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300'
-                : 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
-            }`}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold ${isCompleted
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300'
+              : 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
+              }`}
           >
             {isCompleted ? (
               <CheckCircle2 className="h-3.5 w-3.5" />
@@ -57,7 +56,7 @@ export function TrainingProgressCard() {
           <button
             type="button"
             onClick={() => navigate('/training')}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#072b53] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[#041c38] dark:bg-[#1e3a8a] dark:hover:bg-[#1e40af] cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#072b53] px-3.5 py-2 text-xs font-bold text-white transition hover:bg-[#041c38] dark:bg-[#1e3a8a] dark:hover:bg-[#1e40af] cursor-pointer"
           >
             <FileText className="h-3.5 w-3.5" />
             Open Training Document
@@ -96,7 +95,7 @@ export function TrainingProgressCard() {
           </div>
 
           <div className="mt-5 grid grid-cols-3 gap-3">
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700 dark:bg-slate-800/40">
+            <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700 dark:bg-slate-800/40">
               <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                 Chapters
@@ -106,7 +105,7 @@ export function TrainingProgressCard() {
                 <span className="text-xs font-semibold text-slate-400"> / {summary.totalChapters}</span>
               </p>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700 dark:bg-slate-800/40">
+            <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700 dark:bg-slate-800/40">
               <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 <ClipboardCheck className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                 MCQs pending
@@ -115,7 +114,7 @@ export function TrainingProgressCard() {
                 {summary.pendingAssessments}
               </p>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700 dark:bg-slate-800/40">
+            <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700 dark:bg-slate-800/40">
               <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 <Award className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
                 Avg. score
@@ -127,7 +126,7 @@ export function TrainingProgressCard() {
           </div>
         </div>
 
-        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800/40">
+        <div className="flex flex-col justify-between rounded-lg border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800/40">
           {next ? (
             <>
               <div>
@@ -159,7 +158,7 @@ export function TrainingProgressCard() {
               <button
                 type="button"
                 onClick={() => navigate('/training')}
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#D4AF37] px-4 py-2.5 text-xs font-bold text-[#1A120B] transition hover:bg-[#C29D29] cursor-pointer"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#D4AF37] px-4 py-2.5 text-xs font-bold text-[#1A120B] transition hover:bg-[#C29D29] cursor-pointer"
               >
                 Continue training
                 <ArrowRight className="h-4 w-4" />
@@ -183,7 +182,7 @@ export function TrainingProgressCard() {
               <button
                 type="button"
                 onClick={() => navigate('/training')}
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 cursor-pointer"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 cursor-pointer"
               >
                 Review training document
                 <ArrowRight className="h-4 w-4" />

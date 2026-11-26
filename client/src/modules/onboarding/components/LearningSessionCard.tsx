@@ -96,11 +96,10 @@ export const LearningSessionCard: React.FC<LearningSessionCardProps> = ({
   return (
     <div
       onClick={() => !isLocked && onSelect(session)}
-      className={`relative flex flex-col justify-between bg-white rounded-2xl border transition-all duration-200 p-5 ${
-        isLocked
-          ? 'border-[#EAE4DF] opacity-85 cursor-not-allowed bg-[#FAF8F5]'
-          : 'border-[#E2D8CF] hover:border-[#8C6D37] hover:shadow-md cursor-pointer'
-      }`}
+      className={`relative flex flex-col justify-between bg-white rounded-lg border transition-all duration-200 p-5 ${isLocked
+        ? 'border-[#EAE4DF] opacity-85 cursor-not-allowed bg-[#FAF8F5]'
+        : 'border-[#E2D8CF] hover:border-[#8C6D37] hover:shadow-md cursor-pointer'
+        }`}
     >
       <div>
         {/* Top Header: Session Number & Status */}
@@ -143,9 +142,8 @@ export const LearningSessionCard: React.FC<LearningSessionCardProps> = ({
           </div>
           <div className="w-full bg-[#EFE9E2] rounded-full h-1.5 overflow-hidden">
             <div
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                isCompleted ? 'bg-emerald-600' : 'bg-[#8C6D37]'
-              }`}
+              className={`h-1.5 rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-600' : 'bg-[#8C6D37]'
+                }`}
               style={{ width: `${session.progressPercentage}%` }}
             />
           </div>
@@ -163,7 +161,7 @@ export const LearningSessionCard: React.FC<LearningSessionCardProps> = ({
               e.stopPropagation();
               if (!isLocked) onSelect(session);
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${action.className}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${action.className}`}
           >
             <span>{action.label}</span>
             <ActionIcon className="w-3.5 h-3.5" />

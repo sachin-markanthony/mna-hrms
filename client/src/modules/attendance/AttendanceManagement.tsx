@@ -34,7 +34,7 @@ function statusBadge(status: AttendanceStatus) {
 }
 
 function formatDate(iso?: string | null) {
-  if (!iso) return '—';
+  if (!iso) return 'â€”';
   return new Date(iso).toLocaleDateString('en-IN', {
     day: '2-digit',
     month: 'short',
@@ -44,7 +44,7 @@ function formatDate(iso?: string | null) {
 }
 
 function formatTime(iso?: string | null) {
-  if (!iso) return '—';
+  if (!iso) return 'â€”';
   return new Date(iso).toLocaleTimeString('en-IN', {
     hour: '2-digit',
     minute: '2-digit',
@@ -52,7 +52,7 @@ function formatTime(iso?: string | null) {
 }
 
 export function AttendanceManagement() {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const [master, setMaster] = useState<AttendanceMasterRecord[]>([]);
   const [rawLogs, setRawLogs] = useState<AttendanceRawLog[]>([]);
   const [siteVisits, setSiteVisits] = useState<SiteVisitRecord[]>([]);
@@ -74,7 +74,9 @@ export function AttendanceManagement() {
   const [regError, setRegError] = useState<string | null>(null);
 
   const isHrAdminOrSuper =
-    user?.role === 'SUPER_ADMIN' || user?.role === 'HR_ADMIN';
+    user?.role === 'SUPER_ADMIN' ||
+    user?.role === 'HR_ADMIN' ||
+    hasPermission('attendance:latecomer_control');
   const canReviewReg =
     isHrAdminOrSuper ||
     user?.role === 'HR_COORDINATOR' ||
@@ -163,15 +165,12 @@ export function AttendanceManagement() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Attendance &amp; Time Management
             </h1>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Dual-Stream: Facial + 300m GPS
-            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Immutable Tier 1 punch logs, field sales GPS site visits, 09:45 AM latecomer engine &amp; leave-synced reconciliation.
@@ -185,7 +184,7 @@ export function AttendanceManagement() {
               setRegError(null);
               setRegModalOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
           >
             Request Regularization
           </button>
@@ -194,7 +193,7 @@ export function AttendanceManagement() {
               type="button"
               disabled={busy}
               onClick={() => void handleReconcile()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs font-semibold hover:bg-amber-100"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-xs font-semibold hover:bg-amber-100"
             >
               Reconcile Today
             </button>
@@ -202,7 +201,7 @@ export function AttendanceManagement() {
           <button
             type="button"
             onClick={() => void loadData()}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -210,46 +209,46 @@ export function AttendanceManagement() {
       </div>
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
+        <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
           {error}
         </div>
       )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>Present Days</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{stats.present}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.present}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>Latecomer Flags</span>
             <AlertTriangle className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{stats.late}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.late}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>GPS Site Visits</span>
             <MapPin className="w-4 h-4 text-indigo-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{stats.visits}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.visits}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>Pending Regularizations</span>
             <ShieldAlert className="w-4 h-4 text-rose-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{stats.pendingReg}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.pendingReg}</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="px-6 py-3.5 border-b border-slate-200 flex flex-wrap items-center gap-2">
+      <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="px-6 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center gap-2">
           {(
             [
               { id: 'master', label: `Daily Master (${master.length})` },
@@ -262,11 +261,10 @@ export function AttendanceManagement() {
               key={t.id}
               type="button"
               onClick={() => setActiveTab(t.id)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeTab === t.id
-                  ? 'bg-slate-900 text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${activeTab === t.id
+                ? 'bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100'
+                }`}
             >
               {t.label}
             </button>
@@ -277,7 +275,7 @@ export function AttendanceManagement() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
+                <tr className="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase">
                   <th className="py-3 px-4">Employee</th>
                   <th className="py-3 px-4">Date</th>
                   <th className="py-3 px-4">First In / Last Out</th>
@@ -286,7 +284,7 @@ export function AttendanceManagement() {
                   <th className="py-3 px-4">Remarks</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
                 {master.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-slate-500">
@@ -295,7 +293,7 @@ export function AttendanceManagement() {
                   </tr>
                 ) : (
                   master.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/70">
+                    <tr key={row.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
                       <td className="py-3 px-4 font-semibold text-slate-900">
                         {row.user.name}{' '}
                         <span className="font-mono text-[10px] text-slate-500">
@@ -324,7 +322,7 @@ export function AttendanceManagement() {
                           </span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-slate-500">{row.remarks ?? '—'}</td>
+                      <td className="py-3 px-4 text-slate-500">{row.remarks ?? 'â€”'}</td>
                     </tr>
                   ))
                 )}
@@ -334,7 +332,7 @@ export function AttendanceManagement() {
         )}
 
         {activeTab === 'raw' && (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/70">
             {rawLogs.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-500">No raw punch logs yet.</div>
             ) : (
@@ -359,7 +357,7 @@ export function AttendanceManagement() {
         )}
 
         {activeTab === 'site-visits' && (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/70">
             {siteVisits.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-500">No GPS site visits logged.</div>
             ) : (
@@ -384,7 +382,7 @@ export function AttendanceManagement() {
         )}
 
         {activeTab === 'regularizations' && (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/70">
             {regularizations.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-500">
                 No regularization requests found.
@@ -440,8 +438,8 @@ export function AttendanceManagement() {
       {/* Regularization Modal */}
       {regModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-900">Request Attendance Regularization</h2>
               <button
                 type="button"
@@ -453,7 +451,7 @@ export function AttendanceManagement() {
             </div>
             <form onSubmit={(e) => void handleRegSubmit(e)} className="p-6 space-y-3 text-xs">
               {regError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700">
+                <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700">
                   {regError}
                 </div>
               )}
@@ -464,7 +462,7 @@ export function AttendanceManagement() {
                   required
                   value={regForm.attendanceDate}
                   onChange={(e) => setRegForm({ ...regForm, attendanceDate: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
                 />
               </div>
               <div>
@@ -476,21 +474,21 @@ export function AttendanceManagement() {
                   placeholder="Missed punch / terminal offline..."
                   value={regForm.reason}
                   onChange={(e) => setRegForm({ ...regForm, reason: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setRegModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 font-semibold text-slate-600"
+                  className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-slate-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold"
+                  className="px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs font-semibold"
                 >
                   Submit Request
                 </button>

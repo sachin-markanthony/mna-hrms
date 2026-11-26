@@ -92,6 +92,11 @@ html, body {
   overflow: hidden;
 }
 
+.dark body {
+  background-color: #091020;
+  color: #f1f5f9;
+}
+
 /* Custom slim modern scrollbars */
 ::-webkit-scrollbar {
   width: 5px;

@@ -10,6 +10,7 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  permissions?: string[];
   employeeId?: string;
   department?: string;
   designation?: string;

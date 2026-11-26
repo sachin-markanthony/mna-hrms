@@ -42,7 +42,7 @@ export const PlaceholderLearningRoute: React.FC<PlaceholderLearningRouteProps> =
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-[#DDD3C9] text-xs font-bold text-[#2B1810] hover:bg-[#FAF7F2] transition shadow-2xs cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white border border-[#DDD3C9] text-xs font-bold text-[#2B1810] hover:bg-[#FAF7F2] transition shadow-2xs cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 text-[#8C6D37]" />
           <span>Back to Induction Overview</span>
@@ -67,11 +67,10 @@ export const PlaceholderLearningRoute: React.FC<PlaceholderLearningRouteProps> =
             <button
               onClick={handleMarkComplete}
               disabled={isCompleted || marking}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer ${
-                isCompleted
-                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 cursor-default'
-                  : 'bg-[#D4AF37] hover:bg-[#C29D29] text-[#1A120B]'
-              }`}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition shadow-xs cursor-pointer ${isCompleted
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 cursor-default'
+                : 'bg-[#D4AF37] hover:bg-[#C29D29] text-[#1A120B]'
+                }`}
             >
               {isCompleted ? (
                 <>
@@ -101,7 +100,7 @@ export const PlaceholderLearningRoute: React.FC<PlaceholderLearningRouteProps> =
 
         {/* Milestone Meta */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-          <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EFE7DE]">
+          <div className="p-3.5 rounded-lg bg-[#FAF7F2] border border-[#EFE7DE]">
             <span className="text-[10px] uppercase font-bold text-stone-500">Duration</span>
             <p className="text-xs font-bold text-[#2B1810] mt-0.5 flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-[#8C6D37]" />
@@ -109,7 +108,7 @@ export const PlaceholderLearningRoute: React.FC<PlaceholderLearningRouteProps> =
             </p>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EFE7DE]">
+          <div className="p-3.5 rounded-lg bg-[#FAF7F2] border border-[#EFE7DE]">
             <span className="text-[10px] uppercase font-bold text-stone-500">Curriculum Status</span>
             <p className="text-xs font-bold text-[#2B1810] mt-0.5 flex items-center gap-1.5">
               <CheckCircle2 className={`w-3.5 h-3.5 ${isCompleted ? 'text-emerald-600' : 'text-[#8C6D37]'}`} />
@@ -117,7 +116,7 @@ export const PlaceholderLearningRoute: React.FC<PlaceholderLearningRouteProps> =
             </p>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EFE7DE]">
+          <div className="p-3.5 rounded-lg bg-[#FAF7F2] border border-[#EFE7DE]">
             <span className="text-[10px] uppercase font-bold text-stone-500">Assessment</span>
             <p className="text-xs font-bold text-[#2B1810] mt-0.5 flex items-center gap-1.5">
               <FileCheck className="w-3.5 h-3.5 text-[#8C6D37]" />
@@ -127,7 +126,7 @@ export const PlaceholderLearningRoute: React.FC<PlaceholderLearningRouteProps> =
         </div>
 
         {/* Informational Callout */}
-        <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#E2D8CF] text-xs text-[#2B1810] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-4 rounded-lg bg-[#FAF7F2] border border-[#E2D8CF] text-xs text-[#2B1810] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <span className="font-bold block text-sm">Neon PostgreSQL Connected</span>
             <p className="text-stone-600 text-xs mt-0.5">
@@ -136,7 +135,7 @@ export const PlaceholderLearningRoute: React.FC<PlaceholderLearningRouteProps> =
           </div>
           <button
             onClick={onBack}
-            className="px-4 py-2 rounded-xl bg-[#2B1810] text-[#FAF7F2] font-bold text-xs hover:bg-[#3D2217] transition shrink-0 cursor-pointer"
+            className="px-4 py-2 rounded-lg bg-[#2B1810] text-[#FAF7F2] font-bold text-xs hover:bg-[#3D2217] transition shrink-0 cursor-pointer"
           >
             Return to Dashboard
           </button>

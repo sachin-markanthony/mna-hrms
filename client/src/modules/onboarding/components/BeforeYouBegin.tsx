@@ -12,7 +12,7 @@ export const BeforeYouBegin: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E5DDD5] p-5 sm:p-6 shadow-xs">
+    <div className="bg-white rounded-lg border border-[#E5DDD5] p-5 sm:p-6 shadow-xs">
       <div className="mb-4 pb-3 border-b border-[#F0EAE1]">
         <span className="text-[10px] font-bold uppercase tracking-wider text-[#8C6D37]">
           Handbook Compliance
@@ -31,7 +31,7 @@ export const BeforeYouBegin: React.FC = () => {
           return (
             <div
               key={idx}
-              className="p-3 rounded-xl bg-[#FAF7F2] border border-[#EFE7DE] flex flex-col justify-between"
+              className="p-3 rounded-lg bg-[#FAF7F2] border border-[#EFE7DE] flex flex-col justify-between"
             >
               <div className="w-7 h-7 rounded-lg bg-white border border-[#DDD3C9] flex items-center justify-center text-[#8C6D37] mb-2">
                 <Icon className="w-3.5 h-3.5" />

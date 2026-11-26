@@ -11,6 +11,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { CurrentUser } from '../../core/decorators/current-user.decorator.js';
+import { RequirePermissions } from '../../core/decorators/permissions.decorator.js';
 import { AppRole, Roles } from '../../core/decorators/roles.decorator.js';
 import type { RequestMeta } from '../auth/auth.service.js';
 import type { AuthenticatedUser } from '../auth/types/jwt-payload.type.js';
@@ -38,6 +39,7 @@ export class LeaveController {
   }
 
   @Roles(AppRole.SUPER_ADMIN, AppRole.HR_ADMIN)
+  @RequirePermissions('leave:approve_all')
   @Post('balances/initialize')
   @ApiOperation({ summary: 'Initialize or update annual leave balances for an employee (HR / SuperAdmin)' })
   initializeBalances(
@@ -99,6 +101,7 @@ export class LeaveController {
   }
 
   @Roles(AppRole.HR_ADMIN, AppRole.HR_COORDINATOR, AppRole.SUPER_ADMIN)
+  @RequirePermissions('leave:approve_all')
   @Patch('requests/:id/hr-decision')
   @ApiOperation({ summary: 'Submit HR approval/rejection for an employee leave request' })
   submitHrDecision(

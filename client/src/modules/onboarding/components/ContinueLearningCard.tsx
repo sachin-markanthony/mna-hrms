@@ -16,7 +16,7 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
   const isStarted = !!chapter;
 
   return (
-    <div className="induction-hero-surface relative overflow-hidden rounded-2xl p-6 sm:p-7">
+    <div className="induction-hero-surface relative overflow-hidden rounded-lg p-6 sm:p-7">
       <div className="induction-hero-glow absolute right-0 bottom-0 w-64 h-64 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -63,7 +63,7 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
         <div className="shrink-0 w-full md:w-auto">
           <button
             onClick={onContinue}
-            className="induction-primary-button w-full md:w-auto flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition hover:scale-[1.02] cursor-pointer"
+            className="induction-primary-button w-full md:w-auto flex items-center justify-center gap-3 px-6 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition hover:scale-[1.02] cursor-pointer"
           >
             <div className="induction-hero-icon-disc w-6 h-6 rounded-full flex items-center justify-center">
               <Play className="w-3 h-3 fill-current ml-0.5" />

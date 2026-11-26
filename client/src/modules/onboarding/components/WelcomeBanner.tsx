@@ -46,17 +46,17 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
 
           {/* Employee Meta Tags */}
           <div className="flex flex-wrap items-center gap-2.5 pt-1.5 text-[11px]">
-            <div className="induction-hero-chip flex items-center gap-1.5 px-3 py-1.5 rounded-xl">
+            <div className="induction-hero-chip flex items-center gap-1.5 px-3 py-1.5 rounded-lg">
               <Briefcase className="induction-hero-accent w-3.5 h-3.5" />
               <span className="induction-hero-title font-medium">{employee?.designation || 'Senior Investment Advisor'}</span>
             </div>
 
-            <div className="induction-hero-chip flex items-center gap-1.5 px-3 py-1.5 rounded-xl">
+            <div className="induction-hero-chip flex items-center gap-1.5 px-3 py-1.5 rounded-lg">
               <Calendar className="induction-hero-accent w-3.5 h-3.5" />
               <span>Joined {employee?.joiningDate || '10 Feb 2026'}</span>
             </div>
 
-            <div className="induction-hero-chip flex items-center gap-1.5 px-3 py-1.5 rounded-xl">
+            <div className="induction-hero-chip flex items-center gap-1.5 px-3 py-1.5 rounded-lg">
               <Award className="text-[#1A98FF] w-3.5 h-3.5" />
               <span>Status: <strong className="text-emerald-300">{progress?.status || 'In Progress'}</strong></span>
             </div>
@@ -67,7 +67,7 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
         <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3.5 shrink-0 w-full sm:w-auto">
           <button
             onClick={onContinue}
-            className="induction-primary-button w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-xs tracking-wider uppercase transition hover:scale-[1.02] cursor-pointer"
+            className="induction-primary-button w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-bold text-xs tracking-wider uppercase transition hover:scale-[1.02] cursor-pointer"
           >
             <span>Continue Learning</span>
             <ArrowRight className="w-4 h-4" />

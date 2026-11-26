@@ -29,11 +29,11 @@ export const InductionSubNav: React.FC<InductionSubNavProps> = ({
 
   const filteredChapters = searchQuery.trim()
     ? chapters.filter(
-        (c) =>
-          c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.chapterNumber.toString().includes(searchQuery) ||
-          c.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      (c) =>
+        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.chapterNumber.toString().includes(searchQuery) ||
+        c.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : [];
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export const InductionSubNav: React.FC<InductionSubNavProps> = ({
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs mb-6">
+    <div className="bg-white rounded-lg border border-slate-200/90 p-4 shadow-xs mb-6">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Module Sub-tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
@@ -66,20 +66,18 @@ export const InductionSubNav: React.FC<InductionSubNavProps> = ({
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer ${
-                  isActive
-                    ? 'bg-[#1e3a8a] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                }`}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${isActive
+                  ? 'bg-[#1e3a8a] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
               >
                 <span>{tab.label}</span>
                 {tab.badge && (
                   <span
-                    className={`text-[10px] px-2 py-0.2 rounded-full font-semibold ${
-                      isActive
-                        ? 'bg-white/20 text-white'
-                        : 'bg-slate-100 text-slate-500'
-                    }`}
+                    className={`text-[10px] px-2 py-0.2 rounded-full font-semibold ${isActive
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-100 text-slate-500'
+                      }`}
                   >
                     {tab.badge}
                   </span>
@@ -102,13 +100,13 @@ export const InductionSubNav: React.FC<InductionSubNavProps> = ({
                 setShowSearchDropdown(true);
               }}
               onFocus={() => setShowSearchDropdown(true)}
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 focus:border-[#1e3a8a] text-slate-800 placeholder-slate-400"
+              className="w-full pl-9 pr-4 py-2 text-xs rounded-lg bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 focus:border-[#1e3a8a] text-slate-800 placeholder-slate-400"
             />
           </div>
 
           {/* Search Dropdown */}
           {showSearchDropdown && searchQuery.trim().length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg max-h-72 overflow-y-auto p-2 z-50">
+            <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-lg shadow-lg max-h-72 overflow-y-auto p-2 z-50">
               <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Handbook Chapters ({filteredChapters.length})
               </div>

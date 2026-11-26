@@ -72,7 +72,7 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onOpenMobileSidebar}
-            className="md:hidden p-2 rounded-xl text-[#2B1810] hover:bg-[#EFE7DE] transition"
+            className="md:hidden p-2 rounded-lg text-[#2B1810] hover:bg-[#EFE7DE] transition"
             aria-label="Open sidebar"
           >
             <Menu className="w-5 h-5" />
@@ -103,13 +103,13 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
                 setShowSearchDropdown(true);
               }}
               onFocus={() => setShowSearchDropdown(true)}
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-white border border-[#DDD3C9] focus:outline-none focus:ring-2 focus:ring-[#8C6D37]/30 focus:border-[#8C6D37] text-[#2B1810] placeholder-stone-400 shadow-2xs"
+              className="w-full pl-9 pr-4 py-2 text-xs rounded-lg bg-white border border-[#DDD3C9] focus:outline-none focus:ring-2 focus:ring-[#8C6D37]/30 focus:border-[#8C6D37] text-[#2B1810] placeholder-stone-400 shadow-2xs"
             />
           </div>
 
           {/* Search Dropdown Results */}
           {showSearchDropdown && searchQuery.trim().length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#E0D5CB] rounded-xl shadow-lg max-h-72 overflow-y-auto p-2 z-50">
+            <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#E0D5CB] rounded-lg shadow-lg max-h-72 overflow-y-auto p-2 z-50">
               <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-500">
                 Handbook Chapters ({filteredChapters.length} matched)
               </div>
@@ -150,7 +150,7 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
           <div ref={notifRef} className="relative">
             <button
               onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-              className="relative p-2 rounded-xl bg-white border border-[#DDD3C9] text-[#2B1810] hover:bg-[#F5ECE1] transition shadow-2xs cursor-pointer"
+              className="relative p-2 rounded-lg bg-white border border-[#DDD3C9] text-[#2B1810] hover:bg-[#F5ECE1] transition shadow-2xs cursor-pointer"
               aria-label="Notifications"
             >
               <Bell className="w-4.5 h-4.5 text-[#3D2217]" />
@@ -162,7 +162,7 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
             </button>
 
             {showNotifDropdown && (
-              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white border border-[#E0D5CB] rounded-2xl shadow-xl p-3 z-50">
+              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white border border-[#E0D5CB] rounded-lg shadow-xl p-3 z-50">
                 <div className="flex items-center justify-between pb-2 border-b border-[#EFE7DE] mb-2 px-1">
                   <span className="text-xs font-bold text-[#2B1810] uppercase tracking-wide">
                     Induction Notifications ({unreadNotifsCount} new)
@@ -176,7 +176,7 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
                     <div
                       key={notif.id}
                       onClick={() => onMarkNotificationRead(notif.id)}
-                      className={`p-2.5 rounded-xl border text-xs transition cursor-pointer ${notif.read
+                      className={`p-2.5 rounded-lg border text-xs transition cursor-pointer ${notif.read
                         ? 'bg-[#FAF7F2] border-[#E8DFD8] text-stone-600'
                         : 'bg-white border-[#D4AF37]/50 shadow-2xs text-[#2B1810]'
                         }`}
@@ -206,7 +206,7 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
                 'MA Ventures Employee Learning Help Center\n\nFor queries regarding real estate induction modules, handbook chapters, or assessment deadlines, reach out to HR L&D at induction@maventures.com.'
               )
             }
-            className="p-2 rounded-xl bg-white border border-[#DDD3C9] text-[#2B1810] hover:bg-[#F5ECE1] transition shadow-2xs cursor-pointer"
+            className="p-2 rounded-lg bg-white border border-[#DDD3C9] text-[#2B1810] hover:bg-[#F5ECE1] transition shadow-2xs cursor-pointer"
             aria-label="Help & Guidance"
             title="Induction Handbook Guide"
           >
@@ -217,7 +217,7 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
           <div ref={profileRef} className="relative">
             <button
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className="flex items-center gap-2.5 p-1 sm:pl-2.5 sm:pr-2 rounded-xl bg-white border border-[#DDD3C9] hover:bg-[#F5ECE1] transition shadow-2xs cursor-pointer"
+              className="flex items-center gap-2.5 p-1 sm:pl-2.5 sm:pr-2 rounded-lg bg-white border border-[#DDD3C9] hover:bg-[#F5ECE1] transition shadow-2xs cursor-pointer"
             >
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-bold text-[#2B1810] leading-tight">
@@ -239,12 +239,12 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
             </button>
 
             {showProfileDropdown && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-[#E0D5CB] rounded-2xl shadow-xl p-3 z-50">
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-[#E0D5CB] rounded-lg shadow-xl p-3 z-50">
                 <div className="flex items-center gap-3 p-2 border-b border-[#EFE7DE] mb-2">
                   <img
                     src={employee?.profileImage}
                     alt="Employee"
-                    className="w-10 h-10 rounded-xl object-cover border border-[#D4AF37]"
+                    className="w-10 h-10 rounded-lg object-cover border border-[#D4AF37]"
                   />
                   <div>
                     <h4 className="text-xs font-bold text-[#2B1810]">{employee?.fullName}</h4>

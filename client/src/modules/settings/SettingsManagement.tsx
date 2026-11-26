@@ -27,8 +27,8 @@ import type {
 type TabId = 'users' | 'rbac' | 'org' | 'designations' | 'shifts';
 
 export function SettingsManagement() {
-  const { user } = useAuth();
-  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+  const { user, hasPermission } = useAuth();
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN' || hasPermission('roles:manage');
 
   const [activeTab, setActiveTab] = useState<TabId>('users');
   const [loading, setLoading] = useState(true);
@@ -341,15 +341,12 @@ export function SettingsManagement() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Master Settings &amp; Access Control
             </h1>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-              Admin Governance
-            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Manage users, dynamic RBAC permissions, departments, teams, designations &amp; shift grace periods.
@@ -359,7 +356,7 @@ export function SettingsManagement() {
         <button
           type="button"
           onClick={() => void loadAll()}
-          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -367,19 +364,19 @@ export function SettingsManagement() {
       </div>
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
+        <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
           {error}
         </div>
       )}
       {notice && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-medium">
+        <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-medium">
           {notice}
         </div>
       )}
 
       {/* Navigation Tabs */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="px-6 py-3.5 border-b border-slate-200 flex flex-wrap items-center gap-2">
+      <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="px-6 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center gap-2">
           {(
             [
               { id: 'users', label: `Users & Access (${users.length})`, icon: Users, show: true },
@@ -397,11 +394,10 @@ export function SettingsManagement() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:bg-slate-100'
-                  }`}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${activeTab === tab.id
+                    ? 'bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100'
+                    }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   {tab.label}
@@ -413,7 +409,7 @@ export function SettingsManagement() {
         {/* TAB 1: USERS & ACCESS */}
         {activeTab === 'users' && (
           <div>
-            <div className="p-4 border-b border-slate-200">
+            <div className="p-4 border-b border-slate-200/80 dark:border-slate-800">
               <div className="relative max-w-sm">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
@@ -421,7 +417,7 @@ export function SettingsManagement() {
                   placeholder="Search user name, email, or EMP ID..."
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs"
+                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-xs"
                 />
               </div>
             </div>
@@ -429,7 +425,7 @@ export function SettingsManagement() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
+                  <tr className="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase">
                     <th className="py-3 px-4">User</th>
                     <th className="py-3 px-4">Role Assignment</th>
                     <th className="py-3 px-4">Team</th>
@@ -437,9 +433,9 @@ export function SettingsManagement() {
                     {isSuperAdmin && <th className="py-3 px-4">Impersonate</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
                   {filteredUsers.map((u) => (
-                    <tr key={u.id} className="hover:bg-slate-50/70">
+                    <tr key={u.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
                       <td className="py-3 px-4">
                         <div className="font-bold text-slate-900">
                           {u.name}{' '}
@@ -515,11 +511,10 @@ export function SettingsManagement() {
                                 canImpersonate: !u.canImpersonate,
                               })
                             }
-                            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${
-                              u.canImpersonate
-                                ? 'bg-amber-50 text-amber-800 border-amber-200'
-                                : 'bg-slate-50 text-slate-600 border-slate-200'
-                            }`}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${u.canImpersonate
+                              ? 'bg-amber-50 text-amber-800 border-amber-200'
+                              : 'bg-slate-50 text-slate-600 border-slate-200'
+                              }`}
                           >
                             {u.canImpersonate ? 'Allowed' : 'Disabled'}
                           </button>
@@ -542,7 +537,7 @@ export function SettingsManagement() {
                 <button
                   type="button"
                   onClick={() => setRoleModalOpen(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 text-white text-[11px] font-semibold"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-[11px] font-semibold"
                 >
                   <Plus className="w-3 h-3" />
                   New Role
@@ -553,11 +548,10 @@ export function SettingsManagement() {
                   <div
                     key={r.id}
                     onClick={() => selectRole(r)}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-colors ${
-                      selectedRoleId === r.id
-                        ? 'border-slate-900 bg-slate-50'
-                        : 'border-slate-200 hover:bg-slate-50'
-                    }`}
+                    className={`p-3.5 rounded-lg border cursor-pointer transition-colors ${selectedRoleId === r.id
+                      ? 'border-slate-900 bg-slate-50'
+                      : 'border-slate-200 hover:bg-slate-50'
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-900">{r.displayName}</span>
@@ -576,7 +570,7 @@ export function SettingsManagement() {
             <div className="lg:col-span-2 space-y-4">
               {selectedRole && (
                 <>
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                  <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-3">
                     <div>
                       <h3 className="text-sm font-bold text-slate-900">
                         {selectedRole.displayName} Permissions
@@ -588,7 +582,7 @@ export function SettingsManagement() {
                         type="button"
                         disabled={busy}
                         onClick={() => void handleSavePermissions()}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
                       >
                         <Save className="w-3.5 h-3.5" />
                         Save Permissions
@@ -597,7 +591,7 @@ export function SettingsManagement() {
                   </div>
 
                   {selectedRole.name === 'SUPER_ADMIN' && (
-                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800">
+                    <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800">
                       SuperAdmin retains universal system permissions and cannot be restricted.
                     </div>
                   )}
@@ -606,7 +600,7 @@ export function SettingsManagement() {
                     {permissionsByModule.map(([mod, perms]) => (
                       <div
                         key={mod}
-                        className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2"
+                        className="p-4 rounded-lg border border-slate-200 bg-slate-50/50 space-y-2"
                       >
                         <div className="text-[11px] font-bold uppercase text-slate-500 flex items-center gap-1.5">
                           <KeyRound className="w-3 h-3" />
@@ -655,17 +649,17 @@ export function SettingsManagement() {
                   placeholder="New department name..."
                   value={deptForm.name}
                   onChange={(e) => setDeptForm({ ...deptForm, name: e.target.value })}
-                  className="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                  className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-xs"
                 />
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold"
+                  className="px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold"
                 >
                   Add
                 </button>
               </form>
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-lg">
                 {departments.map((d) => (
                   <div key={d.id} className="p-3.5 flex items-center justify-between text-xs">
                     <div>
@@ -701,17 +695,17 @@ export function SettingsManagement() {
                   placeholder="New team name..."
                   value={teamForm.name}
                   onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
-                  className="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                  className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-xs"
                 />
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold"
+                  className="px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold"
                 >
                   Add
                 </button>
               </form>
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-lg">
                 {teams.map((t) => (
                   <div key={t.id} className="p-3.5 flex items-center justify-between text-xs">
                     <div>
@@ -754,7 +748,7 @@ export function SettingsManagement() {
                   placeholder="Senior Property Advisor"
                   value={desigForm.title}
                   onChange={(e) => setDesigForm({ ...desigForm, title: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                 />
               </div>
               <div>
@@ -764,7 +758,7 @@ export function SettingsManagement() {
                 <select
                   value={desigForm.departmentId}
                   onChange={(e) => setDesigForm({ ...desigForm, departmentId: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                 >
                   <option value="">All / General</option>
                   {departments.map((d) => (
@@ -782,19 +776,19 @@ export function SettingsManagement() {
                   placeholder="Optional summary"
                   value={desigForm.description}
                   onChange={(e) => setDesigForm({ ...desigForm, description: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                 />
               </div>
               <button
                 type="submit"
                 disabled={busy}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold"
+                className="px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold"
               >
                 Add Designation
               </button>
             </form>
 
-            <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-lg">
               {designations.length === 0 ? (
                 <div className="p-6 text-center text-xs text-slate-500">
                   No designations configured yet.
@@ -805,7 +799,7 @@ export function SettingsManagement() {
                     <div>
                       <div className="font-bold text-slate-900">{des.title}</div>
                       <div className="text-[11px] text-slate-500">
-                        {des.department?.name ?? 'General'} {des.description ? `• ${des.description}` : ''}
+                        {des.department?.name ?? 'General'} {des.description ? `â€¢ ${des.description}` : ''}
                       </div>
                     </div>
                     <button
@@ -833,7 +827,7 @@ export function SettingsManagement() {
           <div className="p-6 space-y-6">
             <form
               onSubmit={(e) => void handleCreateShift(e)}
-              className="p-4 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-6 gap-3 items-end text-xs"
+              className="p-4 rounded-lg bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-6 gap-3 items-end text-xs"
             >
               <div className="sm:col-span-2">
                 <label className="block font-semibold text-slate-700 mb-1">Shift Name</label>
@@ -842,7 +836,7 @@ export function SettingsManagement() {
                   placeholder="General Office Shift"
                   value={shiftForm.name}
                   onChange={(e) => setShiftForm({ ...shiftForm, name: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
                 />
               </div>
               <div>
@@ -852,7 +846,7 @@ export function SettingsManagement() {
                   required
                   value={shiftForm.startTime}
                   onChange={(e) => setShiftForm({ ...shiftForm, startTime: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
                 />
               </div>
               <div>
@@ -862,7 +856,7 @@ export function SettingsManagement() {
                   required
                   value={shiftForm.endTime}
                   onChange={(e) => setShiftForm({ ...shiftForm, endTime: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
                 />
               </div>
               <div>
@@ -876,19 +870,19 @@ export function SettingsManagement() {
                   onChange={(e) =>
                     setShiftForm({ ...shiftForm, gracePeriodMinutes: Number(e.target.value) })
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 bg-white"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
                 />
               </div>
               <button
                 type="submit"
                 disabled={busy}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold"
+                className="px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs font-semibold"
               >
                 Add Shift
               </button>
             </form>
 
-            <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-lg">
               {shifts.map((s) => (
                 <div
                   key={s.id}
@@ -946,8 +940,8 @@ export function SettingsManagement() {
       {/* Create Custom Role Modal */}
       {roleModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-900">Create Custom Role</h2>
               <button
                 type="button"
@@ -967,7 +961,7 @@ export function SettingsManagement() {
                   placeholder="FINANCE_MANAGER"
                   value={newRoleForm.name}
                   onChange={(e) => setNewRoleForm({ ...newRoleForm, name: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
                 />
               </div>
               <div>
@@ -979,7 +973,7 @@ export function SettingsManagement() {
                   onChange={(e) =>
                     setNewRoleForm({ ...newRoleForm, displayName: e.target.value })
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
                 />
               </div>
               <div>
@@ -990,21 +984,21 @@ export function SettingsManagement() {
                   onChange={(e) =>
                     setNewRoleForm({ ...newRoleForm, description: e.target.value })
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setRoleModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 font-semibold text-slate-600"
+                  className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-slate-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold"
+                  className="px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs font-semibold"
                 >
                   Create Role
                 </button>

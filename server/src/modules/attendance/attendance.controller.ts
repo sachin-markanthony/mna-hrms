@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { CurrentUser } from '../../core/decorators/current-user.decorator.js';
+import { RequirePermissions } from '../../core/decorators/permissions.decorator.js';
 import { Public } from '../../core/decorators/public.decorator.js';
 import { AppRole, Roles } from '../../core/decorators/roles.decorator.js';
 import type { RequestMeta } from '../auth/auth.service.js';
@@ -110,6 +111,7 @@ export class AttendanceController {
 
   @ApiBearerAuth('JWT-auth')
   @Roles(AppRole.SUPER_ADMIN, AppRole.HR_ADMIN)
+  @RequirePermissions('attendance:latecomer_control')
   @Post('reconcile')
   @ApiQuery({ name: 'date', required: false, example: '2026-11-25' })
   @ApiOperation({ summary: 'Manually trigger daily attendance reconciliation (HR Admin / SuperAdmin)' })
@@ -119,6 +121,7 @@ export class AttendanceController {
 
   @ApiBearerAuth('JWT-auth')
   @Roles(AppRole.SUPER_ADMIN, AppRole.HR_ADMIN)
+  @RequirePermissions('attendance:latecomer_control')
   @Post('latecomer-scan')
   @ApiOperation({ summary: 'Manually trigger 09:45 AM latecomer scan (HR Admin / SuperAdmin)' })
   runLatecomerScan() {

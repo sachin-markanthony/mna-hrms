@@ -72,7 +72,7 @@ function formatDate(iso: string) {
 }
 
 export function LeaveManagement() {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const [balances, setBalances] = useState<LeaveBalance[]>([]);
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [calendarItems, setCalendarItems] = useState<LeaveRequest[]>([]);
@@ -130,7 +130,8 @@ export function LeaveManagement() {
   const canActAsHr =
     user?.role === 'HR_ADMIN' ||
     user?.role === 'HR_COORDINATOR' ||
-    user?.role === 'SUPER_ADMIN';
+    user?.role === 'SUPER_ADMIN' ||
+    (hasPermission('leave:approve_all') && user?.role !== 'TEAM_LEADER');
 
   const handleApplySubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -202,15 +203,12 @@ export function LeaveManagement() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Leave Management
             </h1>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Dual Approval: Team Lead + HR
-            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Requests require both Team Lead and HR approval before finalizing and syncing to Attendance Master.
@@ -221,7 +219,7 @@ export function LeaveManagement() {
           <button
             type="button"
             onClick={() => void loadData()}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -232,7 +230,7 @@ export function LeaveManagement() {
               setFormError(null);
               setModalOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Apply Leave
@@ -241,7 +239,7 @@ export function LeaveManagement() {
       </div>
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
+        <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
           {error}
         </div>
       )}
@@ -254,7 +252,7 @@ export function LeaveManagement() {
           return (
             <div
               key={lt}
-              className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between"
+              className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between"
             >
               <div className="flex items-center justify-between">
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${meta.bg} ${meta.accent}`}>
@@ -266,7 +264,7 @@ export function LeaveManagement() {
               </div>
               <div className="mt-4 flex items-baseline justify-between">
                 <div>
-                  <p className="text-2xl font-extrabold text-slate-900">
+                  <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
                     {lt === 'LOP' ? bal?.usedDays ?? 0 : bal?.remainingDays ?? 0}
                   </p>
                   <p className="text-[11px] text-slate-500 mt-0.5">
@@ -286,28 +284,26 @@ export function LeaveManagement() {
       </div>
 
       {/* Tabs & Filters */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setActiveTab('requests')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeTab === 'requests'
-                  ? 'bg-slate-900 text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${activeTab === 'requests'
+                ? 'bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100'
+                }`}
             >
               Leave Requests ({requests.length})
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('calendar')}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeTab === 'calendar'
-                  ? 'bg-slate-900 text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${activeTab === 'calendar'
+                ? 'bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100'
+                }`}
             >
               <CalendarDays className="w-3.5 h-3.5" />
               Team Leave Calendar ({calendarItems.length})
@@ -321,11 +317,10 @@ export function LeaveManagement() {
                   key={st}
                   type="button"
                   onClick={() => setStatusFilter(st)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-colors ${
-                    statusFilter === st
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                  }`}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-colors ${statusFilter === st
+                    ? 'bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs border-slate-900'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }`}
                 >
                   {st}
                 </button>
@@ -335,7 +330,7 @@ export function LeaveManagement() {
         </div>
 
         {activeTab === 'requests' ? (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/70">
             {loading ? (
               <div className="p-8 text-center text-xs text-slate-500">
                 Loading leave requests...
@@ -365,7 +360,7 @@ export function LeaveManagement() {
                 return (
                   <div
                     key={req.id}
-                    className="p-5 hover:bg-slate-50/70 transition-colors flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+                    className="p-5 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
                   >
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-2">
@@ -488,7 +483,7 @@ export function LeaveManagement() {
                 {calendarItems.map((item) => (
                   <div
                     key={item.id}
-                    className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2"
+                    className="p-4 rounded-lg border border-slate-200 bg-slate-50/50 space-y-2"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-900">
@@ -516,8 +511,8 @@ export function LeaveManagement() {
       {/* Apply Leave Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-900">Apply for Leave</h2>
               <button
                 type="button"
@@ -530,7 +525,7 @@ export function LeaveManagement() {
 
             <form onSubmit={(e) => void handleApplySubmit(e)} className="p-6 space-y-4">
               {formError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
+                <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
                   {formError}
                 </div>
               )}
@@ -542,7 +537,7 @@ export function LeaveManagement() {
                 <select
                   value={leaveType}
                   onChange={(e) => setLeaveType(e.target.value as LeaveType)}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
                 >
                   <option value="CASUAL">Casual Leave</option>
                   <option value="SICK">Sick Leave</option>
@@ -561,7 +556,7 @@ export function LeaveManagement() {
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
                   />
                 </div>
                 <div>
@@ -573,13 +568,13 @@ export function LeaveManagement() {
                     required
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
                   />
                 </div>
               </div>
 
               {requestedDays > 0 && (
-                <div className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-2 rounded-xl">
+                <div className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-2 rounded-lg">
                   Total Duration: {requestedDays} {requestedDays === 1 ? 'day' : 'days'}
                 </div>
               )}
@@ -595,7 +590,7 @@ export function LeaveManagement() {
                   placeholder="Provide reason for leave..."
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
                 />
               </div>
 
@@ -603,14 +598,14 @@ export function LeaveManagement() {
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                  className="px-4 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
                 >
                   {submitting ? 'Submitting...' : 'Submit Request'}
                 </button>

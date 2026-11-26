@@ -72,7 +72,7 @@ export function CandidateDrawer({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Rejection Alert Banner (if candidate was rejected) */}
           {(candidate.status === 'REJECTED_HR' || candidate.status === 'REJECTED_MR') && (
-            <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 space-y-1">
+            <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 space-y-1">
               <div className="flex items-center gap-2 font-bold text-xs">
                 <AlertOctagon className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                 <span>
@@ -89,14 +89,14 @@ export function CandidateDrawer({
 
           {/* Selection Banner */}
           {candidate.status === 'SELECTED' && (
-            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 text-xs font-bold">
+            <div className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 text-xs font-bold">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>Candidate has cleared both HR & MR Rounds and is Selected for Offer!</span>
             </div>
           )}
 
           {/* Quick Contact & Visit Info Grid */}
-          <div className="grid grid-cols-2 gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs">
+          <div className="grid grid-cols-2 gap-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs">
             <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
               <Calendar className="w-4 h-4 text-[#072b53] dark:text-amber-400" />
               <span>
@@ -154,13 +154,12 @@ export function CandidateDrawer({
 
             {/* Round 1: HR Round */}
             <div
-              className={`p-4 rounded-xl border transition-all ${
-                candidate.status === 'REJECTED_HR'
+              className={`p-4 rounded-lg border transition-all ${candidate.status === 'REJECTED_HR'
                   ? 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-300 dark:border-rose-800'
                   : candidate.hrEvaluatedAt
-                  ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800'
-                  : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
-              }`}
+                    ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800'
+                    : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+                }`}
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -214,13 +213,12 @@ export function CandidateDrawer({
 
             {/* Round 2: MR Round (Management Round) */}
             <div
-              className={`p-4 rounded-xl border transition-all ${
-                candidate.status === 'REJECTED_MR'
+              className={`p-4 rounded-lg border transition-all ${candidate.status === 'REJECTED_MR'
                   ? 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-300 dark:border-rose-800'
                   : candidate.status === 'SELECTED'
-                  ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800'
-                  : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
-              }`}
+                    ? 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800'
+                    : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+                }`}
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -280,7 +278,7 @@ export function CandidateDrawer({
         <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#0f172a] flex items-center justify-between">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors"
+            className="px-4 py-2 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors"
           >
             Close
           </button>
@@ -291,7 +289,7 @@ export function CandidateDrawer({
             candidate.status !== 'REJECTED_MR' && (
               <button
                 onClick={() => onEvaluateRound(candidate)}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2"
               >
                 <Award className="w-4 h-4 text-amber-400" />
                 Evaluate {candidate.status === 'MR_ROUND' ? 'MR Round' : 'HR Round'}
