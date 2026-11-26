@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -34,7 +34,7 @@ function statusBadge(status: AttendanceStatus) {
 }
 
 function formatDate(iso?: string | null) {
-  if (!iso) return '—';
+  if (!iso) return 'â€”';
   return new Date(iso).toLocaleDateString('en-IN', {
     day: '2-digit',
     month: 'short',
@@ -44,7 +44,7 @@ function formatDate(iso?: string | null) {
 }
 
 function formatTime(iso?: string | null) {
-  if (!iso) return '—';
+  if (!iso) return 'â€”';
   return new Date(iso).toLocaleTimeString('en-IN', {
     hour: '2-digit',
     minute: '2-digit',
@@ -163,10 +163,10 @@ export function AttendanceManagement() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Attendance &amp; Time Management
             </h1>
             <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
@@ -217,39 +217,39 @@ export function AttendanceManagement() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>Present Days</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{stats.present}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.present}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>Latecomer Flags</span>
             <AlertTriangle className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{stats.late}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.late}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>GPS Site Visits</span>
             <MapPin className="w-4 h-4 text-indigo-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{stats.visits}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.visits}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>Pending Regularizations</span>
             <ShieldAlert className="w-4 h-4 text-rose-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{stats.pendingReg}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.pendingReg}</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="px-6 py-3.5 border-b border-slate-200 flex flex-wrap items-center gap-2">
+      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="px-6 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center gap-2">
           {(
             [
               { id: 'master', label: `Daily Master (${master.length})` },
@@ -264,7 +264,7 @@ export function AttendanceManagement() {
               onClick={() => setActiveTab(t.id)}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 activeTab === t.id
-                  ? 'bg-slate-900 text-white'
+                  ? 'bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs'
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
@@ -277,7 +277,7 @@ export function AttendanceManagement() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
+                <tr className="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase">
                   <th className="py-3 px-4">Employee</th>
                   <th className="py-3 px-4">Date</th>
                   <th className="py-3 px-4">First In / Last Out</th>
@@ -286,7 +286,7 @@ export function AttendanceManagement() {
                   <th className="py-3 px-4">Remarks</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
                 {master.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-slate-500">
@@ -295,7 +295,7 @@ export function AttendanceManagement() {
                   </tr>
                 ) : (
                   master.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/70">
+                    <tr key={row.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
                       <td className="py-3 px-4 font-semibold text-slate-900">
                         {row.user.name}{' '}
                         <span className="font-mono text-[10px] text-slate-500">
@@ -324,7 +324,7 @@ export function AttendanceManagement() {
                           </span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-slate-500">{row.remarks ?? '—'}</td>
+                      <td className="py-3 px-4 text-slate-500">{row.remarks ?? 'â€”'}</td>
                     </tr>
                   ))
                 )}
@@ -334,7 +334,7 @@ export function AttendanceManagement() {
         )}
 
         {activeTab === 'raw' && (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/70">
             {rawLogs.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-500">No raw punch logs yet.</div>
             ) : (
@@ -359,7 +359,7 @@ export function AttendanceManagement() {
         )}
 
         {activeTab === 'site-visits' && (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/70">
             {siteVisits.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-500">No GPS site visits logged.</div>
             ) : (
@@ -384,7 +384,7 @@ export function AttendanceManagement() {
         )}
 
         {activeTab === 'regularizations' && (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/70">
             {regularizations.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-500">
                 No regularization requests found.
@@ -440,8 +440,8 @@ export function AttendanceManagement() {
       {/* Regularization Modal */}
       {regModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-900">Request Attendance Regularization</h2>
               <button
                 type="button"
@@ -490,7 +490,7 @@ export function AttendanceManagement() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold"
+                  className="px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs font-semibold"
                 >
                   Submit Request
                 </button>

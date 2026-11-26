@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   Briefcase,
   Building2,
@@ -341,10 +341,10 @@ export function SettingsManagement() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Master Settings &amp; Access Control
             </h1>
             <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
@@ -378,8 +378,8 @@ export function SettingsManagement() {
       )}
 
       {/* Navigation Tabs */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="px-6 py-3.5 border-b border-slate-200 flex flex-wrap items-center gap-2">
+      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="px-6 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center gap-2">
           {(
             [
               { id: 'users', label: `Users & Access (${users.length})`, icon: Users, show: true },
@@ -399,7 +399,7 @@ export function SettingsManagement() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-slate-900 text-white'
+                      ? 'bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs'
                       : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
@@ -413,7 +413,7 @@ export function SettingsManagement() {
         {/* TAB 1: USERS & ACCESS */}
         {activeTab === 'users' && (
           <div>
-            <div className="p-4 border-b border-slate-200">
+            <div className="p-4 border-b border-slate-200/80 dark:border-slate-800">
               <div className="relative max-w-sm">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
@@ -429,7 +429,7 @@ export function SettingsManagement() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
+                  <tr className="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase">
                     <th className="py-3 px-4">User</th>
                     <th className="py-3 px-4">Role Assignment</th>
                     <th className="py-3 px-4">Team</th>
@@ -437,9 +437,9 @@ export function SettingsManagement() {
                     {isSuperAdmin && <th className="py-3 px-4">Impersonate</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
                   {filteredUsers.map((u) => (
-                    <tr key={u.id} className="hover:bg-slate-50/70">
+                    <tr key={u.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
                       <td className="py-3 px-4">
                         <div className="font-bold text-slate-900">
                           {u.name}{' '}
@@ -542,7 +542,7 @@ export function SettingsManagement() {
                 <button
                   type="button"
                   onClick={() => setRoleModalOpen(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 text-white text-[11px] font-semibold"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-[11px] font-semibold"
                 >
                   <Plus className="w-3 h-3" />
                   New Role
@@ -576,7 +576,7 @@ export function SettingsManagement() {
             <div className="lg:col-span-2 space-y-4">
               {selectedRole && (
                 <>
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                  <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-3">
                     <div>
                       <h3 className="text-sm font-bold text-slate-900">
                         {selectedRole.displayName} Permissions
@@ -588,7 +588,7 @@ export function SettingsManagement() {
                         type="button"
                         disabled={busy}
                         onClick={() => void handleSavePermissions()}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
                       >
                         <Save className="w-3.5 h-3.5" />
                         Save Permissions
@@ -660,12 +660,12 @@ export function SettingsManagement() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold"
+                  className="px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold"
                 >
                   Add
                 </button>
               </form>
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-xl">
                 {departments.map((d) => (
                   <div key={d.id} className="p-3.5 flex items-center justify-between text-xs">
                     <div>
@@ -706,12 +706,12 @@ export function SettingsManagement() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold"
+                  className="px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold"
                 >
                   Add
                 </button>
               </form>
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-xl">
                 {teams.map((t) => (
                   <div key={t.id} className="p-3.5 flex items-center justify-between text-xs">
                     <div>
@@ -788,13 +788,13 @@ export function SettingsManagement() {
               <button
                 type="submit"
                 disabled={busy}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold"
+                className="px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold"
               >
                 Add Designation
               </button>
             </form>
 
-            <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-xl">
               {designations.length === 0 ? (
                 <div className="p-6 text-center text-xs text-slate-500">
                   No designations configured yet.
@@ -805,7 +805,7 @@ export function SettingsManagement() {
                     <div>
                       <div className="font-bold text-slate-900">{des.title}</div>
                       <div className="text-[11px] text-slate-500">
-                        {des.department?.name ?? 'General'} {des.description ? `• ${des.description}` : ''}
+                        {des.department?.name ?? 'General'} {des.description ? `â€¢ ${des.description}` : ''}
                       </div>
                     </div>
                     <button
@@ -882,13 +882,13 @@ export function SettingsManagement() {
               <button
                 type="submit"
                 disabled={busy}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold"
+                className="px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs font-semibold"
               >
                 Add Shift
               </button>
             </form>
 
-            <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-xl">
               {shifts.map((s) => (
                 <div
                   key={s.id}
@@ -946,8 +946,8 @@ export function SettingsManagement() {
       {/* Create Custom Role Modal */}
       {roleModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-900">Create Custom Role</h2>
               <button
                 type="button"
@@ -1004,7 +1004,7 @@ export function SettingsManagement() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold"
+                  className="px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs font-semibold"
                 >
                   Create Role
                 </button>

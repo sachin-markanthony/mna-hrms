@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   BadgeCheck,
   Building2,
@@ -232,10 +232,10 @@ export function EmployeeDirectory() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Employee Directory &amp; KYC Vault
             </h1>
             <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -263,7 +263,7 @@ export function EmployeeDirectory() {
                 setCreateError(null);
                 setCreateOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800"
             >
               <Plus className="w-3.5 h-3.5" />
               Add Employee
@@ -280,39 +280,39 @@ export function EmployeeDirectory() {
 
       {/* KPI Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>Visible Headcount</span>
             <Users className="w-4 h-4 text-indigo-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{employees.length}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{employees.length}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>Departments</span>
             <Building2 className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{departments.length}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{departments.length}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>Teams</span>
             <UserCheck className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{teams.length}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{teams.length}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>Pending KYC Docs</span>
             <Shield className="w-4 h-4 text-rose-600" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{pendingKycCount}</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{pendingKycCount}</p>
         </div>
       </div>
 
       {/* Filters + Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
@@ -352,7 +352,7 @@ export function EmployeeDirectory() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 <th className="py-3 px-4">Employee</th>
                 <th className="py-3 px-4">Department &amp; Team</th>
                 <th className="py-3 px-4">Job Title</th>
@@ -361,7 +361,7 @@ export function EmployeeDirectory() {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70 text-xs">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-slate-500">
@@ -378,10 +378,10 @@ export function EmployeeDirectory() {
                 employees.map((emp) => {
                   const verifiedCount = emp.documents.filter((d) => d.isVerified).length;
                   return (
-                    <tr key={emp.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={emp.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-[11px]">
+                          <div className="w-8 h-8 rounded-full bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs flex items-center justify-center font-bold text-[11px]">
                             {emp.user.name
                               .split(' ')
                               .map((p) => p[0])
@@ -401,14 +401,14 @@ export function EmployeeDirectory() {
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="font-medium text-slate-800">
-                          {emp.department?.name ?? '—'}
+                          {emp.department?.name ?? 'â€”'}
                         </div>
                         <div className="text-[11px] text-slate-500">
                           {emp.user.team?.name ?? 'No Team'}
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-slate-700">
-                        {emp.jobTitle ?? '—'}
+                        {emp.jobTitle ?? 'â€”'}
                       </td>
                       <td className="py-3.5 px-4">
                         <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
@@ -455,8 +455,8 @@ export function EmployeeDirectory() {
       {/* Add Employee Modal */}
       {createOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white">
               <h2 className="text-sm font-bold text-slate-900">
                 Add New Employee (Auto-Syncs Leave Balances)
               </h2>
@@ -651,7 +651,7 @@ export function EmployeeDirectory() {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
                 >
                   {creating ? 'Provisioning...' : 'Create Employee'}
                 </button>
@@ -664,8 +664,8 @@ export function EmployeeDirectory() {
       {/* Employee Dossier Modal */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">
                   {selected.user.name}{' '}
@@ -687,7 +687,7 @@ export function EmployeeDirectory() {
               </button>
             </div>
 
-            <div className="px-6 pt-3 border-b border-slate-200 flex items-center gap-2">
+            <div className="px-6 pt-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center gap-2">
               {(['profile', 'vault', 'qr'] as const).map((tab) => (
                 <button
                   key={tab}
@@ -714,21 +714,21 @@ export function EmployeeDirectory() {
                   <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                     <div className="font-bold text-slate-800">Work &amp; Organization</div>
                     <div>Email: {selected.user.email}</div>
-                    <div>Phone: {selected.user.phone ?? '—'}</div>
-                    <div>Department: {selected.department?.name ?? '—'}</div>
-                    <div>Team: {selected.user.team?.name ?? '—'}</div>
+                    <div>Phone: {selected.user.phone ?? 'â€”'}</div>
+                    <div>Department: {selected.department?.name ?? 'â€”'}</div>
+                    <div>Team: {selected.user.team?.name ?? 'â€”'}</div>
                     <div>Role: {selected.user.role}</div>
                     <div>Monthly Gross: {formatCurrency(selected.salary)}</div>
                   </div>
                   <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                     <div className="font-bold text-slate-800">Personal, Banking &amp; Statutory</div>
-                    <div>Blood Group: {selected.bloodGroup ?? '—'}</div>
+                    <div>Blood Group: {selected.bloodGroup ?? 'â€”'}</div>
                     <div>
-                      Emergency Contact: {selected.emergencyContactName ?? '—'}{' '}
+                      Emergency Contact: {selected.emergencyContactName ?? 'â€”'}{' '}
                       {selected.emergencyContactPhone ? `(${selected.emergencyContactPhone})` : ''}
                     </div>
                     <div>Bank: {selected.bankName ?? 'Restricted / Not set'}</div>
-                    <div>IFSC: {selected.bankIfsc ?? '—'}</div>
+                    <div>IFSC: {selected.bankIfsc ?? 'â€”'}</div>
                     <div>PAN: {selected.panNumber ?? 'Restricted / Not set'}</div>
                     <div>Aadhaar: {selected.aadhaarNumber ?? 'Restricted / Not set'}</div>
                   </div>
@@ -788,7 +788,7 @@ export function EmployeeDirectory() {
                       <button
                         type="submit"
                         disabled={docBusy}
-                        className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
+                        className="px-3 py-1.5 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
                       >
                         Add to Vault
                       </button>
@@ -800,7 +800,7 @@ export function EmployeeDirectory() {
                       No KYC documents uploaded (or restricted by RBAC).
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl">
+                    <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-xl">
                       {selected.documents.map((doc) => (
                         <div
                           key={doc.id}
