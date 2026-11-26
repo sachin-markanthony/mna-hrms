@@ -7,7 +7,6 @@ import {
   CalendarDays,
   Receipt,
   Briefcase,
-  GraduationCap,
   FileCheck,
   Settings,
   ChevronLeft,
@@ -18,11 +17,9 @@ import {
   Moon,
   LogOut,
   ChevronDown,
-  Building2,
   ShieldCheck,
 } from 'lucide-react';
 import { useAuth, ROLES } from '../../modules/auth';
-import { useTrainingSummary } from '../../modules/onboarding/hooks/useInductionStore';
 import { useTheme } from '../../services/theme';
 import { BrandLogo } from '../ui/BrandLogo';
 
@@ -98,12 +95,6 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_RECRUITER', 'TEAM_MANAGER'],
       },
       {
-        name: 'Training & Induction',
-        path: '/training',
-        icon: GraduationCap,
-        roles: ['SUPER_ADMIN', 'HR_ADMIN', 'TEAM_MANAGER', 'EMPLOYEE'],
-      },
-      {
         name: 'Official Letters Releasing',
         path: '/letters',
         icon: FileCheck,
@@ -127,7 +118,6 @@ const NAVIGATION_SECTIONS: NavSection[] = [
 export function AppLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
-  const trainingSummary = useTrainingSummary();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -177,10 +167,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 {visibleItems.map((item) => {
                   const Icon = item.icon;
                   const active = location.pathname === item.path;
-                  const badge =
-                    item.path === '/training'
-                      ? `${trainingSummary.overallPercentage}%`
-                      : item.badge;
+                  const badge = item.badge;
 
                   return (
                     <button
@@ -319,16 +306,6 @@ export function AppLayout({ children }: { children: ReactNode }) {
                   </div>
 
                   <div className="py-1">
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        navigate('/training');
-                      }}
-                      className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer"
-                    >
-                      <Building2 className="w-4 h-4 text-slate-400" />
-                      My Profile &amp; QR Badge
-                    </button>
                     <button
                       onClick={() => {
                         setMenuOpen(false);
