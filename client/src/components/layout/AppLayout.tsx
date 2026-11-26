@@ -135,11 +135,11 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   const userInitials = user.name
     ? user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
     : 'MA';
 
   return (
@@ -156,16 +156,14 @@ export function AppLayout({ children }: { children: ReactNode }) {
           SIDEBAR - Fixed height with Independent Scroll
           ==================================================== */}
       <aside
-        className={`fixed inset-y-0 left-0 lg:static h-screen bg-white dark:bg-[#0f172a] border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col transition-all duration-300 z-40 shrink-0 overflow-hidden shadow-lg lg:shadow-none ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } ${collapsed ? 'w-20' : 'w-[264px]'}`}
+        className={`fixed inset-y-0 left-0 lg:static h-screen bg-white dark:bg-[#0f172a] border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col transition-all duration-300 z-40 shrink-0 overflow-hidden shadow-lg lg:shadow-none ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          } ${collapsed ? 'w-20' : 'w-[264px]'}`}
       >
         {/* Brand Header (Non-scrolling - Click to expand when collapsed) */}
         <div
           onClick={collapsed ? () => setCollapsed(false) : undefined}
-          className={`h-16 px-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between shrink-0 ${
-            collapsed ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors' : ''
-          }`}
+          className={`h-16 px-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between shrink-0 ${collapsed ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors' : ''
+            }`}
           title={collapsed ? 'Click to expand sidebar' : undefined}
         >
           <BrandLogo size="md" collapsed={collapsed} showSubtitle={true} />
@@ -213,28 +211,25 @@ export function AppLayout({ children }: { children: ReactNode }) {
                         setMobileOpen(false);
                       }}
                       title={collapsed ? item.name : undefined}
-                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold transition-all duration-150 cursor-pointer ${
-                        active
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-[13.5px] font-semibold transition-all duration-150 cursor-pointer ${active
                           ? 'bg-gradient-to-r from-[#072b53] to-[#0f3d75] dark:from-[#1e3a8a] dark:to-[#1d4ed8] text-white shadow-sm border-l-4 border-amber-400 font-bold'
                           : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/70'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3 truncate">
                         <Icon
-                          className={`w-[17px] h-[17px] shrink-0 ${
-                            active ? 'text-amber-300' : 'text-slate-400 dark:text-slate-500'
-                          }`}
+                          className={`w-[17px] h-[17px] shrink-0 ${active ? 'text-amber-300' : 'text-slate-400 dark:text-slate-500'
+                            }`}
                         />
                         {!collapsed && <span className="truncate">{item.name}</span>}
                       </div>
 
                       {!collapsed && badge && (
                         <span
-                          className={`text-[10.5px] font-extrabold px-1.5 py-0.5 rounded-md ${
-                            active
+                          className={`text-[10.5px] font-extrabold px-1.5 py-0.5 rounded-md ${active
                               ? 'bg-white/20 text-white'
                               : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                          }`}
+                            }`}
                         >
                           {badge}
                         </span>
@@ -250,9 +245,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
         {/* Sidebar Footer with User Profile & Logout (Pinned to Bottom) */}
         <div className="shrink-0 p-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#0f172a]">
           <div
-            className={`p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 flex items-center ${
-              collapsed ? 'justify-center' : 'gap-3'
-            }`}
+            className={`p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 flex items-center ${collapsed ? 'justify-center' : 'gap-3'
+              }`}
           >
             <div
               className="w-9 h-9 rounded-lg bg-gradient-to-tr from-[#072b53] to-[#1e40af] text-white flex items-center justify-center text-xs font-black shrink-0 shadow-2xs ring-1 ring-slate-200 dark:ring-slate-700"
@@ -276,9 +270,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <button
             onClick={handleLogout}
             title={collapsed ? 'Logout' : undefined}
-            className={`w-full flex items-center ${
-              collapsed ? 'justify-center' : 'gap-2.5 px-3'
-            } py-2.5 mt-2 text-[13px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all cursor-pointer`}
+            className={`w-full flex items-center ${collapsed ? 'justify-center' : 'gap-2.5 px-3'
+              } py-2.5 mt-2 text-[13px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-all cursor-pointer`}
           >
             <LogOut className="w-[17px] h-[17px] text-rose-500 shrink-0" />
             {!collapsed && <span>Logout</span>}
@@ -305,7 +298,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="lg:hidden p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
               aria-label="Open Navigation"
             >
               <Menu className="w-4 h-4" />
@@ -335,7 +328,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             {/* Light / Dark Mode Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer shadow-2xs"
+              className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer shadow-2xs"
               title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
               aria-label="Toggle Theme"
             >
@@ -348,7 +341,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
             {/* Notification Bell */}
             <button
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition relative cursor-pointer"
+              className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition relative cursor-pointer"
               title="Notifications"
             >
               <Bell className="w-4 h-4" />

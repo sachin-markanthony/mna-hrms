@@ -20,7 +20,7 @@ export const OverallProgressCard: React.FC<OverallProgressCardProps> = ({ progre
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E5DDD5] p-5 sm:p-6 shadow-xs">
+    <div className="bg-white rounded-lg border border-[#E5DDD5] p-5 sm:p-6 shadow-xs">
       <div className="flex items-center justify-between gap-4 mb-5 pb-4 border-b border-[#F0EAE1]">
         <div>
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#8C6D37]">
@@ -76,7 +76,7 @@ export const OverallProgressCard: React.FC<OverallProgressCardProps> = ({ progre
         {/* Breakdown Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
           {/* Metric 1: Chapters */}
-          <div className="bg-[#FAF7F2] rounded-xl p-3 border border-[#EFE7DE]">
+          <div className="bg-[#FAF7F2] rounded-lg p-3 border border-[#EFE7DE]">
             <div className="flex items-center gap-2 text-stone-500 mb-1">
               <BookOpen className="w-3.5 h-3.5 text-[#8C6D37]" />
               <span className="text-[10px] font-semibold uppercase tracking-wide">
@@ -100,7 +100,7 @@ export const OverallProgressCard: React.FC<OverallProgressCardProps> = ({ progre
           </div>
 
           {/* Metric 2: Sessions */}
-          <div className="bg-[#FAF7F2] rounded-xl p-3 border border-[#EFE7DE]">
+          <div className="bg-[#FAF7F2] rounded-lg p-3 border border-[#EFE7DE]">
             <div className="flex items-center gap-2 text-stone-500 mb-1">
               <Layers className="w-3.5 h-3.5 text-[#8C6D37]" />
               <span className="text-[10px] font-semibold uppercase tracking-wide">
@@ -124,7 +124,7 @@ export const OverallProgressCard: React.FC<OverallProgressCardProps> = ({ progre
           </div>
 
           {/* Metric 3: Time Remaining */}
-          <div className="bg-[#FAF7F2] rounded-xl p-3 border border-[#EFE7DE]">
+          <div className="bg-[#FAF7F2] rounded-lg p-3 border border-[#EFE7DE]">
             <div className="flex items-center gap-2 text-stone-500 mb-1">
               <Clock className="w-3.5 h-3.5 text-[#8C6D37]" />
               <span className="text-[10px] font-semibold uppercase tracking-wide">

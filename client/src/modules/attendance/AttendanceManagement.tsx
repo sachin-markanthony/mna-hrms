@@ -163,7 +163,7 @@ export function AttendanceManagement() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -185,7 +185,7 @@ export function AttendanceManagement() {
               setRegError(null);
               setRegModalOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
           >
             Request Regularization
           </button>
@@ -194,7 +194,7 @@ export function AttendanceManagement() {
               type="button"
               disabled={busy}
               onClick={() => void handleReconcile()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs font-semibold hover:bg-amber-100"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-xs font-semibold hover:bg-amber-100"
             >
               Reconcile Today
             </button>
@@ -202,7 +202,7 @@ export function AttendanceManagement() {
           <button
             type="button"
             onClick={() => void loadData()}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -210,35 +210,35 @@ export function AttendanceManagement() {
       </div>
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
+        <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
           {error}
         </div>
       )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>Present Days</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.present}</p>
         </div>
-        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>Latecomer Flags</span>
             <AlertTriangle className="w-4 h-4 text-amber-600" />
           </div>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.late}</p>
         </div>
-        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>GPS Site Visits</span>
             <MapPin className="w-4 h-4 text-indigo-600" />
           </div>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{stats.visits}</p>
         </div>
-        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
             <span>Pending Regularizations</span>
             <ShieldAlert className="w-4 h-4 text-rose-600" />
@@ -248,7 +248,7 @@ export function AttendanceManagement() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+      <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
         <div className="px-6 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center gap-2">
           {(
             [
@@ -262,11 +262,10 @@ export function AttendanceManagement() {
               key={t.id}
               type="button"
               onClick={() => setActiveTab(t.id)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeTab === t.id
-                  ? 'bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${activeTab === t.id
+                ? 'bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100'
+                }`}
             >
               {t.label}
             </button>
@@ -440,7 +439,7 @@ export function AttendanceManagement() {
       {/* Regularization Modal */}
       {regModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-900">Request Attendance Regularization</h2>
               <button
@@ -453,7 +452,7 @@ export function AttendanceManagement() {
             </div>
             <form onSubmit={(e) => void handleRegSubmit(e)} className="p-6 space-y-3 text-xs">
               {regError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700">
+                <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700">
                   {regError}
                 </div>
               )}
@@ -464,7 +463,7 @@ export function AttendanceManagement() {
                   required
                   value={regForm.attendanceDate}
                   onChange={(e) => setRegForm({ ...regForm, attendanceDate: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
                 />
               </div>
               <div>
@@ -476,21 +475,21 @@ export function AttendanceManagement() {
                   placeholder="Missed punch / terminal offline..."
                   value={regForm.reason}
                   onChange={(e) => setRegForm({ ...regForm, reason: e.target.value })}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setRegModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 font-semibold text-slate-600"
+                  className="px-4 py-2 rounded-lg border border-slate-200 font-semibold text-slate-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs font-semibold"
+                  className="px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs font-semibold"
                 >
                   Submit Request
                 </button>

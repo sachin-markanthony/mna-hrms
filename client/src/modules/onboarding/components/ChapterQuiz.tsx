@@ -55,10 +55,10 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-[#E5DDD5] bg-white p-5 sm:p-6 shadow-xs">
+      <div className="rounded-lg border border-[#E5DDD5] bg-white p-5 sm:p-6 shadow-xs">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FBF7EE] text-[#8C6D37] border border-[#EBDCB9]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#FBF7EE] text-[#8C6D37] border border-[#EBDCB9]">
               <ClipboardCheck className="h-5 w-5" />
             </div>
             <div>
@@ -80,9 +80,8 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
 
         <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-[#F0EAE1]">
           <div
-            className={`h-2 rounded-full transition-all duration-500 ${
-              evaluation ? (evaluation.passed ? 'bg-emerald-600' : 'bg-amber-500') : 'bg-[#D4AF37]'
-            }`}
+            className={`h-2 rounded-full transition-all duration-500 ${evaluation ? (evaluation.passed ? 'bg-emerald-600' : 'bg-amber-500') : 'bg-[#D4AF37]'
+              }`}
             style={{ width: `${evaluation ? evaluation.score : progressPercentage}%` }}
           />
         </div>
@@ -90,20 +89,18 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
 
       {evaluation && (
         <div
-          className={`rounded-2xl border p-5 sm:p-6 ${
-            evaluation.passed
-              ? 'border-emerald-200 bg-emerald-50'
-              : 'border-amber-200 bg-amber-50'
-          }`}
+          className={`rounded-lg border p-5 sm:p-6 ${evaluation.passed
+            ? 'border-emerald-200 bg-emerald-50'
+            : 'border-amber-200 bg-amber-50'
+            }`}
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
               <div
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                  evaluation.passed
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-amber-500 text-white'
-                }`}
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${evaluation.passed
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-amber-500 text-white'
+                  }`}
               >
                 {evaluation.passed ? (
                   <CheckCircle2 className="h-6 w-6" />
@@ -113,18 +110,16 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
               </div>
               <div>
                 <h3
-                  className={`text-base font-bold ${
-                    evaluation.passed ? 'text-emerald-900' : 'text-amber-900'
-                  }`}
+                  className={`text-base font-bold ${evaluation.passed ? 'text-emerald-900' : 'text-amber-900'
+                    }`}
                 >
                   {evaluation.passed
                     ? `Chapter ${chapterNumber} completed`
                     : 'Assessment not passed'}
                 </h3>
                 <p
-                  className={`mt-0.5 text-xs ${
-                    evaluation.passed ? 'text-emerald-800' : 'text-amber-800'
-                  }`}
+                  className={`mt-0.5 text-xs ${evaluation.passed ? 'text-emerald-800' : 'text-amber-800'
+                    }`}
                 >
                   Score: {evaluation.score}% ({evaluation.correctCount}/{evaluation.total} correct).
                   {evaluation.passed
@@ -141,7 +136,7 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
                 <button
                   type="button"
                   onClick={handleRetry}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-[#DDD3C9] bg-white px-3.5 py-2 text-xs font-bold text-[#2B1810] transition hover:bg-[#FAF7F2] cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#DDD3C9] bg-white px-3.5 py-2 text-xs font-bold text-[#2B1810] transition hover:bg-[#FAF7F2] cursor-pointer"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   Retry assessment
@@ -151,7 +146,7 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
                 <button
                   type="button"
                   onClick={onNextChapter}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#2B1810] px-3.5 py-2 text-xs font-bold text-[#FAF7F2] transition hover:bg-[#3D2217] cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#2B1810] px-3.5 py-2 text-xs font-bold text-[#FAF7F2] transition hover:bg-[#3D2217] cursor-pointer"
                 >
                   Next chapter
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -169,7 +164,7 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
           return (
             <div
               key={question.id}
-              className="rounded-2xl border border-[#E5DDD5] bg-white p-5 shadow-xs transition"
+              className="rounded-lg border border-[#E5DDD5] bg-white p-5 shadow-xs transition"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
@@ -198,14 +193,13 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
                       type="button"
                       disabled={Boolean(evaluation)}
                       onClick={() => selectAnswer(question.id, option.key)}
-                      className={`flex w-full items-start gap-3 rounded-xl border px-3.5 py-2.5 text-left text-xs font-medium transition cursor-pointer disabled:cursor-default ${optionClass}`}
+                      className={`flex w-full items-start gap-3 rounded-lg border px-3.5 py-2.5 text-left text-xs font-medium transition cursor-pointer disabled:cursor-default ${optionClass}`}
                     >
                       <span
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-[10px] font-bold ${
-                          isSelected
-                            ? 'border-[#D4AF37] bg-[#D4AF37] text-[#1A120B]'
-                            : 'border-[#DDD3C9] bg-white text-stone-500'
-                        }`}
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-[10px] font-bold ${isSelected
+                          ? 'border-[#D4AF37] bg-[#D4AF37] text-[#1A120B]'
+                          : 'border-[#DDD3C9] bg-white text-stone-500'
+                          }`}
                       >
                         {OPTION_LETTERS[index] ?? option.key}
                       </span>
@@ -219,7 +213,7 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
         })}
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-[#E5DDD5] bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-lg border border-[#E5DDD5] bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
         <button
           type="button"
           onClick={onReviewDocument}
@@ -234,11 +228,10 @@ export const ChapterQuiz: React.FC<ChapterQuizProps> = ({
             type="button"
             onClick={handleSubmit}
             disabled={!isComplete}
-            className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition ${
-              isComplete
-                ? 'bg-[#D4AF37] text-[#1A120B] hover:bg-[#C29D29] cursor-pointer shadow-xs'
-                : 'bg-stone-100 text-stone-400 cursor-not-allowed'
-            }`}
+            className={`inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-xs font-bold transition ${isComplete
+              ? 'bg-[#D4AF37] text-[#1A120B] hover:bg-[#C29D29] cursor-pointer shadow-xs'
+              : 'bg-stone-100 text-stone-400 cursor-not-allowed'
+              }`}
           >
             <ClipboardCheck className="h-4 w-4" />
             Submit assessment

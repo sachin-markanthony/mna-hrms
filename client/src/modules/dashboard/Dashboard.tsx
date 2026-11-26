@@ -241,16 +241,15 @@ export function Dashboard() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setPersonalView(!personalView)}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer ${
-              personalView
-                ? 'bg-slate-900 text-white dark:bg-slate-700'
-                : 'bg-[#072b53] hover:bg-[#041c38] dark:bg-[#1e3a8a] text-white'
-            }`}
+            className={`px-4 py-2.5 rounded-lg text-xs font-bold transition shadow-xs cursor-pointer ${personalView
+              ? 'bg-slate-900 text-white dark:bg-slate-700'
+              : 'bg-[#072b53] hover:bg-[#041c38] dark:bg-[#1e3a8a] text-white'
+              }`}
           >
             {personalView ? 'Switch to Org Dashboard' : 'My Personal Dashboard'}
           </button>
 
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-[#072b53] dark:text-amber-400 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-[#072b53] dark:text-amber-400 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
             <SlidersHorizontal className="w-4 h-4" />
             Customize View
           </button>
@@ -264,11 +263,10 @@ export function Dashboard() {
             <button
               key={r}
               onClick={() => setActiveRange(r)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition capitalize cursor-pointer ${
-                activeRange === r
-                  ? 'bg-[#072b53] dark:bg-[#1e3a8a] text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition capitalize cursor-pointer ${activeRange === r
+                ? 'bg-[#072b53] dark:bg-[#1e3a8a] text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
             >
               {r === 'week' ? 'This Week' : r === 'month' ? 'This Month' : r === 'year' ? 'This Year' : 'Today'}
             </button>
@@ -288,7 +286,7 @@ export function Dashboard() {
 
       {/* Setup Milestone Progress Banner (Clean MNA Style, Non-Truncated) */}
       {(user.role === 'SUPER_ADMIN' || user.role === 'HR_ADMIN') && (
-        <div className="bg-white dark:bg-[#111c35] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xs">
+        <div className="bg-white dark:bg-[#111c35] border border-slate-200 dark:border-slate-800 rounded-lg p-6 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-3">
               <img
@@ -315,11 +313,10 @@ export function Dashboard() {
             {setupMilestones.map((step, idx) => (
               <div
                 key={idx}
-                className={`p-3.5 rounded-xl border flex flex-col justify-between transition ${
-                  step.status === 'Completed'
-                    ? 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/60'
-                    : 'bg-amber-50/50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700 ring-2 ring-amber-400/20'
-                }`}
+                className={`p-3.5 rounded-lg border flex flex-col justify-between transition ${step.status === 'Completed'
+                  ? 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/60'
+                  : 'bg-amber-50/50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700 ring-2 ring-amber-400/20'
+                  }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -338,11 +335,10 @@ export function Dashboard() {
                 </div>
                 <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
                   <span
-                    className={`text-[10px] font-extrabold uppercase tracking-wider ${
-                      step.status === 'Completed'
-                        ? 'text-emerald-700 dark:text-emerald-400'
-                        : 'text-amber-700 dark:text-amber-400'
-                    }`}
+                    className={`text-[10px] font-extrabold uppercase tracking-wider ${step.status === 'Completed'
+                      ? 'text-emerald-700 dark:text-emerald-400'
+                      : 'text-amber-700 dark:text-amber-400'
+                      }`}
                   >
                     {step.status}
                   </span>
@@ -355,7 +351,7 @@ export function Dashboard() {
             <div className="text-slate-600 dark:text-slate-300">
               <strong className="text-slate-900 dark:text-white">Next Action:</strong> Configure SMTP &amp; Google Calendar integration for automated candidate invitations.
             </div>
-            <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#041c38] dark:bg-[#1e3a8a] text-white font-bold text-xs transition shadow-xs cursor-pointer shrink-0">
+            <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#041c38] dark:bg-[#1e3a8a] text-white font-bold text-xs transition shadow-xs cursor-pointer shrink-0">
               Configure Service <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -369,13 +365,13 @@ export function Dashboard() {
           return (
             <div
               key={i}
-              className="bg-white dark:bg-[#111c35] p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-md transition flex flex-col justify-between"
+              className="bg-white dark:bg-[#111c35] p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-md transition flex flex-col justify-between"
             >
               <div className="flex items-start justify-between mb-4">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   {card.title}
                 </span>
-                <div className={`p-2.5 rounded-xl ${card.bg} ${card.color}`}>
+                <div className={`p-2.5 rounded-lg ${card.bg} ${card.color}`}>
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
@@ -403,7 +399,7 @@ export function Dashboard() {
       {/* Spacious Attendance Sync Feeds & Real-Time Stream */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Real-Time Live Feed Table */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#111c35] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-2 bg-white dark:bg-[#111c35] rounded-lg border border-slate-200 dark:border-slate-800 p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-5">
               <div>
@@ -508,9 +504,9 @@ export function Dashboard() {
 
         {/* Security, Data Boundaries & Quick Action Queue */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-[#111c35] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+          <div className="bg-white dark:bg-[#111c35] rounded-lg border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-[#072b53] dark:text-blue-400">
+              <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-[#072b53] dark:text-blue-400">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
@@ -520,13 +516,13 @@ export function Dashboard() {
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+              <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
                 <span className="font-bold text-slate-800 dark:text-slate-200 block mb-1">Authenticated Account:</span>
                 <span className="text-slate-900 dark:text-white font-extrabold text-sm block">{user.name}</span>
                 <span className="text-slate-500 dark:text-slate-400 text-[11px]">{user.email}</span>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+              <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
                 <span className="font-bold text-slate-800 dark:text-slate-200 block mb-1">Enforced Data Boundary:</span>
                 <span className="inline-flex items-center gap-1.5 font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded text-[11px]">
                   {roleConfig.scope} Scope
@@ -540,12 +536,12 @@ export function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#111c35] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+          <div className="bg-white dark:bg-[#111c35] rounded-lg border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">
               Pending Approvals Queue
             </h3>
             <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-center justify-between">
+              <div className="p-3 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-slate-900 dark:text-white">David Chen (Leave)</div>
                   <div className="text-[11px] text-slate-500 dark:text-slate-400">Casual Leave &bull; Nov 28 - Nov 29</div>
@@ -560,7 +556,7 @@ export function Dashboard() {
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 flex items-center justify-between">
+              <div className="p-3 rounded-lg bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-slate-900 dark:text-white">Technical Scorecard</div>
                   <div className="text-[11px] text-slate-500 dark:text-slate-400">Candidate: Vikram Patel &bull; Tech Round</div>

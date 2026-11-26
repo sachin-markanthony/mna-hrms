@@ -22,11 +22,11 @@ export const InductionDashboard: React.FC = () => {
 
   const authEmployee = user
     ? {
-        fullName: user.name,
-        department: user.department || 'Real Estate Advisory & Investments',
-        designation: user.designation || 'Senior Investment Advisor',
-        email: user.email,
-      }
+      fullName: user.name,
+      department: user.department || 'Real Estate Advisory & Investments',
+      designation: user.designation || 'Senior Investment Advisor',
+      email: user.email,
+    }
     : undefined;
 
   const {
@@ -141,11 +141,11 @@ export const InductionDashboard: React.FC = () => {
   // are reflected immediately without closing the document.
   const activeChapter = activeLearningState.chapter
     ? chapters.find((c) => c.id === activeLearningState.chapter?.id) ??
-      activeLearningState.chapter
+    activeLearningState.chapter
     : null;
   const activeSession = activeLearningState.session
     ? sessions.find((s) => s.id === activeLearningState.session?.id) ??
-      activeLearningState.session
+    activeLearningState.session
     : null;
 
   if (loading) {
@@ -162,14 +162,14 @@ export const InductionDashboard: React.FC = () => {
   if (error) {
     return (
       <div className="induction-page induction-page--state py-16 flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3">
+        <div className="w-12 h-12 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center mb-3">
           <AlertCircle className="w-6 h-6" />
         </div>
         <h3 className="text-base font-bold text-slate-900 mb-1">Failed to load induction modules</h3>
         <p className="text-xs text-slate-500 max-w-sm mb-4">{error}</p>
         <button
           onClick={refresh}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Retry Loading</span>
@@ -198,7 +198,7 @@ export const InductionDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>Progress: {progress?.overallPercentage ?? 35}% Completed</span>
           </div>

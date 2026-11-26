@@ -25,7 +25,7 @@ export const LearningNotifications: React.FC<LearningNotificationsProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E5DDD5] p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+    <div className="bg-white rounded-lg border border-[#E5DDD5] p-5 sm:p-6 shadow-xs flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#F0EAE1]">
           <div className="flex items-center gap-2">
@@ -49,11 +49,10 @@ export const LearningNotifications: React.FC<LearningNotificationsProps> = ({
             <div
               key={notif.id}
               onClick={() => onMarkRead(notif.id)}
-              className={`p-3 rounded-xl border transition cursor-pointer ${
-                notif.read
-                  ? 'bg-[#FAF7F2] border-[#EFE7DE] opacity-80'
-                  : 'bg-white border-[#D4AF37]/50 shadow-2xs'
-              }`}
+              className={`p-3 rounded-lg border transition cursor-pointer ${notif.read
+                ? 'bg-[#FAF7F2] border-[#EFE7DE] opacity-80'
+                : 'bg-white border-[#D4AF37]/50 shadow-2xs'
+                }`}
             >
               <div className="flex items-start gap-2.5">
                 <div className="mt-0.5 shrink-0">{getIcon(notif.type)}</div>

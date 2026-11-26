@@ -25,7 +25,7 @@ export const WorkingPrinciples: React.FC<WorkingPrinciplesProps> = ({ principles
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E5DDD5] p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+    <div className="bg-white rounded-lg border border-[#E5DDD5] p-5 sm:p-6 shadow-xs flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#F0EAE1]">
           <div>
@@ -45,7 +45,7 @@ export const WorkingPrinciples: React.FC<WorkingPrinciplesProps> = ({ principles
           {principles.map((item, idx) => (
             <div
               key={item.id}
-              className="flex items-start gap-3 p-3 rounded-xl bg-[#FAF7F2] border border-[#EFE7DE] hover:border-[#D4AF37]/50 transition group"
+              className="flex items-start gap-3 p-3 rounded-lg bg-[#FAF7F2] border border-[#EFE7DE] hover:border-[#D4AF37]/50 transition group"
             >
               <div className="w-8 h-8 rounded-lg bg-white border border-[#DDD3C9] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
                 {getIcon(item.iconName)}

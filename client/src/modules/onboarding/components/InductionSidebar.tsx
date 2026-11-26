@@ -53,14 +53,13 @@ export const InductionSidebar: React.FC<InductionSidebarProps> = ({
 
   return (
     <aside
-      className={`relative flex flex-col bg-[#1A120B] text-stone-200 border-r border-[#3E2723]/30 transition-all duration-300 select-none z-30 ${
-        collapsed ? 'w-20' : 'w-72'
-      }`}
+      className={`relative flex flex-col bg-[#1A120B] text-stone-200 border-r border-[#3E2723]/30 transition-all duration-300 select-none z-30 ${collapsed ? 'w-20' : 'w-72'
+        }`}
     >
       {/* Top Brand Section */}
       <div className="flex items-center justify-between p-4.5 border-b border-[#2C1810]">
         <div className={`flex items-center gap-3 overflow-hidden ${collapsed ? 'justify-center w-full' : ''}`}>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#996515] p-0.5 shadow-md flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#996515] p-0.5 shadow-md flex items-center justify-center shrink-0">
             <div className="w-full h-full bg-[#24140E] rounded-[10px] flex items-center justify-center">
               <Building2 className="w-5 h-5 text-[#E6C687]" />
             </div>
@@ -107,28 +106,25 @@ export const InductionSidebar: React.FC<InductionSidebarProps> = ({
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
-              className={`w-full group flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition cursor-pointer relative ${
-                isActive
+              className={`w-full group flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition cursor-pointer relative ${isActive
                   ? 'bg-gradient-to-r from-[#3D2217] to-[#2B1810] text-[#FAF7F2] font-semibold border-l-4 border-[#D4AF37] shadow-sm'
                   : 'text-stone-400 hover:text-stone-200 hover:bg-[#2B1810]/50'
-              } ${collapsed ? 'justify-center px-0' : ''}`}
+                } ${collapsed ? 'justify-center px-0' : ''}`}
               title={collapsed ? item.label : undefined}
             >
               <Icon
-                className={`w-4.5 h-4.5 shrink-0 transition-transform ${
-                  isActive ? 'text-[#D4AF37]' : 'text-stone-400 group-hover:text-stone-300'
-                }`}
+                className={`w-4.5 h-4.5 shrink-0 transition-transform ${isActive ? 'text-[#D4AF37]' : 'text-stone-400 group-hover:text-stone-300'
+                  }`}
               />
               {!collapsed && (
                 <>
                   <span className="truncate flex-1 text-left">{item.label}</span>
                   {item.badge && (
                     <span
-                      className={`text-[9px] px-2 py-0.5 rounded-full font-semibold shrink-0 ${
-                        isActive
+                      className={`text-[9px] px-2 py-0.5 rounded-full font-semibold shrink-0 ${isActive
                           ? 'bg-[#D4AF37] text-[#1A120B]'
                           : 'bg-[#2A1810] text-stone-400 border border-stone-800'
-                      }`}
+                        }`}
                     >
                       {item.badge}
                     </span>
@@ -143,7 +139,7 @@ export const InductionSidebar: React.FC<InductionSidebarProps> = ({
       {/* Bottom Employee Profile Card */}
       <div className="p-3 border-t border-[#2C1810] bg-[#160E08]/70">
         {!collapsed ? (
-          <div className="bg-[#24140E] border border-[#3E2723]/60 rounded-xl p-3">
+          <div className="bg-[#24140E] border border-[#3E2723]/60 rounded-lg p-3">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <img
@@ -152,7 +148,7 @@ export const InductionSidebar: React.FC<InductionSidebarProps> = ({
                     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'
                   }
                   alt={employee?.fullName || 'Employee'}
-                  className="w-9 h-9 rounded-xl object-cover border border-[#D4AF37]/40 ring-1 ring-[#D4AF37]/20"
+                  className="w-9 h-9 rounded-lg object-cover border border-[#D4AF37]/40 ring-1 ring-[#D4AF37]/20"
                 />
                 <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#24140E]" />
               </div>
@@ -189,7 +185,7 @@ export const InductionSidebar: React.FC<InductionSidebarProps> = ({
             <img
               src={employee?.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'}
               alt="Employee"
-              className="w-9 h-9 rounded-xl object-cover border border-[#D4AF37]/50"
+              className="w-9 h-9 rounded-lg object-cover border border-[#D4AF37]/50"
             />
             <button
               onClick={onLogout}

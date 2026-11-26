@@ -130,7 +130,7 @@ export function Login() {
           </div>
 
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2.5">
+            <div className="mb-6 p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2.5">
               <div className="w-2 h-2 rounded-full bg-rose-600 shrink-0" />
               <span>{error}</span>
             </div>
@@ -151,7 +151,7 @@ export function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@markanthony.in"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-slate-700 text-sm sm:text-base focus:outline-none focus:border-[#072b53] focus:ring-2 focus:ring-[#072b53]/20 transition-all placeholder:text-slate-400 font-normal bg-white text-slate-900"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-lg border-2 border-slate-700 text-sm sm:text-base focus:outline-none focus:border-[#072b53] focus:ring-2 focus:ring-[#072b53]/20 transition-all placeholder:text-slate-400 font-normal bg-white text-slate-900"
                 />
               </div>
             </div>
@@ -170,7 +170,7 @@ export function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your portal password"
                   required
-                  className="w-full pl-12 pr-12 py-3.5 rounded-xl border-2 border-slate-300 text-sm sm:text-base focus:outline-none focus:border-[#072b53] focus:ring-2 focus:ring-[#072b53]/20 transition-all placeholder:text-slate-400 font-normal bg-white text-slate-900"
+                  className="w-full pl-12 pr-12 py-3.5 rounded-lg border-2 border-slate-300 text-sm sm:text-base focus:outline-none focus:border-[#072b53] focus:ring-2 focus:ring-[#072b53]/20 transition-all placeholder:text-slate-400 font-normal bg-white text-slate-900"
                 />
                 <button
                   type="button"
@@ -199,7 +199,7 @@ export function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-4 py-4 px-6 rounded-xl font-black text-sm sm:text-base tracking-widest uppercase text-white transition-all duration-150 hover:bg-[#041c38] hover:shadow-lg active:scale-[0.99] disabled:opacity-75 cursor-pointer shadow-md bg-[#072b53]"
+              className="w-full mt-4 py-4 px-6 rounded-lg font-black text-sm sm:text-base tracking-widest uppercase text-white transition-all duration-150 hover:bg-[#041c38] hover:shadow-lg active:scale-[0.99] disabled:opacity-75 cursor-pointer shadow-md bg-[#072b53]"
             >
               {loading ? 'AUTHENTICATING...' : 'LOGIN'}
             </button>
@@ -215,11 +215,10 @@ export function Login() {
                   key={r}
                   type="button"
                   onClick={() => handleQuickFill(r)}
-                  className={`px-2.5 py-1 text-xs font-bold rounded-lg transition cursor-pointer border ${
-                    selectedRole === r
-                      ? 'bg-[#072b53] text-white border-[#072b53]'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
-                  }`}
+                  className={`px-2.5 py-1 text-xs font-bold rounded-lg transition cursor-pointer border ${selectedRole === r
+                    ? 'bg-[#072b53] text-white border-[#072b53]'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+                    }`}
                 >
                   {ROLES[r].title}
                 </button>
@@ -227,7 +226,7 @@ export function Login() {
             </div>
 
             {selectedRole && (
-              <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 text-left text-[11px] space-y-1">
+              <div className="mt-3 p-3 rounded-lg bg-slate-50 border border-slate-200 text-left text-[11px] space-y-1">
                 <div className="flex items-center justify-between font-bold text-slate-800">
                   <span>{ROLES[selectedRole].personName}</span>
                   <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
@@ -248,7 +247,7 @@ export function Login() {
 
       {forgotOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 p-7">
+          <div className="relative w-full max-w-md bg-white rounded-lg shadow-2xl border border-slate-200 p-7">
             <button
               type="button"
               onClick={() => setForgotOpen(false)}
@@ -257,7 +256,7 @@ export function Login() {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#072b53] flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-lg bg-blue-50 text-[#072b53] flex items-center justify-center mb-4">
               <ShieldCheck className="w-6 h-6" />
             </div>
 
@@ -267,7 +266,7 @@ export function Login() {
             </p>
 
             {forgotSent ? (
-              <div className="p-4 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-semibold flex items-center gap-2.5 border border-emerald-200">
+              <div className="p-4 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-semibold flex items-center gap-2.5 border border-emerald-200">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                 <span>Password reset instructions dispatched to your email.</span>
               </div>
@@ -283,7 +282,7 @@ export function Login() {
                     onChange={(e) => setForgotEmail(e.target.value)}
                     placeholder="name@markanthony.in"
                     required
-                    className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#072b53] bg-white text-slate-900"
+                    className="w-full px-4 py-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-[#072b53] bg-white text-slate-900"
                   />
                 </div>
 
@@ -291,13 +290,13 @@ export function Login() {
                   <button
                     type="button"
                     onClick={() => setForgotOpen(false)}
-                    className="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer transition"
+                    className="flex-1 py-2.5 rounded-lg text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer transition"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-2.5 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#041c38] cursor-pointer transition shadow-xs"
+                    className="flex-1 py-2.5 rounded-lg text-xs font-bold text-white bg-[#072b53] hover:bg-[#041c38] cursor-pointer transition shadow-xs"
                   >
                     Send Instructions
                   </button>

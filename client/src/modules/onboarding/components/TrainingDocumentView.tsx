@@ -96,7 +96,7 @@ function renderBlock(block: HandbookBlock, index: number) {
       const style = CALLOUT_STYLES[block.tone];
       const Icon = style.Icon;
       return (
-        <div key={index} className={`rounded-2xl border p-4 ${style.wrapper}`}>
+        <div key={index} className={`rounded-lg border p-4 ${style.wrapper}`}>
           <div className="flex items-start gap-3">
             <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${style.icon}`}>
               <Icon className="h-4 w-4" />
@@ -113,7 +113,7 @@ function renderBlock(block: HandbookBlock, index: number) {
     }
     case 'table':
       return (
-        <div key={index} className="overflow-x-auto rounded-xl border border-[#E5DDD5]">
+        <div key={index} className="overflow-x-auto rounded-lg border border-[#E5DDD5]">
           <table className="w-full border-collapse text-left text-xs">
             {block.headers.length > 0 && (
               <thead className="bg-[#FAF7F2] text-[10px] uppercase tracking-wider text-[#8C6D37]">
@@ -200,12 +200,12 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex w-fit items-center gap-2 rounded-xl border border-[#DDD3C9] bg-white px-3.5 py-1.5 text-xs font-bold text-[#2B1810] shadow-2xs transition hover:bg-[#FAF7F2] cursor-pointer"
+          className="inline-flex w-fit items-center gap-2 rounded-lg border border-[#DDD3C9] bg-white px-3.5 py-1.5 text-xs font-bold text-[#2B1810] shadow-2xs transition hover:bg-[#FAF7F2] cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4 text-[#8C6D37]" />
           Back to Training Library
         </button>
-        <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-slate-700">
+        <div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-5 text-slate-700">
           <Lock className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p className="text-sm font-bold">Chapter {chapter.chapterNumber} is locked</p>
@@ -226,7 +226,7 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex w-fit items-center gap-2 rounded-xl border border-[#DDD3C9] bg-white px-3.5 py-1.5 text-xs font-bold text-[#2B1810] shadow-2xs transition hover:bg-[#FAF7F2] cursor-pointer"
+          className="inline-flex w-fit items-center gap-2 rounded-lg border border-[#DDD3C9] bg-white px-3.5 py-1.5 text-xs font-bold text-[#2B1810] shadow-2xs transition hover:bg-[#FAF7F2] cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4 text-[#8C6D37]" />
           Back to Training Library
@@ -238,13 +238,12 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
             Training Document &bull; Handbook v2.0
           </span>
           <span
-            className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[10px] font-bold ${
-              isCompleted
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                : isLocked
-                  ? 'border-slate-200 bg-slate-50 text-slate-500'
-                  : 'border-amber-200 bg-amber-50 text-amber-700'
-            }`}
+            className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[10px] font-bold ${isCompleted
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+              : isLocked
+                ? 'border-slate-200 bg-slate-50 text-slate-500'
+                : 'border-amber-200 bg-amber-50 text-amber-700'
+              }`}
           >
             {isCompleted ? (
               <CheckCircle2 className="h-3.5 w-3.5" />
@@ -292,16 +291,15 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
             </p>
           </div>
 
-          <div className="w-full shrink-0 rounded-2xl border border-[#EFE7DE] bg-[#FAF7F2] p-4 lg:w-64">
+          <div className="w-full shrink-0 rounded-lg border border-[#EFE7DE] bg-[#FAF7F2] p-4 lg:w-64">
             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#8C6D37]">
               <span>Chapter progress</span>
               <span>{isCompleted ? 100 : chapter.progressPercentage}%</span>
             </div>
             <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#E8DFD8]">
               <div
-                className={`h-2 rounded-full transition-all duration-500 ${
-                  isCompleted ? 'bg-emerald-600' : 'bg-[#D4AF37]'
-                }`}
+                className={`h-2 rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-600' : 'bg-[#D4AF37]'
+                  }`}
                 style={{ width: `${isCompleted ? 100 : chapter.progressPercentage}%` }}
               />
             </div>
@@ -341,7 +339,7 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
           />
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-2xl border border-[#E5DDD5] bg-white p-4 shadow-xs">
+            <div className="rounded-lg border border-[#E5DDD5] bg-white p-4 shadow-xs">
               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[#8C6D37]">
                 <GraduationCap className="h-3.5 w-3.5" />
                 Assessment rules
@@ -363,7 +361,7 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-[#E5DDD5] bg-white p-4 shadow-xs">
+            <div className="rounded-lg border border-[#E5DDD5] bg-white p-4 shadow-xs">
               <div className="text-[10px] font-bold uppercase tracking-wider text-[#8C6D37]">
                 Chapter outline
               </div>
@@ -424,7 +422,7 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
                   </section>
                 ))
               ) : (
-                <div className="rounded-2xl border border-dashed border-[#DDD3C9] bg-[#FAF7F2] p-6 text-center">
+                <div className="rounded-lg border border-dashed border-[#DDD3C9] bg-[#FAF7F2] p-6 text-center">
                   <FileText className="mx-auto h-6 w-6 text-[#8C6D37]" />
                   <p className="mt-2 text-sm font-bold text-[#2B1810]">Document coming soon</p>
                   <p className="mt-1 text-xs text-stone-500">
@@ -434,7 +432,7 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
               )}
 
               {doc && doc.takeaways.length > 0 && (
-                <div className="rounded-2xl border border-[#EBDCB9] bg-[#FBF7EE] p-4">
+                <div className="rounded-lg border border-[#EBDCB9] bg-[#FBF7EE] p-4">
                   <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-wider text-[#8C6D37]">
                     <Award className="h-3.5 w-3.5" />
                     Key takeaways
@@ -451,10 +449,10 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
               )}
 
               {doc?.quiz && !isReference && (
-                <div className="rounded-2xl border border-[#E5DDD5] bg-white p-5 shadow-xs">
+                <div className="rounded-lg border border-[#E5DDD5] bg-white p-5 shadow-xs">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FBF7EE] text-[#8C6D37] border border-[#EBDCB9]">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FBF7EE] text-[#8C6D37] border border-[#EBDCB9]">
                         <ClipboardCheck className="h-5 w-5" />
                       </div>
                       <div>
@@ -476,11 +474,10 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
                         setQuizOpen(true);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition ${
-                        isLocked
-                          ? 'cursor-not-allowed bg-stone-100 text-stone-400'
-                          : 'bg-[#D4AF37] text-[#1A120B] hover:bg-[#C29D29] cursor-pointer shadow-xs'
-                      }`}
+                      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-bold transition ${isLocked
+                        ? 'cursor-not-allowed bg-stone-100 text-stone-400'
+                        : 'bg-[#D4AF37] text-[#1A120B] hover:bg-[#C29D29] cursor-pointer shadow-xs'
+                        }`}
                     >
                       <ClipboardCheck className="h-4 w-4" />
                       {isCompleted ? 'Retake MCQ' : 'Complete chapter & start MCQ'}
@@ -491,7 +488,7 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
               )}
 
               {isReference && (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
                   <span className="font-bold text-slate-800">Reference document.</span> This chapter
                   supports trainers and HR administrators. It does not affect the employee induction
                   completion percentage.
@@ -502,18 +499,17 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             {doc?.quiz && (
-              <div className="rounded-2xl border border-[#E5DDD5] bg-white p-4 shadow-xs">
+              <div className="rounded-lg border border-[#E5DDD5] bg-white p-4 shadow-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[#8C6D37]">
                     <ClipboardCheck className="h-3.5 w-3.5" />
                     Chapter assessment
                   </div>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                      isCompleted
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'bg-amber-50 text-amber-700'
-                    }`}
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isCompleted
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'bg-amber-50 text-amber-700'
+                      }`}
                   >
                     {isCompleted ? 'Passed' : 'Pending'}
                   </span>
@@ -551,11 +547,10 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
                     setQuizOpen(true);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition ${
-                    isLocked
-                      ? 'cursor-not-allowed bg-stone-100 text-stone-400'
-                      : 'bg-[#2B1810] text-[#FAF7F2] hover:bg-[#3D2217] cursor-pointer'
-                  }`}
+                  className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition ${isLocked
+                    ? 'cursor-not-allowed bg-stone-100 text-stone-400'
+                    : 'bg-[#2B1810] text-[#FAF7F2] hover:bg-[#3D2217] cursor-pointer'
+                    }`}
                 >
                   {isCompleted ? <RotateCcw className="h-3.5 w-3.5" /> : <ClipboardCheck className="h-3.5 w-3.5" />}
                   {isCompleted ? 'Retake assessment' : 'Start assessment'}
@@ -563,7 +558,7 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
               </div>
             )}
 
-            <div className="rounded-2xl border border-[#E5DDD5] bg-white p-4 shadow-xs">
+            <div className="rounded-lg border border-[#E5DDD5] bg-white p-4 shadow-xs">
               <div className="text-[10px] font-bold uppercase tracking-wider text-[#8C6D37]">
                 In this document
               </div>
@@ -582,7 +577,7 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
             </div>
 
             {nextChapter && (
-              <div className="rounded-2xl border border-[#E5DDD5] bg-gradient-to-br from-[#2D1A10] to-[#1E110A] p-4 text-[#FAF7F2] shadow-xs">
+              <div className="rounded-lg border border-[#E5DDD5] bg-gradient-to-br from-[#2D1A10] to-[#1E110A] p-4 text-[#FAF7F2] shadow-xs">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-[#D4AF37]">
                   Up next
                 </div>
@@ -596,7 +591,7 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateChapter(nextChapter)}
-                  className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#D4AF37] px-3 py-2 text-[11px] font-bold text-[#1A120B] transition hover:bg-[#C9A028] cursor-pointer"
+                  className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] px-3 py-2 text-[11px] font-bold text-[#1A120B] transition hover:bg-[#C9A028] cursor-pointer"
                 >
                   Open chapter
                   <ArrowRight className="h-3.5 w-3.5" />

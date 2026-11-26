@@ -63,14 +63,13 @@ export const TrainingDocumentLibrary: React.FC<TrainingDocumentLibraryProps> = (
         type="button"
         disabled={isLocked}
         onClick={() => onSelectChapter(chapter)}
-        className={`group flex h-full flex-col rounded-2xl border bg-white p-4 text-left shadow-xs transition ${
-          isLocked
-            ? 'cursor-not-allowed border-slate-200 opacity-70'
-            : 'cursor-pointer border-[#E5DDD5] hover:-translate-y-0.5 hover:border-[#D4AF37] hover:shadow-md'
-        }`}
+        className={`group flex h-full flex-col rounded-lg border bg-white p-4 text-left shadow-xs transition ${isLocked
+          ? 'cursor-not-allowed border-slate-200 opacity-70'
+          : 'cursor-pointer border-[#E5DDD5] hover:-translate-y-0.5 hover:border-[#D4AF37] hover:shadow-md'
+          }`}
       >
         <div className="flex items-start justify-between gap-2">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#EBDCB9] bg-[#FBF7EE] text-xs font-extrabold text-[#8C6D37]">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#EBDCB9] bg-[#FBF7EE] text-xs font-extrabold text-[#8C6D37]">
             {String(chapter.chapterNumber).padStart(2, '0')}
           </span>
           <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-bold ${status.className}`}>
@@ -165,7 +164,7 @@ export const TrainingDocumentLibrary: React.FC<TrainingDocumentLibraryProps> = (
               </div>
             </div>
 
-            <div className="w-full shrink-0 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm lg:w-64">
+            <div className="w-full shrink-0 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-sm lg:w-64">
               <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-stone-300">
                 <span>Handbook completion</span>
                 <span className="text-[#E6C687]">{summary.overallPercentage}%</span>
@@ -180,11 +179,11 @@ export const TrainingDocumentLibrary: React.FC<TrainingDocumentLibraryProps> = (
                 {summary.completedChapters} of {summary.totalChapters} core chapters completed
               </p>
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <div className="rounded-xl bg-white/5 p-2.5">
+                <div className="rounded-lg bg-white/5 p-2.5">
                   <span className="block text-[9px] uppercase tracking-wider text-stone-400">Average</span>
                   <span className="text-sm font-bold text-white">{summary.averageScore}%</span>
                 </div>
-                <div className="rounded-xl bg-white/5 p-2.5">
+                <div className="rounded-lg bg-white/5 p-2.5">
                   <span className="block text-[9px] uppercase tracking-wider text-stone-400">Pending</span>
                   <span className="text-sm font-bold text-white">{summary.pendingAssessments}</span>
                 </div>
@@ -196,7 +195,7 @@ export const TrainingDocumentLibrary: React.FC<TrainingDocumentLibraryProps> = (
         {summary.nextChapter && (
           <div className="flex flex-col gap-3 border-t border-[#EFE7DE] bg-[#FAF7F2] px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
             <div className="flex items-start gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#8C6D37] border border-[#EBDCB9]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#8C6D37] border border-[#EBDCB9]">
                 <GraduationCap className="h-4 w-4" />
               </span>
               <div>
@@ -211,7 +210,7 @@ export const TrainingDocumentLibrary: React.FC<TrainingDocumentLibraryProps> = (
             <button
               type="button"
               onClick={() => onSelectChapter(summary.nextChapter as InductionChapter)}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#D4AF37] px-4 py-2 text-xs font-bold text-[#1A120B] transition hover:bg-[#C29D29] cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] px-4 py-2 text-xs font-bold text-[#1A120B] transition hover:bg-[#C29D29] cursor-pointer"
             >
               Resume chapter
               <ArrowRight className="h-3.5 w-3.5" />
@@ -234,13 +233,12 @@ export const TrainingDocumentLibrary: React.FC<TrainingDocumentLibraryProps> = (
               <span className="text-stone-300">&bull;</span>
               <span>{session.progressPercentage}% complete</span>
               <span
-                className={`rounded-full border px-2 py-0.5 font-bold ${
-                  session.status === 'completed'
-                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                    : session.status === 'locked'
-                      ? 'border-stone-200 bg-stone-100 text-stone-500'
-                      : 'border-amber-200 bg-amber-50 text-amber-700'
-                }`}
+                className={`rounded-full border px-2 py-0.5 font-bold ${session.status === 'completed'
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                  : session.status === 'locked'
+                    ? 'border-stone-200 bg-stone-100 text-stone-500'
+                    : 'border-amber-200 bg-amber-50 text-amber-700'
+                  }`}
               >
                 {session.status.replace('_', ' ')}
               </span>

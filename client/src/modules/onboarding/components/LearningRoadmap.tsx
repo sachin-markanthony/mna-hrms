@@ -12,7 +12,7 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
   onSelectSession,
 }) => {
   return (
-    <div className="bg-white rounded-2xl border border-[#E5DDD5] p-5 sm:p-6 shadow-xs">
+    <div className="bg-white rounded-lg border border-[#E5DDD5] p-5 sm:p-6 shadow-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
         <div>
           <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#8C6D37]">
@@ -42,21 +42,19 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
             <div
               key={session.id}
               onClick={() => !isLocked && onSelectSession(session)}
-              className={`relative z-10 flex flex-col items-center group ${
-                isLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
-              } flex-1 px-1`}
+              className={`relative z-10 flex flex-col items-center group ${isLocked ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+                } flex-1 px-1`}
             >
               {/* Step Circle */}
               <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 border-2 shadow-2xs ${
-                  isCompleted
-                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-200'
-                    : isInProgress
+                className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200 border-2 shadow-2xs ${isCompleted
+                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-200'
+                  : isInProgress
                     ? 'bg-[#2B1810] border-[#D4AF37] text-[#D4AF37] ring-4 ring-[#D4AF37]/20 scale-105'
                     : isLocked
-                    ? 'bg-stone-100 border-stone-300 text-stone-400'
-                    : 'bg-white border-[#8C6D37] text-[#8C6D37]'
-                }`}
+                      ? 'bg-stone-100 border-stone-300 text-stone-400'
+                      : 'bg-white border-[#8C6D37] text-[#8C6D37]'
+                  }`}
               >
                 {isCompleted ? (
                   <CheckCircle2 className="w-6 h-6" />
@@ -97,20 +95,18 @@ export const LearningRoadmap: React.FC<LearningRoadmapProps> = ({
             <div
               key={session.id}
               onClick={() => !isLocked && onSelectSession(session)}
-              className={`relative pl-4 py-2 flex items-start gap-3 rounded-xl transition ${
-                isLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:bg-[#FAF7F2]'
-              }`}
+              className={`relative pl-4 py-2 flex items-start gap-3 rounded-lg transition ${isLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:bg-[#FAF7F2]'
+                }`}
             >
               <div
-                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border text-xs font-bold ${
-                  isCompleted
-                    ? 'bg-emerald-600 border-emerald-600 text-white'
-                    : isInProgress
+                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border text-xs font-bold ${isCompleted
+                  ? 'bg-emerald-600 border-emerald-600 text-white'
+                  : isInProgress
                     ? 'bg-[#2B1810] border-[#D4AF37] text-[#D4AF37]'
                     : isLocked
-                    ? 'bg-stone-100 border-stone-300 text-stone-400'
-                    : 'bg-white border-[#8C6D37] text-[#8C6D37]'
-                }`}
+                      ? 'bg-stone-100 border-stone-300 text-stone-400'
+                      : 'bg-white border-[#8C6D37] text-[#8C6D37]'
+                  }`}
               >
                 {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : session.sessionNumber}
               </div>

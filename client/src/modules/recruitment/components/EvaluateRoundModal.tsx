@@ -68,7 +68,7 @@ export function EvaluateRoundModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-xl overflow-hidden">
+      <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-xl overflow-hidden">
         {/* Header */}
         <div className="px-6 py-5 bg-white dark:bg-[#0f172a] border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -94,7 +94,7 @@ export function EvaluateRoundModal({
 
         {/* Error Notice */}
         {error && (
-          <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+          <div className="mx-6 mt-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -111,11 +111,10 @@ export function EvaluateRoundModal({
               <button
                 type="button"
                 onClick={() => handleRoundChange('HR_ROUND')}
-                className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all text-left flex flex-col ${
-                  round === 'HR_ROUND'
-                    ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
-                }`}
+                className={`py-3 px-4 rounded-lg border text-xs font-bold transition-all text-left flex flex-col ${round === 'HR_ROUND'
+                  ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
+                  }`}
               >
                 <span className="text-sm font-extrabold">Round 1: HR Round</span>
                 <span className="text-[10px] font-normal opacity-80 mt-0.5">
@@ -126,11 +125,10 @@ export function EvaluateRoundModal({
               <button
                 type="button"
                 onClick={() => handleRoundChange('MR_ROUND')}
-                className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all text-left flex flex-col ${
-                  round === 'MR_ROUND'
-                    ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
-                }`}
+                className={`py-3 px-4 rounded-lg border text-xs font-bold transition-all text-left flex flex-col ${round === 'MR_ROUND'
+                  ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
+                  }`}
               >
                 <span className="text-sm font-extrabold">Round 2: MR Round</span>
                 <span className="text-[10px] font-normal opacity-80 mt-0.5">
@@ -149,11 +147,10 @@ export function EvaluateRoundModal({
               <button
                 type="button"
                 onClick={() => setResult('PASSED')}
-                className={`py-3 px-4 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                  result === 'PASSED'
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-emerald-300'
-                }`}
+                className={`py-3 px-4 rounded-lg border text-xs font-bold flex items-center justify-center gap-2 transition-all ${result === 'PASSED'
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-emerald-300'
+                  }`}
               >
                 <CheckCircle2 className="w-4 h-4" />
                 {round === 'HR_ROUND' ? 'Pass to MR Round' : 'Select Candidate'}
@@ -162,11 +159,10 @@ export function EvaluateRoundModal({
               <button
                 type="button"
                 onClick={() => setResult('REJECTED')}
-                className={`py-3 px-4 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                  result === 'REJECTED'
-                    ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-rose-300'
-                }`}
+                className={`py-3 px-4 rounded-lg border text-xs font-bold flex items-center justify-center gap-2 transition-all ${result === 'REJECTED'
+                  ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-rose-300'
+                  }`}
               >
                 <XCircle className="w-4 h-4" />
                 {round === 'HR_ROUND' ? 'Reject at HR Round' : 'Reject at MR Round'}
@@ -176,7 +172,7 @@ export function EvaluateRoundModal({
 
           {/* Rejection Reason (Mandatory if Rejected) */}
           {result === 'REJECTED' && (
-            <div className="p-4 rounded-xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/80 space-y-2">
+            <div className="p-4 rounded-lg bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/80 space-y-2">
               <label className="block text-xs font-bold uppercase tracking-wider text-rose-800 dark:text-rose-300">
                 Reason for Rejection *
               </label>
@@ -190,7 +186,7 @@ export function EvaluateRoundModal({
                     ? 'e.g. Communication benchmark not met, expected salary far above budget, notice period 90 days...'
                     : 'e.g. Failed sales case study, lacked commercial depth, cultural mismatch...'
                 }
-                className="w-full px-3.5 py-2.5 rounded-xl border border-rose-300 dark:border-rose-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-rose-300 dark:border-rose-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
             </div>
           )}
@@ -206,7 +202,7 @@ export function EvaluateRoundModal({
                 required
                 value={interviewerName}
                 onChange={(e) => setInterviewerName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
               />
             </div>
 
@@ -223,11 +219,10 @@ export function EvaluateRoundModal({
                     className="p-1 focus:outline-none transition-transform hover:scale-110"
                   >
                     <Star
-                      className={`w-5 h-5 ${
-                        star <= rating
-                          ? 'fill-amber-400 text-amber-400'
-                          : 'text-slate-300 dark:text-slate-600'
-                      }`}
+                      className={`w-5 h-5 ${star <= rating
+                        ? 'fill-amber-400 text-amber-400'
+                        : 'text-slate-300 dark:text-slate-600'
+                        }`}
                     />
                   </button>
                 ))}
@@ -249,7 +244,7 @@ export function EvaluateRoundModal({
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Candidate strengths, specific domain questions asked, clarity of answers..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
             />
           </div>
 
@@ -258,18 +253,17 @@ export function EvaluateRoundModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className={`px-6 py-2.5 rounded-xl text-xs font-bold text-white transition-all shadow-sm ${
-                result === 'PASSED'
-                  ? 'bg-emerald-600 hover:bg-emerald-700'
-                  : 'bg-rose-600 hover:bg-rose-700'
-              }`}
+              className={`px-6 py-2.5 rounded-lg text-xs font-bold text-white transition-all shadow-sm ${result === 'PASSED'
+                ? 'bg-emerald-600 hover:bg-emerald-700'
+                : 'bg-rose-600 hover:bg-rose-700'
+                }`}
             >
               {submitting ? 'Recording Decision...' : 'Save Round Evaluation'}
             </button>

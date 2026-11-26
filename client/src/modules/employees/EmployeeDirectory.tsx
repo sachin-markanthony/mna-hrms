@@ -232,7 +232,7 @@ export function EmployeeDirectory() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -251,7 +251,7 @@ export function EmployeeDirectory() {
           <button
             type="button"
             onClick={() => void loadDirectory()}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -263,7 +263,7 @@ export function EmployeeDirectory() {
                 setCreateError(null);
                 setCreateOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800"
             >
               <Plus className="w-3.5 h-3.5" />
               Add Employee
@@ -273,35 +273,35 @@ export function EmployeeDirectory() {
       </div>
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
+        <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
           {error}
         </div>
       )}
 
       {/* KPI Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>Visible Headcount</span>
             <Users className="w-4 h-4 text-indigo-600" />
           </div>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{employees.length}</p>
         </div>
-        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>Departments</span>
             <Building2 className="w-4 h-4 text-emerald-600" />
           </div>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{departments.length}</p>
         </div>
-        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>Teams</span>
             <UserCheck className="w-4 h-4 text-amber-600" />
           </div>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">{teams.length}</p>
         </div>
-        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>Pending KYC Docs</span>
             <Shield className="w-4 h-4 text-rose-600" />
@@ -311,7 +311,7 @@ export function EmployeeDirectory() {
       </div>
 
       {/* Filters + Table */}
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+      <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
         <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
@@ -320,13 +320,13 @@ export function EmployeeDirectory() {
               placeholder="Search name, email, or EMP ID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-slate-900"
+              className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-slate-900"
             />
           </div>
           <select
             value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
+            className="rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
           >
             <option value="">All Departments</option>
             {departments.map((d) => (
@@ -338,7 +338,7 @@ export function EmployeeDirectory() {
           <select
             value={teamFilter}
             onChange={(e) => setTeamFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
+            className="rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
           >
             <option value="">All Teams</option>
             {teams.map((t) => (
@@ -455,7 +455,7 @@ export function EmployeeDirectory() {
       {/* Add Employee Modal */}
       {createOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white">
               <h2 className="text-sm font-bold text-slate-900">
                 Add New Employee (Auto-Syncs Leave Balances)
@@ -471,7 +471,7 @@ export function EmployeeDirectory() {
 
             <form onSubmit={(e) => void handleCreateSubmit(e)} className="p-6 space-y-4">
               {createError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
+                <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700">
                   {createError}
                 </div>
               )}
@@ -486,7 +486,7 @@ export function EmployeeDirectory() {
                     placeholder="EMP-011"
                     value={form.employeeId}
                     onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
@@ -498,7 +498,7 @@ export function EmployeeDirectory() {
                     placeholder="Neha Kulkarni"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
@@ -511,7 +511,7 @@ export function EmployeeDirectory() {
                     placeholder="neha@markanthony.in"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
@@ -524,7 +524,7 @@ export function EmployeeDirectory() {
                     minLength={8}
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
@@ -534,7 +534,7 @@ export function EmployeeDirectory() {
                   <select
                     value={form.role}
                     onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   >
                     <option value="EMPLOYEE">Employee</option>
                     <option value="TEAM_LEADER">Team Lead</option>
@@ -553,7 +553,7 @@ export function EmployeeDirectory() {
                     placeholder="+919876543210"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
@@ -563,7 +563,7 @@ export function EmployeeDirectory() {
                   <select
                     value={form.departmentId}
                     onChange={(e) => setForm({ ...form, departmentId: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   >
                     <option value="">Select Department</option>
                     {departments.map((d) => (
@@ -580,7 +580,7 @@ export function EmployeeDirectory() {
                   <select
                     value={form.teamId}
                     onChange={(e) => setForm({ ...form, teamId: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   >
                     <option value="">Select Team</option>
                     {teams.map((t) => (
@@ -598,7 +598,7 @@ export function EmployeeDirectory() {
                     placeholder="Field Sales Executive"
                     value={form.jobTitle}
                     onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
@@ -611,7 +611,7 @@ export function EmployeeDirectory() {
                     placeholder="45000"
                     value={form.salary}
                     onChange={(e) => setForm({ ...form, salary: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
@@ -622,7 +622,7 @@ export function EmployeeDirectory() {
                     placeholder="O+"
                     value={form.bloodGroup}
                     onChange={(e) => setForm({ ...form, bloodGroup: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   />
                 </div>
                 <div>
@@ -635,7 +635,7 @@ export function EmployeeDirectory() {
                     onChange={(e) =>
                       setForm({ ...form, emergencyContactPhone: e.target.value })
                     }
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
                   />
                 </div>
               </div>
@@ -644,14 +644,14 @@ export function EmployeeDirectory() {
                 <button
                   type="button"
                   onClick={() => setCreateOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600"
+                  className="px-4 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-4 py-2 rounded-xl bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
                 >
                   {creating ? 'Provisioning...' : 'Create Employee'}
                 </button>
@@ -664,7 +664,7 @@ export function EmployeeDirectory() {
       {/* Employee Dossier Modal */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">
@@ -693,11 +693,10 @@ export function EmployeeDirectory() {
                   key={tab}
                   type="button"
                   onClick={() => setDossierTab(tab)}
-                  className={`px-3 py-2 text-xs font-semibold border-b-2 transition-colors ${
-                    dossierTab === tab
-                      ? 'border-slate-900 text-slate-900'
-                      : 'border-transparent text-slate-500 hover:text-slate-800'
-                  }`}
+                  className={`px-3 py-2 text-xs font-semibold border-b-2 transition-colors ${dossierTab === tab
+                    ? 'border-slate-900 text-slate-900'
+                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                    }`}
                 >
                   {tab === 'profile'
                     ? 'Personnel Dossier'
@@ -711,7 +710,7 @@ export function EmployeeDirectory() {
             <div className="p-6">
               {dossierTab === 'profile' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
                     <div className="font-bold text-slate-800">Work &amp; Organization</div>
                     <div>Email: {selected.user.email}</div>
                     <div>Phone: {selected.user.phone ?? 'â€”'}</div>
@@ -720,7 +719,7 @@ export function EmployeeDirectory() {
                     <div>Role: {selected.user.role}</div>
                     <div>Monthly Gross: {formatCurrency(selected.salary)}</div>
                   </div>
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
                     <div className="font-bold text-slate-800">Personal, Banking &amp; Statutory</div>
                     <div>Blood Group: {selected.bloodGroup ?? 'â€”'}</div>
                     <div>
@@ -740,7 +739,7 @@ export function EmployeeDirectory() {
                   {(isHrAdminOrSuper || selected.userId === user?.id) && (
                     <form
                       onSubmit={(e) => void handleAddDocument(e)}
-                      className="p-4 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-2.5 items-end"
+                      className="p-4 rounded-lg bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-2.5 items-end"
                     >
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-600 mb-1">
@@ -800,7 +799,7 @@ export function EmployeeDirectory() {
                       No KYC documents uploaded (or restricted by RBAC).
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-xl">
+                    <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-lg">
                       {selected.documents.map((doc) => (
                         <div
                           key={doc.id}
@@ -852,7 +851,7 @@ export function EmployeeDirectory() {
 
               {dossierTab === 'qr' && (
                 <div className="flex flex-col sm:flex-row gap-6 items-start">
-                  <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col items-center gap-2 min-w-[180px]">
+                  <div className="p-5 rounded-lg border border-slate-200 bg-slate-50 flex flex-col items-center gap-2 min-w-[180px]">
                     <QrCode className="w-24 h-24 text-slate-900" />
                     <span className="text-xs font-mono font-bold text-slate-800">
                       {qrBadge?.employeeId ?? selected.user.employeeId}
@@ -861,7 +860,7 @@ export function EmployeeDirectory() {
                   </div>
                   <div className="flex-1 space-y-2 text-xs">
                     <div className="font-bold text-slate-900">vCard Digital Business Card</div>
-                    <pre className="p-3 rounded-xl bg-slate-900 text-slate-100 text-[11px] overflow-x-auto">
+                    <pre className="p-3 rounded-lg bg-slate-900 text-slate-100 text-[11px] overflow-x-auto">
                       {qrBadge?.vCard ?? 'Loading vCard...'}
                     </pre>
                     <button

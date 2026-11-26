@@ -186,7 +186,7 @@ export function RecruitmentPipeline() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-[#072b53]/10 dark:bg-amber-500/10 text-[#072b53] dark:text-amber-400">
+            <span className="p-2 rounded-lg bg-[#072b53]/10 dark:bg-amber-500/10 text-[#072b53] dark:text-amber-400">
               <Users className="w-5 h-5" />
             </span>
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
@@ -202,7 +202,7 @@ export function RecruitmentPipeline() {
           <button
             type="button"
             onClick={() => void loadData()}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0f172a] text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0f172a] text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             title="Refresh Recruitment Data"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -211,7 +211,7 @@ export function RecruitmentPipeline() {
           {!isTeamLeader && (
             <button
               onClick={() => setAddModalOpen(true)}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer"
+              className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer"
             >
               <Plus className="w-4 h-4 text-amber-400" />
               Register Office Walk-In
@@ -221,7 +221,7 @@ export function RecruitmentPipeline() {
       </div>
 
       {loadError && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-xs flex items-center justify-between">
+        <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-xs flex items-center justify-between">
           <div className="flex items-center gap-2">
             <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
             <span><strong>Database Connection Notice:</strong> {loadError}</span>
@@ -238,7 +238,7 @@ export function RecruitmentPipeline() {
       {/* ====================================================
           WALK-IN VISIT DATE SELECTOR & ANALYTICS
           ==================================================== */}
-      <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-2xs space-y-4">
+      <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200 dark:border-slate-800 p-5 shadow-2xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-[#072b53] dark:text-amber-400" />
@@ -250,22 +250,20 @@ export function RecruitmentPipeline() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSelectedDate(todayStr)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                selectedDate === todayStr
-                  ? 'bg-[#072b53] text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedDate === todayStr
+                ? 'bg-[#072b53] text-white'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                }`}
             >
               Today ({todayStr})
             </button>
 
             <button
               onClick={() => setSelectedDate('ALL')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                selectedDate === 'ALL'
-                  ? 'bg-[#072b53] text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedDate === 'ALL'
+                ? 'bg-[#072b53] text-white'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                }`}
             >
               All-Time Records
             </button>
@@ -282,7 +280,7 @@ export function RecruitmentPipeline() {
         {/* 5 Core Metrics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {/* Card 1: Total Walk-Ins */}
-          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+          <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
             <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 block">
               Total Walk-Ins Came
             </span>
@@ -300,7 +298,7 @@ export function RecruitmentPipeline() {
           </div>
 
           {/* Card 2: Candidates in HR Round */}
-          <div className="p-3.5 rounded-xl bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800">
+          <div className="p-3.5 rounded-lg bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800">
             <span className="text-[10px] font-bold uppercase text-sky-700 dark:text-sky-300 block">
               In HR Round
             </span>
@@ -318,7 +316,7 @@ export function RecruitmentPipeline() {
           </div>
 
           {/* Card 3: In MR Round */}
-          <div className="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800">
+          <div className="p-3.5 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800">
             <span className="text-[10px] font-bold uppercase text-indigo-700 dark:text-indigo-300 block">
               In MR Round
             </span>
@@ -336,7 +334,7 @@ export function RecruitmentPipeline() {
           </div>
 
           {/* Card 4: Total Selected */}
-          <div className="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
+          <div className="p-3.5 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-300">
                 Selected / Hired
@@ -357,7 +355,7 @@ export function RecruitmentPipeline() {
           </div>
 
           {/* Card 5: Rejections (HR vs MR) */}
-          <div className="p-3.5 rounded-xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800">
+          <div className="p-3.5 rounded-lg bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase text-rose-700 dark:text-rose-300">
                 Rejected ({displayStats?.rejections.totalRejected ?? 0})
@@ -385,7 +383,7 @@ export function RecruitmentPipeline() {
       {/* ====================================================
           FILTERS: DEPARTMENT (DIGITAL / SALES), SEARCH & VIEW
           ==================================================== */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200 dark:border-slate-800 p-4 shadow-2xs">
         <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
@@ -395,7 +393,7 @@ export function RecruitmentPipeline() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search candidate name, phone, role..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#072b53]"
             />
           </div>
 
@@ -405,7 +403,7 @@ export function RecruitmentPipeline() {
             <select
               value={selectedDept}
               onChange={(e) => setSelectedDept(e.target.value as any)}
-              className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+              className="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#072b53]"
             >
               <option value="ALL">All Departments (Digital + Sales)</option>
               <option value="DIGITAL">Digital Department</option>
@@ -419,7 +417,7 @@ export function RecruitmentPipeline() {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+              className="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#072b53]"
             >
               <option value="ALL">All Pipeline Stages</option>
               <option value="REGISTERED">Walk-In Registered</option>
@@ -433,25 +431,23 @@ export function RecruitmentPipeline() {
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 self-end sm:self-auto">
+        <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shrink-0 self-end sm:self-auto">
           <button
             onClick={() => setViewMode('KANBAN')}
-            className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-              viewMode === 'KANBAN'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
+            className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${viewMode === 'KANBAN'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+              : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+              }`}
           >
             <LayoutGrid className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Kanban</span>
           </button>
           <button
             onClick={() => setViewMode('LIST')}
-            className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-              viewMode === 'LIST'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
-                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
+            className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${viewMode === 'LIST'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+              : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+              }`}
           >
             <List className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">List View</span>
@@ -471,23 +467,22 @@ export function RecruitmentPipeline() {
             return (
               <div
                 key={colStatus}
-                className="w-80 shrink-0 rounded-2xl bg-slate-100/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/80 p-3 flex flex-col max-h-[75vh]"
+                className="w-80 shrink-0 rounded-lg bg-slate-100/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/80 p-3 flex flex-col max-h-[75vh]"
               >
                 {/* Column Header */}
                 <div className="flex items-center justify-between px-2 py-2 mb-2">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`w-2.5 h-2.5 rounded-full ${
-                        colStatus === 'SELECTED'
-                          ? 'bg-emerald-500'
-                          : colStatus === 'REJECTED_HR' || colStatus === 'REJECTED_MR'
+                      className={`w-2.5 h-2.5 rounded-full ${colStatus === 'SELECTED'
+                        ? 'bg-emerald-500'
+                        : colStatus === 'REJECTED_HR' || colStatus === 'REJECTED_MR'
                           ? 'bg-rose-500'
                           : colStatus === 'MR_ROUND'
-                          ? 'bg-indigo-500'
-                          : colStatus === 'HR_ROUND'
-                          ? 'bg-sky-500'
-                          : 'bg-[#072b53] dark:bg-amber-400'
-                      }`}
+                            ? 'bg-indigo-500'
+                            : colStatus === 'HR_ROUND'
+                              ? 'bg-sky-500'
+                              : 'bg-[#072b53] dark:bg-amber-400'
+                        }`}
                     />
                     <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200">
                       {statusConfig.title}
@@ -502,7 +497,7 @@ export function RecruitmentPipeline() {
                 {/* Candidate Cards Column */}
                 <div className="flex-1 overflow-y-auto space-y-3 p-1">
                   {colCands.length === 0 ? (
-                    <div className="p-6 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                    <div className="p-6 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
                       <p className="text-[11px] text-slate-400">No candidates in this stage</p>
                     </div>
                   ) : (
@@ -522,7 +517,7 @@ export function RecruitmentPipeline() {
         </div>
       ) : (
         /* Tabular List View */
-        <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-2xs">
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
@@ -553,11 +548,10 @@ export function RecruitmentPipeline() {
 
                       <td className="px-5 py-3.5">
                         <span
-                          className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md border ${
-                            c.department === 'DIGITAL'
-                              ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800'
-                              : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
-                          }`}
+                          className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md border ${c.department === 'DIGITAL'
+                            ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800'
+                            : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                            }`}
                         >
                           {c.department}
                         </span>
