@@ -4,7 +4,6 @@ import { AuthProvider, useAuth, Login } from './modules/auth';
 import { Dashboard } from './modules/dashboard/Dashboard';
 import { AppLayout } from './components/layout/AppLayout';
 import { inductionRoutes } from './modules/onboarding/routes/induction.routes';
-import { Induction } from './modules/onboarding/Induction';
 import { LeaveManagement } from './modules/leave';
 import { EmployeeDirectory } from './modules/employees';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
