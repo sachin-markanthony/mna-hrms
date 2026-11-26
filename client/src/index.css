@@ -58,7 +58,7 @@
   --primary: #1e3a8a;
   --primary-hover: #1d4ed8;
   --primary-light: #eff6ff;
-  --primary-dark: #0f172a;
+  --primary-dark: #67aa48;
   --primary-accent: #2563eb;
 
   --secondary: #d97706;
@@ -90,11 +90,11 @@ body {
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 1rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px 0 rgba(151, 124, 73, 0.05);
 }
 
 .lms-hero-card {
-  background: linear-gradient(135deg, #24140e 0%, #1a120b 100%);
+  background: linear-gradient(135deg, #77a051 0%, #98af58 100%);
   border: 1px solid rgba(62, 39, 35, 0.5);
   border-radius: 1.5rem;
   color: #faf7f2;

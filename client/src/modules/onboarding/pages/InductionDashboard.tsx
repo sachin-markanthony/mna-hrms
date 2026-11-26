@@ -15,6 +15,7 @@ import { InductionSubNav } from '../components/InductionSubNav';
 import type { InductionTabType } from '../components/InductionSubNav';
 import type { InductionSession, InductionChapter } from '../types/induction.types';
 import { AlertCircle, RefreshCw, ShieldCheck } from 'lucide-react';
+import '../induction.css';
 
 export const InductionDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -78,6 +79,8 @@ export const InductionDashboard: React.FC = () => {
   };
 
   const handleSelectSession = (session: InductionSession) => {
+    if (session.status === 'locked') return;
+
     const sessionChapters = chapters.filter((c) => c.sessionId === session.id);
     const sessionFirstChapter =
       sessionChapters.find((c) => c.status !== 'completed' && c.status !== 'locked') ??
@@ -92,6 +95,8 @@ export const InductionDashboard: React.FC = () => {
   };
 
   const handleSelectChapter = (chapter: InductionChapter) => {
+    if (chapter.status === 'locked') return;
+
     const session =
       sessions.find((s) => s.id === chapter.sessionId) || null;
 
@@ -145,7 +150,7 @@ export const InductionDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="py-20 flex flex-col items-center justify-center text-slate-500 gap-3">
+      <div className="induction-page induction-page--state py-20 flex flex-col items-center justify-center text-slate-500 gap-3">
         <div className="w-9 h-9 rounded-full border-3 border-[#1e3a8a] border-t-transparent animate-spin" />
         <p className="text-xs font-semibold tracking-wider uppercase text-slate-500">
           Loading MA Ventures Learning Dashboard...
@@ -156,7 +161,7 @@ export const InductionDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="py-16 flex flex-col items-center justify-center p-6 text-center">
+      <div className="induction-page induction-page--state py-16 flex flex-col items-center justify-center p-6 text-center">
         <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3">
           <AlertCircle className="w-6 h-6" />
         </div>
@@ -174,7 +179,7 @@ export const InductionDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="induction-page space-y-6">
       {/* Module Title & Global Scope Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

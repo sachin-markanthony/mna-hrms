@@ -23,6 +23,7 @@ import type { InductionChapter, InductionSession } from '../types/induction.type
 import type {
   HandbookBlock,
   HandbookDocument,
+  HandbookQuizForLearner,
   QuizAttempt,
   QuizEvaluation,
 } from '../types/training.types';
@@ -161,8 +162,8 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
   const isReference = Boolean(chapter.isResource);
 
   useEffect(() => {
-    onStartChapter(chapter.id);
-  }, [chapter.id, onStartChapter]);
+    if (!isLocked) onStartChapter(chapter.id);
+  }, [chapter.id, isLocked, onStartChapter]);
 
   useEffect(() => {
     setQuizOpen(false);
@@ -177,7 +178,47 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
     [doc, chapter.chapterNumber],
   );
 
+  const learnerQuiz = useMemo<HandbookQuizForLearner | null>(() => {
+    const quiz = doc?.quiz;
+    if (!quiz) return null;
+    return {
+      passingScore: quiz.passingScore,
+      questions: quiz.questions.map((question) => ({
+        id: question.id,
+        number: question.number,
+        prompt: question.prompt,
+        options: question.options,
+      })),
+    };
+  }, [doc]);
+
   const handleQuizSubmit = (answers: Record<string, string>) => onSubmitQuiz(chapter.id, answers);
+
+  if (isLocked) {
+    return (
+      <div className="space-y-6 py-2">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex w-fit items-center gap-2 rounded-xl border border-[#DDD3C9] bg-white px-3.5 py-1.5 text-xs font-bold text-[#2B1810] shadow-2xs transition hover:bg-[#FAF7F2] cursor-pointer"
+        >
+          <ArrowLeft className="h-4 w-4 text-[#8C6D37]" />
+          Back to Training Library
+        </button>
+        <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-slate-700">
+          <Lock className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <p className="text-sm font-bold">Chapter {chapter.chapterNumber} is locked</p>
+            <p className="mt-1 text-xs">
+              {isReference
+                ? 'Reference documents are released by HR as part of the trainer pack.'
+                : 'Complete the previous chapter and pass its assessment to unlock this chapter.'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 py-2">
@@ -288,25 +329,12 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
         </div>
       </div>
 
-      {isLocked && (
-        <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-700">
-          <Lock className="mt-0.5 h-4 w-4 shrink-0" />
-          <div>
-            <p className="text-xs font-bold">This chapter is locked</p>
-            <p className="mt-0.5 text-[11px]">
-              Complete the earlier core chapters to unlock this milestone. Reference documents are
-              released by HR as part of the trainer pack.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {quizOpen && doc?.quiz ? (
+      {quizOpen && learnerQuiz ? (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
           <ChapterQuiz
             chapterNumber={chapter.chapterNumber}
             chapterTitle={chapter.title}
-            quiz={doc.quiz}
+            quiz={learnerQuiz}
             onSubmit={handleQuizSubmit}
             onReviewDocument={() => setQuizOpen(false)}
             onNextChapter={nextChapter ? () => onNavigateChapter(nextChapter) : undefined}
@@ -321,11 +349,11 @@ export const TrainingDocumentView: React.FC<TrainingDocumentViewProps> = ({
               <ul className="mt-2.5 space-y-2 text-[11px] text-stone-600">
                 <li className="flex gap-2">
                   <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                  Answer all {doc.quiz.questions.length} questions before submitting.
+                  Answer all {learnerQuiz.questions.length} questions before submitting.
                 </li>
                 <li className="flex gap-2">
                   <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                  Score at least {doc.quiz.passingScore}/{doc.quiz.questions.length} to complete the
+                  Score at least {learnerQuiz.passingScore}/{learnerQuiz.questions.length} to complete the
                   chapter.
                 </li>
                 <li className="flex gap-2">

@@ -3,7 +3,7 @@ import { InductionDashboard } from '../pages/InductionDashboard';
 
 export const inductionRoutes: RouteObject[] = [
   {
-    path: '/training',
+    path: '/induction',
     element: <InductionDashboard />,
   },
 ];
