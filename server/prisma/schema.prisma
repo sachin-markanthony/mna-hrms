@@ -52,6 +52,10 @@ model User {
   teamLeadLeaveApprovals LeaveRequest[]     @relation("LeaveTeamLeadApprover")
   hrLeaveApprovals       LeaveRequest[]     @relation("LeaveHrApprover")
   attendanceMaster       AttendanceMaster[]
+  attendanceRawLogs      AttendanceRawLog[]
+  siteVisits             SiteVisit[]
+  regularizations        AttendanceRegularization[] @relation("RegularizationApplicant")
+  reviewedRegularizations AttendanceRegularization[] @relation("RegularizationReviewer")
   inductionProgress      InductionProgress[]
   inductionNotifications InductionNotification[]
 
@@ -112,12 +116,13 @@ model Team {
 
 // Departments
 model Department {
-  id          String     @id @default(uuid())
-  name        String     @unique
-  description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  employees   Employee[]
+  id           String        @id @default(uuid())
+  name         String        @unique
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  employees    Employee[]
+  designations Designation[]
 
   @@map("departments")
 }
@@ -441,4 +446,112 @@ model RoundEvaluation {
   evaluatedAt     DateTime              @default(now())
 
   @@map("round_evaluations")
+}
+
+enum PunchSource {
+  FACIAL_DEVICE
+  SITE_VISIT_GPS
+  WEB
+}
+
+enum PunchDirection {
+  IN
+  OUT
+}
+
+// Tier 1: Raw Physical & GPS Biometric Logs (Strictly Append-Only)
+model AttendanceRawLog {
+  id             String         @id @default(uuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source         PunchSource
+  direction      PunchDirection
+  rawTimestamp   DateTime       @default(now())
+  latitude       Float?
+  longitude      Float?
+  projectId      String?
+  deviceIp       String?
+  faceConfidence Float?
+  status         String         @default("VALIDATED")
+  createdAt      DateTime       @default(now())
+
+  @@index([userId, rawTimestamp])
+  @@index([source])
+  @@map("attendance_raw_logs")
+}
+
+// Field Sales Site Visits (<= 300m GPS geofence)
+model SiteVisit {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId      String
+  projectName    String
+  leadId         String?
+  checkInTime    DateTime  @default(now())
+  checkOutTime   DateTime?
+  checkInLat     Float
+  checkInLng     Float
+  checkOutLat    Float?
+  checkOutLng    Float?
+  distanceMeters Float?
+  notes          String?
+  status         String    @default("VALIDATED")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId, checkInTime])
+  @@map("site_visits")
+}
+
+// Monthly Attendance Regularization Requests
+model AttendanceRegularization {
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation("RegularizationApplicant", fields: [userId], references: [id], onDelete: Cascade)
+  attendanceDate DateTime         @db.Date
+  requestedIn    DateTime?
+  requestedOut   DateTime?
+  reason         String
+  status         ApprovalDecision @default(PENDING)
+  reviewedById   String?
+  reviewedBy     User?            @relation("RegularizationReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt     DateTime?
+  remarks        String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("attendance_regularizations")
+}
+
+// Organizational Designations
+model Designation {
+  id           String      @id @default(uuid())
+  title        String      @unique
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  description  String?
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("designations")
+}
+
+// Shift & Grace Period Configurations
+model ShiftSetting {
+  id                 String   @id @default(uuid())
+  name               String   @unique
+  startTime          String   @default("09:30")
+  endTime            String   @default("18:30")
+  gracePeriodMinutes Int      @default(15)
+  fullDayHours       Float    @default(8.5)
+  halfDayHours       Float    @default(4.0)
+  isDefault          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("shift_settings")
 }

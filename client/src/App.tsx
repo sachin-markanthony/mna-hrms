@@ -6,6 +6,8 @@ import { AppLayout } from './components/layout/AppLayout';
 import { Induction } from './modules/onboarding/Induction';
 import { LeaveManagement } from './modules/leave';
 import { EmployeeDirectory } from './modules/employees';
+import { AttendanceManagement } from './modules/attendance';
+import { SettingsManagement } from './modules/settings';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -73,10 +75,7 @@ function AppRoutes() {
         path="/attendance"
         element={
           <ProtectedRoute>
-            <SectionPlaceholder
-              title="Attendance & Time Management"
-              description="Face-scan gate lock webhook sync (First-in, last-out), CRM site visit ingestion & latecomer alerts."
-            />
+            <AttendanceManagement />
           </ProtectedRoute>
         }
       />
@@ -130,10 +129,7 @@ function AppRoutes() {
         path="/settings"
         element={
           <ProtectedRoute>
-            <SectionPlaceholder
-              title="Master Settings & Access Control"
-              description="Manage Users, RBAC permissions, Departments, Designations & Shift grace periods."
-            />
+            <SettingsManagement />
           </ProtectedRoute>
         }
       />

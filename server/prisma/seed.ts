@@ -402,7 +402,46 @@ async function main() {
     }
   }
 
-  console.log('Seeded RBAC roles, permissions, departments, teams, and 10 employees successfully.');
+  // Seed Default Shift & Grace Period
+  await prisma.shiftSetting.upsert({
+    where: { name: 'General Office Shift' },
+    update: {},
+    create: {
+      name: 'General Office Shift',
+      startTime: '09:30',
+      endTime: '18:30',
+      gracePeriodMinutes: 15,
+      fullDayHours: 8.5,
+      halfDayHours: 4.0,
+      isDefault: true,
+    },
+  });
+
+  // Seed Default Designations
+  const designationDefs = [
+    { title: 'Managing Director', departmentName: 'Executive' },
+    { title: 'HR Manager', departmentName: 'Human Resources' },
+    { title: 'HR Coordinator', departmentName: 'Human Resources' },
+    { title: 'Sales Team Leader', departmentName: 'Sales & Leasing' },
+    { title: 'Senior Sales Executive', departmentName: 'Sales & Leasing' },
+    { title: 'Field Sales Representative', departmentName: 'Sales & Leasing' },
+    { title: 'Property Advisor', departmentName: 'Sales & Leasing' },
+    { title: 'Digital Marketing Specialist', departmentName: 'Marketing' },
+    { title: 'Senior Accounts Executive', departmentName: 'Accounts & Finance' },
+  ];
+
+  for (const des of designationDefs) {
+    await prisma.designation.upsert({
+      where: { title: des.title },
+      update: { departmentId: deptIdByName.get(des.departmentName) ?? null },
+      create: {
+        title: des.title,
+        departmentId: deptIdByName.get(des.departmentName) ?? null,
+      },
+    });
+  }
+
+  console.log('Seeded RBAC roles, permissions, departments, teams, designations, shift settings, and 10 employees successfully.');
 }
 
 try {

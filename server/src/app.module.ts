@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -21,11 +22,13 @@ import { PayrollModule } from './modules/payroll/payroll.module.js';
 import { AssetsModule } from './modules/assets/assets.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
 import { RolesModule } from './modules/roles/roles.module.js';
+import { SettingsModule } from './modules/settings/settings.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     AuditModule,
@@ -41,6 +44,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     AssetsModule,
     NotificationsModule,
     RolesModule,
+    SettingsModule,
     // Distributed tracing, auto-correlated logs, request/job metrics, error
     // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com,
     // then run `npx @nestjs/observe link` to write your key pair into .env.

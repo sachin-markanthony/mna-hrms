@@ -4,6 +4,7 @@ import {
   AttendanceStatus,
   LeaveStatus,
   LeaveType,
+  Role,
 } from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRole } from '../../core/decorators/roles.decorator.js';
@@ -98,7 +99,7 @@ describe('LeaveService', () => {
     );
   });
 
-  it('should scope leave requests to team members + self for Team Leader', async () => {
+  it('should scope leave requests to team EMPLOYEE members + self for Team Leader', async () => {
     prisma.user.findUnique.mockResolvedValue({ teamId: 'team-east' });
     prisma.leaveRequest.findMany.mockResolvedValue([]);
 
@@ -107,8 +108,52 @@ describe('LeaveService', () => {
     expect(prisma.leaveRequest.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
-          OR: [{ userId: 'tl-1' }, { user: { teamId: 'team-east' } }],
+          OR: [
+            { userId: 'tl-1' },
+            { user: { teamId: 'team-east', role: Role.EMPLOYEE } },
+          ],
         },
+      }),
+    );
+  });
+
+  it('should route Team Lead leave applications directly to HR (teamLeadStatus = APPROVED)', async () => {
+    prisma.leaveRequest.findFirst.mockResolvedValue(null);
+    prisma.leaveBalance.findMany.mockResolvedValue([
+      { leaveType: LeaveType.CASUAL },
+      { leaveType: LeaveType.SICK },
+      { leaveType: LeaveType.EARNED },
+      { leaveType: LeaveType.LOP },
+    ]);
+    prisma.leaveBalance.findUnique.mockResolvedValue({
+      id: 'bal-tl',
+      remainingDays: 12,
+    });
+    prisma.leaveRequest.create.mockResolvedValue({
+      id: 'req-tl-1',
+      status: LeaveStatus.PENDING,
+      teamLeadStatus: ApprovalDecision.APPROVED,
+      hrStatus: ApprovalDecision.PENDING,
+    });
+
+    const created = await service.applyLeave(
+      teamLeadUser,
+      {
+        leaveType: LeaveType.CASUAL,
+        startDate: '2026-12-05',
+        endDate: '2026-12-05',
+        reason: 'Personal work',
+      },
+      {},
+    );
+
+    expect(created.teamLeadStatus).toBe(ApprovalDecision.APPROVED);
+    expect(prisma.leaveRequest.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          teamLeadStatus: ApprovalDecision.APPROVED,
+          hrStatus: ApprovalDecision.PENDING,
+        }),
       }),
     );
   });

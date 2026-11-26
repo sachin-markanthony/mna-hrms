@@ -11,6 +11,7 @@ import {
   LeaveStatus,
   LeaveType,
   Prisma,
+  Role,
 } from '@prisma/client';
 import { AppRole } from '../../core/decorators/roles.decorator.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
@@ -236,6 +237,8 @@ export class LeaveService {
       }
     }
 
+    const requiresTeamLeadApproval = currentUser.role === AppRole.EMPLOYEE;
+
     const created = await this.prisma.leaveRequest.create({
       data: {
         userId: currentUser.id,
@@ -245,7 +248,12 @@ export class LeaveService {
         totalDays,
         reason: dto.reason.trim(),
         status: LeaveStatus.PENDING,
-        teamLeadStatus: ApprovalDecision.PENDING,
+        teamLeadStatus: requiresTeamLeadApproval
+          ? ApprovalDecision.PENDING
+          : ApprovalDecision.APPROVED,
+        teamLeadRemarks: requiresTeamLeadApproval
+          ? null
+          : 'Auto-routed directly to HR',
         hrStatus: ApprovalDecision.PENDING,
       },
       include: LEAVE_REQUEST_INCLUDE,
@@ -568,7 +576,10 @@ export class LeaveService {
 
       if (actor?.teamId) {
         return {
-          OR: [{ userId: currentUser.id }, { user: { teamId: actor.teamId } }],
+          OR: [
+            { userId: currentUser.id },
+            { user: { teamId: actor.teamId, role: Role.EMPLOYEE } },
+          ],
         };
       }
     }
@@ -594,7 +605,13 @@ export class LeaveService {
 
     if (actor?.teamId) {
       return {
-        OR: [{ userId: currentUser.id }, { user: { teamId: actor.teamId } }],
+        OR: [
+          { userId: currentUser.id },
+          {
+            user: { teamId: actor.teamId },
+            status: LeaveStatus.APPROVED,
+          },
+        ],
       };
     }
 

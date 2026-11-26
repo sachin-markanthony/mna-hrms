@@ -38,8 +38,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(null);
       localStorage.removeItem('mna_refresh_token');
     };
+    const onRefreshed = (event: Event) => {
+      const detail = (event as CustomEvent<{ token?: string; user?: User }>).detail;
+      if (detail?.token) setToken(detail.token);
+      if (detail?.user) setUser(detail.user);
+    };
     window.addEventListener('auth:expired', onExpired);
-    return () => window.removeEventListener('auth:expired', onExpired);
+    window.addEventListener('auth:refreshed', onRefreshed);
+    return () => {
+      window.removeEventListener('auth:expired', onExpired);
+      window.removeEventListener('auth:refreshed', onRefreshed);
+    };
   }, []);
 
   const login = async (email: string, password: string) => {

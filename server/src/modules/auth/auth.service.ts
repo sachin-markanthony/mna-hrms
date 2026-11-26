@@ -163,7 +163,13 @@ export class AuthService {
     }
 
     const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
-    if (!user || !user.refreshTokenHash || user.isArchived) {
+    if (
+      !user ||
+      !user.refreshTokenHash ||
+      user.isArchived ||
+      user.employmentStatus === EmploymentStatus.ARCHIVED ||
+      user.employmentStatus === EmploymentStatus.INACTIVE
+    ) {
       throw new UnauthorizedException('Refresh token revoked');
     }
 
@@ -311,6 +317,12 @@ export class AuthService {
       name: originalAdmin.name,
       role: originalAdmin.role as unknown as AppRole,
       isImpersonated: false,
+    });
+
+    const refreshTokenHash = await bcrypt.hash(tokens.refreshToken, this.BCRYPT_ROUNDS);
+    await this.prisma.user.update({
+      where: { id: originalAdmin.id },
+      data: { refreshTokenHash },
     });
 
     await this.auditService.log({
