@@ -9,11 +9,13 @@ import { LearningRoadmap } from '../components/LearningRoadmap';
 import { BeforeYouBegin } from '../components/BeforeYouBegin';
 import { WorkingPrinciples } from '../components/WorkingPrinciples';
 import { LearningNotifications } from '../components/LearningNotifications';
-import { PlaceholderLearningRoute } from '../components/PlaceholderLearningRoute';
+import { TrainingDocumentView } from '../components/TrainingDocumentView';
+import { TrainingDocumentLibrary } from '../components/TrainingDocumentLibrary';
 import { InductionSubNav } from '../components/InductionSubNav';
 import type { InductionTabType } from '../components/InductionSubNav';
 import type { InductionSession, InductionChapter } from '../types/induction.types';
 import { AlertCircle, RefreshCw, ShieldCheck } from 'lucide-react';
+import '../induction.css';
 
 export const InductionDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -35,11 +37,16 @@ export const InductionDashboard: React.FC = () => {
     nextStep,
     principles,
     notifications,
+    summary,
     loading,
     error,
     refresh,
     markNotificationAsRead,
-    markChapterAsComplete,
+    startChapter,
+    submitChapterQuiz,
+    getDocument,
+    getQuizAttempts,
+    resetProgress,
   } = useInductionProgress(authEmployee);
 
   const [currentTab, setCurrentTab] = useState<InductionTabType>('overview');
@@ -72,8 +79,13 @@ export const InductionDashboard: React.FC = () => {
   };
 
   const handleSelectSession = (session: InductionSession) => {
+    if (session.status === 'locked') return;
+
+    const sessionChapters = chapters.filter((c) => c.sessionId === session.id);
     const sessionFirstChapter =
-      chapters.find((c) => c.sessionId === session.id) || null;
+      sessionChapters.find((c) => c.status !== 'completed' && c.status !== 'locked') ??
+      sessionChapters[0] ??
+      null;
 
     setActiveLearningState({
       isOpen: true,
@@ -83,6 +95,8 @@ export const InductionDashboard: React.FC = () => {
   };
 
   const handleSelectChapter = (chapter: InductionChapter) => {
+    if (chapter.status === 'locked') return;
+
     const session =
       sessions.find((s) => s.id === chapter.sessionId) || null;
 
@@ -94,15 +108,49 @@ export const InductionDashboard: React.FC = () => {
   };
 
   const handleNavigateAction = (route: string) => {
-    if (route === '#session-3') {
-      const sess3 = sessions.find((s) => s.sessionNumber === 3);
-      if (sess3) handleSelectSession(sess3);
+    const chapterMatch = route.match(/^#chapter-(\d+)$/);
+    if (chapterMatch) {
+      const target = chapters.find((c) => c.chapterNumber === Number(chapterMatch[1]));
+      if (target) {
+        handleSelectChapter(target);
+        return;
+      }
+    }
+
+    const sessionMatch = route.match(/^#session-(\d+)$/);
+    if (sessionMatch) {
+      const targetSession = sessions.find(
+        (s) => s.sessionNumber === Number(sessionMatch[1]),
+      );
+      if (targetSession) handleSelectSession(targetSession);
     }
   };
 
+  const getNextChapter = (chapter: InductionChapter | null): InductionChapter | null => {
+    if (!chapter) return null;
+    const index = chapters.findIndex((c) => c.id === chapter.id);
+    if (index < 0) return null;
+    return (
+      chapters
+        .slice(index + 1)
+        .find((c) => !c.isResource && c.status !== 'locked') ?? null
+    );
+  };
+
+  // Always read the latest chapter/session from the store so quiz results
+  // are reflected immediately without closing the document.
+  const activeChapter = activeLearningState.chapter
+    ? chapters.find((c) => c.id === activeLearningState.chapter?.id) ??
+      activeLearningState.chapter
+    : null;
+  const activeSession = activeLearningState.session
+    ? sessions.find((s) => s.id === activeLearningState.session?.id) ??
+      activeLearningState.session
+    : null;
+
   if (loading) {
     return (
-      <div className="py-20 flex flex-col items-center justify-center text-slate-500 gap-3">
+      <div className="induction-page induction-page--state py-20 flex flex-col items-center justify-center text-slate-500 gap-3">
         <div className="w-9 h-9 rounded-full border-3 border-[#1e3a8a] border-t-transparent animate-spin" />
         <p className="text-xs font-semibold tracking-wider uppercase text-slate-500">
           Loading MA Ventures Learning Dashboard...
@@ -113,7 +161,7 @@ export const InductionDashboard: React.FC = () => {
 
   if (error) {
     return (
-      <div className="py-16 flex flex-col items-center justify-center p-6 text-center">
+      <div className="induction-page induction-page--state py-16 flex flex-col items-center justify-center p-6 text-center">
         <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-3">
           <AlertCircle className="w-6 h-6" />
         </div>
@@ -131,7 +179,7 @@ export const InductionDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="induction-page space-y-6">
       {/* Module Title & Global Scope Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -144,7 +192,8 @@ export const InductionDashboard: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Phase 1 Module &bull; 7 Core Learning Sessions &bull; 22 Handbook Chapters &bull; Neon PostgreSQL Connected
+            Phase 1 Module &bull; {sessions.length} Core Learning Sessions &bull;{' '}
+            {summary.totalDocuments} Handbook Chapters &bull; Training Document + MCQ Assessments
           </p>
         </div>
 
@@ -168,20 +217,30 @@ export const InductionDashboard: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      {activeLearningState.isOpen ? (
-        /* Interactive Learning Route View */
-        <PlaceholderLearningRoute
-          session={activeLearningState.session}
-          chapter={activeLearningState.chapter}
+      {activeLearningState.isOpen && activeChapter ? (
+        /* Interactive Training Document + MCQ Assessment View */
+        <TrainingDocumentView
+          session={activeSession}
+          chapter={activeChapter}
+          document={getDocument(activeChapter.id)}
+          lastAttempt={getQuizAttempts(activeChapter.id)[0] ?? null}
+          nextChapter={getNextChapter(activeChapter)}
           onBack={() => setActiveLearningState({ isOpen: false, session: null, chapter: null })}
-          onCompleteChapter={async (chapterId) => {
-            await markChapterAsComplete(chapterId);
-            setActiveLearningState((prev) => ({
-              ...prev,
-              chapter: prev.chapter
-                ? { ...prev.chapter, status: 'completed', progressPercentage: 100 }
-                : null,
-            }));
+          onStartChapter={startChapter}
+          onSubmitQuiz={submitChapterQuiz}
+          onNavigateChapter={handleSelectChapter}
+        />
+      ) : currentTab === 'documents' ? (
+        /* Training Document Library */
+        <TrainingDocumentLibrary
+          chapters={chapters}
+          sessions={sessions}
+          summary={summary}
+          onSelectChapter={handleSelectChapter}
+          onResetProgress={() => {
+            if (window.confirm('Reset all local induction progress to the demo starting point?')) {
+              void resetProgress();
+            }
           }}
         />
       ) : currentTab === 'overview' ? (

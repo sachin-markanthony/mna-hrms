@@ -23,6 +23,9 @@ export interface InductionChapter {
   progressPercentage: number;
   isAssessment?: boolean;
   isResource?: boolean;
+  quizAvailable?: boolean;
+  lastScore?: number;
+  bestScore?: number;
 }
 
 export interface InductionSession {
@@ -51,6 +54,8 @@ export interface InductionProgress {
   totalSessions: number;
   remainingDuration: string;
   status: 'Not Started' | 'In Progress' | 'Under Review' | 'Completed';
+  pendingAssessments?: number;
+  averageScore?: number;
 }
 
 export interface InductionNotification {
