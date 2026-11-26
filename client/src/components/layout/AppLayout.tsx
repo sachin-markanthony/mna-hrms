@@ -7,7 +7,6 @@ import {
   CalendarDays,
   Receipt,
   Briefcase,
-  GraduationCap,
   FileCheck,
   Settings,
   ChevronLeft,
@@ -15,6 +14,8 @@ import {
   Sun,
   Moon,
   LogOut,
+  ChevronDown,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth, ROLES } from '../../modules/auth';
 import { useTheme } from '../../services/theme';
@@ -90,7 +91,7 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER'],
       },
       {
-        name: 'Onboarding & QR Identity',
+        name: 'Training & Induction',
         path: '/training',
         icon: GraduationCap,
         roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER', 'EMPLOYEE'],
@@ -187,6 +188,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 {visibleItems.map((item) => {
                   const Icon = item.icon;
                   const active = location.pathname === item.path;
+                  const badge = item.badge;
 
                   return (
                     <button
@@ -208,7 +210,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                         {!collapsed && <span className="truncate">{item.name}</span>}
                       </div>
 
-                      {!collapsed && item.badge && (
+                      {!collapsed && badge && (
                         <span
                           className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md ${
                             active
@@ -216,7 +218,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                               : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                           }`}
                         >
-                          {item.badge}
+                          {badge}
                         </span>
                       )}
                     </button>
@@ -311,6 +313,71 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <Bell className="w-4 h-4" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" />
             </button>
+            <button className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+              <HelpCircle className="w-4 h-4" />
+            </button>
+
+            <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
+
+            {/* Profile Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-full bg-[#072b53] text-white flex items-center justify-center text-xs font-black ring-2 ring-slate-100 dark:ring-slate-700">
+                  {user.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')}
+                </div>
+                <div className="hidden md:flex flex-col text-left">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                    {user.name}
+                  </span>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Online
+                  </span>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#111c35] rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-2 z-50">
+                  <div className="p-3 border-b border-slate-100 dark:border-slate-800">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white">{user.name}</div>
+                    <div className="text-[11px] text-slate-400 truncate">{user.email}</div>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-700 dark:text-blue-400" />
+                      {roleConfig.title} &bull; {roleConfig.scope} Scope
+                    </div>
+                  </div>
+
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        navigate('/settings');
+                      }}
+                      className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer"
+                    >
+                      <Settings className="w-4 h-4 text-slate-400" />
+                      Security &amp; Preferences
+                    </button>
+                  </div>
+
+                  <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg flex items-center gap-2 cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
