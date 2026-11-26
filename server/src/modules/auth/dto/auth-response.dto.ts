@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { AppRole } from '../../../core/decorators/roles.decorator.js';
 
 export class AuthUserViewDto {
@@ -19,20 +19,14 @@ export class AuthUserViewDto {
 
   @ApiProperty({ type: [String], description: 'Dynamic permissions assigned to the user role' })
   permissions: string[];
-
-  @ApiProperty()
-  isImpersonated: boolean;
-
-  @ApiPropertyOptional()
-  originalAdminId?: string;
 }
 
 export class AuthTokensResponseDto {
   @ApiProperty()
   accessToken: string;
 
-  @ApiPropertyOptional()
-  refreshToken?: string;
+  @ApiProperty()
+  refreshToken: string;
 
   @ApiProperty({ type: AuthUserViewDto })
   user: AuthUserViewDto;

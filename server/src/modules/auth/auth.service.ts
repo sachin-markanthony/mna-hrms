@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -64,9 +63,7 @@ export class AuthService {
       id: user.id,
       email: user.email,
       employeeId: user.employeeId,
-      name: user.name,
       role: user.role as unknown as AppRole,
-      isImpersonated: false,
     });
 
     const refreshTokenHash = await bcrypt.hash(tokens.refreshToken, this.BCRYPT_ROUNDS);
@@ -96,7 +93,6 @@ export class AuthService {
         name: user.name,
         role: user.role as unknown as AppRole,
         permissions,
-        isImpersonated: false,
       }),
     };
   }
@@ -127,7 +123,6 @@ export class AuthService {
         passwordHash,
         phone: dto.phone,
         role: (dto.role ?? AppRole.EMPLOYEE) as unknown as Role,
-        canImpersonate: dto.canImpersonate ?? false,
         teamId: dto.teamId,
       },
     });
@@ -152,7 +147,6 @@ export class AuthService {
       name: created.name,
       role: created.role as unknown as AppRole,
       permissions: [],
-      isImpersonated: false,
     });
   }
 
@@ -186,9 +180,7 @@ export class AuthService {
       id: user.id,
       email: user.email,
       employeeId: user.employeeId,
-      name: user.name,
       role: user.role as unknown as AppRole,
-      isImpersonated: false,
     });
 
     const newRefreshHash = await bcrypt.hash(tokens.refreshToken, this.BCRYPT_ROUNDS);
@@ -209,7 +201,6 @@ export class AuthService {
         name: user.name,
         role: user.role as unknown as AppRole,
         permissions,
-        isImpersonated: false,
       }),
     };
   }
@@ -233,134 +224,6 @@ export class AuthService {
 
   getProfile(user: AuthenticatedUser): AuthUserViewDto {
     return this.toUserView(user);
-  }
-
-  /**
-   * Pillar 1: Universal Login ("Login As")
-   * Issues an ephemeral JWT scoped to the target user while preserving originalAdminId.
-   */
-  async impersonate(
-    adminUser: AuthenticatedUser,
-    targetUserId: string,
-    meta: RequestMeta,
-  ): Promise<AuthTokensResponseDto> {
-    if (adminUser.role !== AppRole.SUPER_ADMIN && !adminUser.canImpersonate) {
-      throw new ForbiddenException('You do not have impersonation privileges');
-    }
-
-    if (adminUser.isImpersonated) {
-      throw new BadRequestException('Exit current impersonation session before starting another');
-    }
-
-    if (adminUser.id === targetUserId) {
-      throw new BadRequestException('Cannot impersonate yourself');
-    }
-
-    const target = await this.prisma.user.findUnique({ where: { id: targetUserId } });
-    if (!target || target.isArchived || target.employmentStatus === EmploymentStatus.ARCHIVED) {
-      throw new NotFoundException('Target user not found or archived');
-    }
-
-    const payload: JwtPayload = {
-      sub: target.id,
-      email: target.email,
-      employeeId: target.employeeId,
-      role: target.role as unknown as AppRole,
-      isImpersonated: true,
-      originalAdminId: adminUser.id,
-    };
-
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: getRequiredEnv('JWT_SECRET'),
-      expiresIn: getRequiredEnv('JWT_IMPERSONATE_EXPIRES_IN') as JwtSignOptions['expiresIn'],
-    });
-
-    await this.auditService.log({
-      actorUserId: adminUser.id,
-      targetUserId: target.id,
-      actionType: 'IMPERSONATE_START',
-      ipAddress: meta.ipAddress,
-      userAgent: meta.userAgent,
-      newValuePayload: {
-        targetEmployeeId: target.employeeId,
-        targetRole: target.role,
-      },
-    });
-
-    const targetPermissions = await this.loadUserPermissions(target.roleId, target.role);
-
-    return {
-      accessToken,
-      user: this.toUserView({
-        id: target.id,
-        email: target.email,
-        employeeId: target.employeeId,
-        name: target.name,
-        role: target.role as unknown as AppRole,
-        permissions: targetPermissions,
-        isImpersonated: true,
-        originalAdminId: adminUser.id,
-      }),
-    };
-  }
-
-  async exitImpersonation(
-    currentUser: AuthenticatedUser,
-    meta: RequestMeta,
-  ): Promise<AuthTokensResponseDto> {
-    if (!currentUser.isImpersonated || !currentUser.originalAdminId) {
-      throw new BadRequestException('Not currently in an impersonation session');
-    }
-
-    const originalAdmin = await this.prisma.user.findUnique({
-      where: { id: currentUser.originalAdminId },
-    });
-
-    if (!originalAdmin || originalAdmin.isArchived) {
-      throw new UnauthorizedException('Original admin account is no longer active');
-    }
-
-    const tokens = await this.issueTokens({
-      id: originalAdmin.id,
-      email: originalAdmin.email,
-      employeeId: originalAdmin.employeeId,
-      name: originalAdmin.name,
-      role: originalAdmin.role as unknown as AppRole,
-      isImpersonated: false,
-    });
-
-    const refreshTokenHash = await bcrypt.hash(tokens.refreshToken, this.BCRYPT_ROUNDS);
-    await this.prisma.user.update({
-      where: { id: originalAdmin.id },
-      data: { refreshTokenHash },
-    });
-
-    await this.auditService.log({
-      actorUserId: originalAdmin.id,
-      targetUserId: currentUser.id,
-      actionType: 'IMPERSONATE_EXIT',
-      ipAddress: meta.ipAddress,
-      userAgent: meta.userAgent,
-    });
-
-    const adminPermissions = await this.loadUserPermissions(
-      originalAdmin.roleId,
-      originalAdmin.role,
-    );
-
-    return {
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      user: this.toUserView({
-        id: originalAdmin.id,
-        email: originalAdmin.email,
-        employeeId: originalAdmin.employeeId,
-        name: originalAdmin.name,
-        role: originalAdmin.role as unknown as AppRole,
-        permissions: adminPermissions,
-        isImpersonated: false,
-      }),
-    };
   }
 
   async changePassword(
@@ -402,18 +265,13 @@ export class AuthService {
     id: string;
     email: string;
     employeeId: string;
-    name: string;
     role: AppRole;
-    isImpersonated: boolean;
-    originalAdminId?: string;
   }): Promise<{ accessToken: string; refreshToken: string }> {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       employeeId: user.employeeId,
       role: user.role,
-      isImpersonated: user.isImpersonated,
-      originalAdminId: user.originalAdminId,
     };
 
     const accessExpiresIn = getRequiredEnv('JWT_EXPIRES_IN') as JwtSignOptions['expiresIn'];
@@ -457,8 +315,6 @@ export class AuthService {
     name: string;
     role: AppRole;
     permissions?: string[];
-    isImpersonated: boolean;
-    originalAdminId?: string;
   }): AuthUserViewDto {
     return {
       id: user.id,
@@ -467,8 +323,6 @@ export class AuthService {
       name: user.name,
       role: user.role,
       permissions: user.permissions ?? [],
-      isImpersonated: user.isImpersonated,
-      originalAdminId: user.originalAdminId,
     };
   }
 }

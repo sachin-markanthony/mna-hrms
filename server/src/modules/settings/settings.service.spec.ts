@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRole } from '../../core/decorators/roles.decorator.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
@@ -20,17 +20,6 @@ describe('SettingsService', () => {
   };
   let auditService: { log: ReturnType<typeof vi.fn> };
 
-  const hrAdmin: AuthenticatedUser = {
-    id: 'hr-1',
-    email: 'hr@markanthony.in',
-    employeeId: 'EMP-002',
-    name: 'Ananya',
-    role: AppRole.HR_ADMIN,
-    permissions: [],
-    canImpersonate: false,
-    isImpersonated: false,
-  };
-
   const superAdmin: AuthenticatedUser = {
     id: 'sa-1',
     email: 'superadmin@markanthony.in',
@@ -38,8 +27,6 @@ describe('SettingsService', () => {
     name: 'Mark',
     role: AppRole.SUPER_ADMIN,
     permissions: [],
-    canImpersonate: true,
-    isImpersonated: false,
   };
 
   beforeEach(() => {
@@ -57,12 +44,12 @@ describe('SettingsService', () => {
     );
   });
 
-  it('should forbid HR_ADMIN from granting impersonation privilege', async () => {
-    prisma.user.findUnique.mockResolvedValue({ id: 'u-5' });
+  it('should prevent archiving own active account', async () => {
+    prisma.user.findUnique.mockResolvedValue({ id: 'sa-1' });
 
     await expect(
-      service.updateUserAccess('u-5', { canImpersonate: true }, hrAdmin, {}),
-    ).rejects.toThrow(ForbiddenException);
+      service.updateUserAccess('sa-1', { isArchived: true }, superAdmin, {}),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('should prevent deleting a department that still has employees', async () => {

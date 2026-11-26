@@ -14,11 +14,6 @@ export class UpdateUserAccessDto {
   isArchived?: boolean;
 
   @ApiPropertyOptional()
-  @IsBoolean()
-  @IsOptional()
-  canImpersonate?: boolean;
-
-  @ApiPropertyOptional()
   @IsUUID()
   @IsOptional()
   teamId?: string | null;

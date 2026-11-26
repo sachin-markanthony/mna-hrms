@@ -16,8 +16,6 @@ export interface User {
   designation?: string;
   avatar?: string;
   biometricId?: string;
-  isImpersonating?: boolean;
-  originalAdminId?: string;
 }
 
 export interface RoleConfig {

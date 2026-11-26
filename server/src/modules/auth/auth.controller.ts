@@ -7,13 +7,12 @@ import { AppRole, Roles } from '../../core/decorators/roles.decorator.js';
 import { AuthService, type RequestMeta } from './auth.service.js';
 import { AuthTokensResponseDto, AuthUserViewDto } from './dto/auth-response.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
-import { ImpersonateDto } from './dto/impersonate.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { RegisterUserDto } from './dto/register-user.dto.js';
 import type { AuthenticatedUser } from './types/jwt-payload.type.js';
 
-@ApiTags('Auth & Impersonation')
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -59,36 +58,10 @@ export class AuthController {
 
   @ApiBearerAuth('JWT-auth')
   @Get('me')
-  @ApiOperation({ summary: 'Get current authenticated user profile & impersonation status' })
+  @ApiOperation({ summary: 'Get current authenticated user profile & permissions' })
   @ApiResponse({ status: 200, type: AuthUserViewDto })
   getProfile(@CurrentUser() user: AuthenticatedUser): AuthUserViewDto {
     return this.authService.getProfile(user);
-  }
-
-  @ApiBearerAuth('JWT-auth')
-  @Roles(AppRole.SUPER_ADMIN)
-  @Post('impersonate')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Universal Login ("Login As") — SuperAdmin impersonates a target user' })
-  @ApiResponse({ status: 200, type: AuthTokensResponseDto })
-  impersonate(
-    @Body() dto: ImpersonateDto,
-    @CurrentUser() adminUser: AuthenticatedUser,
-    @Req() req: Request,
-  ): Promise<AuthTokensResponseDto> {
-    return this.authService.impersonate(adminUser, dto.targetUserId, this.extractMeta(req));
-  }
-
-  @ApiBearerAuth('JWT-auth')
-  @Post('exit-impersonate')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Exit active impersonation session and restore SuperAdmin token' })
-  @ApiResponse({ status: 200, type: AuthTokensResponseDto })
-  exitImpersonate(
-    @CurrentUser() currentUser: AuthenticatedUser,
-    @Req() req: Request,
-  ): Promise<AuthTokensResponseDto> {
-    return this.authService.exitImpersonation(currentUser, this.extractMeta(req));
   }
 
   @ApiBearerAuth('JWT-auth')

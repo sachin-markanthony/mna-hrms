@@ -5,8 +5,6 @@ export interface JwtPayload {
   email: string;
   employeeId: string;
   role: AppRole;
-  isImpersonated: boolean;
-  originalAdminId?: string;
 }
 
 export interface AuthenticatedUser {
@@ -17,7 +15,4 @@ export interface AuthenticatedUser {
   role: AppRole;
   roleId?: string;
   permissions: string[];
-  canImpersonate: boolean;
-  isImpersonated: boolean;
-  originalAdminId?: string;
 }

@@ -21,7 +21,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Mark Anthony Realty — HRMS & ERP API')
     .setDescription(
-      'Modular HRMS & ERP REST API covering Auth & Impersonation, Employee Directory, Dual Attendance, Leave, ATS Recruitment, Onboarding LMS, Offboarding NOC, Performance, Payroll, and Assets.',
+      'Modular HRMS & ERP REST API covering Auth, Employee Directory, Dual Attendance, Leave, ATS Recruitment, Onboarding LMS, Offboarding NOC, Performance, Payroll, and Assets.',
     )
     .setVersion('1.0')
     .addBearerAuth(
@@ -29,7 +29,7 @@ async function bootstrap() {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'Enter JWT access token (supports SuperAdmin impersonation tokens)',
+        description: 'Enter JWT access token',
       },
       'JWT-auth',
     )

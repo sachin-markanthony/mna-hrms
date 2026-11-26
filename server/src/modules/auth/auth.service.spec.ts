@@ -31,7 +31,6 @@ describe('AuthService', () => {
     process.env.JWT_REFRESH_SECRET = 'test-jwt-refresh-secret';
     process.env.JWT_EXPIRES_IN = '15m';
     process.env.JWT_REFRESH_EXPIRES_IN = '7d';
-    process.env.JWT_IMPERSONATE_EXPIRES_IN = '1h';
 
     prisma = {
       user: {
@@ -120,103 +119,5 @@ describe('AuthService', () => {
     await expect(
       service.login({ email: 'ex@markanthony.in', password: 'Secret@123' }, {}),
     ).rejects.toThrow(ForbiddenException);
-  });
-
-  it('should allow SuperAdmin to impersonate another user and log IMPERSONATE_START', async () => {
-    prisma.user.findUnique.mockResolvedValue({
-      id: 'target-1',
-      employeeId: 'EMP-010',
-      email: 'dhinesh@markanthony.in',
-      name: 'Dhinesh',
-      role: Role.TEAM_LEADER,
-      employmentStatus: EmploymentStatus.ACTIVE,
-      isArchived: false,
-    });
-
-    const result = await service.impersonate(
-      {
-        id: 'admin-1',
-        email: 'admin@markanthony.in',
-        employeeId: 'EMP-001',
-        name: 'MD',
-        role: AppRole.SUPER_ADMIN,
-        canImpersonate: true,
-        isImpersonated: false,
-      },
-      'target-1',
-      { ipAddress: '127.0.0.1' },
-    );
-
-    expect(result.user.isImpersonated).toBe(true);
-    expect(result.user.originalAdminId).toBe('admin-1');
-    expect(jwtService.signAsync).toHaveBeenCalledWith(
-      expect.objectContaining({
-        sub: 'target-1',
-        isImpersonated: true,
-        originalAdminId: 'admin-1',
-      }),
-      expect.any(Object),
-    );
-    expect(auditService.log).toHaveBeenCalledWith(
-      expect.objectContaining({
-        actorUserId: 'admin-1',
-        targetUserId: 'target-1',
-        actionType: 'IMPERSONATE_START',
-      }),
-    );
-  });
-
-  it('should deny impersonation for non-SuperAdmin without privilege', async () => {
-    await expect(
-      service.impersonate(
-        {
-          id: 'emp-1',
-          email: 'emp@markanthony.in',
-          employeeId: 'EMP-020',
-          name: 'Sales Rep',
-          role: AppRole.EMPLOYEE,
-          canImpersonate: false,
-          isImpersonated: false,
-        },
-        'target-1',
-        {},
-      ),
-    ).rejects.toThrow(ForbiddenException);
-  });
-
-  it('should exit impersonation and restore original SuperAdmin tokens', async () => {
-    prisma.user.findUnique.mockResolvedValue({
-      id: 'admin-1',
-      employeeId: 'EMP-001',
-      email: 'admin@markanthony.in',
-      name: 'MD',
-      role: Role.SUPER_ADMIN,
-      employmentStatus: EmploymentStatus.ACTIVE,
-      isArchived: false,
-    });
-
-    const result = await service.exitImpersonation(
-      {
-        id: 'target-1',
-        email: 'dhinesh@markanthony.in',
-        employeeId: 'EMP-010',
-        name: 'Dhinesh',
-        role: AppRole.TEAM_LEADER,
-        canImpersonate: false,
-        isImpersonated: true,
-        originalAdminId: 'admin-1',
-      },
-      {},
-    );
-
-    expect(result.user.id).toBe('admin-1');
-    expect(result.user.isImpersonated).toBe(false);
-    expect(auditService.log).toHaveBeenCalledWith(
-      expect.objectContaining({
-        actorUserId: 'admin-1',
-        targetUserId: 'target-1',
-        actionType: 'IMPERSONATE_EXIT',
-      }),
-    );
   });
 });
