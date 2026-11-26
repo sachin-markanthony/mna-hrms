@@ -79,6 +79,8 @@ export const InductionDashboard: React.FC = () => {
   };
 
   const handleSelectSession = (session: InductionSession) => {
+    if (session.status === 'locked') return;
+
     const sessionChapters = chapters.filter((c) => c.sessionId === session.id);
     const sessionFirstChapter =
       sessionChapters.find((c) => c.status !== 'completed' && c.status !== 'locked') ??
@@ -93,6 +95,8 @@ export const InductionDashboard: React.FC = () => {
   };
 
   const handleSelectChapter = (chapter: InductionChapter) => {
+    if (chapter.status === 'locked') return;
+
     const session =
       sessions.find((s) => s.id === chapter.sessionId) || null;
 
