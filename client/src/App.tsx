@@ -4,7 +4,10 @@ import { AuthProvider, useAuth, Login } from './modules/auth';
 import { Dashboard } from './modules/dashboard/Dashboard';
 import { AppLayout } from './components/layout/AppLayout';
 import { inductionRoutes } from './modules/onboarding/routes/induction.routes';
-
+import { Induction } from './modules/onboarding/Induction';
+import { LeaveManagement } from './modules/leave';
+import { EmployeeDirectory } from './modules/employees';
+import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
 function ProtectedRoute({
   children,
   withLayout = true,
@@ -75,10 +78,7 @@ function AppRoutes() {
         path="/employees"
         element={
           <ProtectedRoute>
-            <SectionPlaceholder
-              title="Employee Directory & KYC Vault"
-              description="Centralized employee profiles, offline manual KYC verification, Document Vault & unique QR codes."
-            />
+            <EmployeeDirectory />
           </ProtectedRoute>
         }
       />
@@ -97,10 +97,7 @@ function AppRoutes() {
         path="/leave"
         element={
           <ProtectedRoute>
-            <SectionPlaceholder
-              title="Leave Management"
-              description="Balance tracking, locking balance on apply, manager approval workflow & calendar integration."
-            />
+            <LeaveManagement />
           </ProtectedRoute>
         }
       />
@@ -119,10 +116,7 @@ function AppRoutes() {
         path="/recruitment"
         element={
           <ProtectedRoute>
-            <SectionPlaceholder
-              title="Hiring & Recruitment Pipeline"
-              description="Candidate pipeline (Applied → HR → Tech → Selected), calendar invites & structured scorecards."
-            />
+            <RecruitmentPipeline />
           </ProtectedRoute>
         }
       />

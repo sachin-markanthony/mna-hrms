@@ -24,14 +24,17 @@ export const authApi = {
   logout: () =>
     httpClient.post<{ success: boolean }>('/auth/logout').catch(() => ({ success: true })),
 
-  impersonate: (userId: string) =>
-    httpClient.post<AuthResponse>('/auth/impersonate', { userId }),
+  impersonate: (targetUserId: string) =>
+    httpClient.post<AuthResponse>('/auth/impersonate', { targetUserId }),
 
   exitImpersonate: () =>
     httpClient.post<AuthResponse>('/auth/exit-impersonate'),
 
-  changePassword: (oldPassword: string, newPassword: string) =>
-    httpClient.patch<{ success: boolean }>('/auth/change-password', { oldPassword, newPassword }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    httpClient.patch<{ message: string }>('/auth/change-password', {
+      currentPassword,
+      newPassword,
+    }),
 
   forgotPassword: (payload: ForgotPasswordPayload) =>
     httpClient.post<{ message: string }>('/auth/forgot-password', payload),

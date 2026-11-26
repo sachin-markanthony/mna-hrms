@@ -1,8 +1,8 @@
 export type UserRole =
   | 'SUPER_ADMIN'
   | 'HR_ADMIN'
-  | 'HR_RECRUITER'
-  | 'TEAM_MANAGER'
+  | 'HR_COORDINATOR'
+  | 'TEAM_LEADER'
   | 'EMPLOYEE';
 
 export interface User {
@@ -29,8 +29,8 @@ export interface RoleConfig {
 }
 
 export interface LoginPayload {
-  identifier: string;
-  password?: string;
+  email: string;
+  password: string;
 }
 
 export interface AuthResponse {
@@ -71,24 +71,24 @@ export const ROLES: Record<UserRole, RoleConfig> = {
     scope: 'Org',
     color: 'text-indigo-700',
     bg: 'bg-indigo-50 border-indigo-200',
-    email: 'hradmin@markanthony.ventures',
-    description: 'Operational control across all 7 HRMS modules',
+    email: 'hr@markanthony.in',
+    description: 'Operational control across all HRMS modules',
   },
-  HR_RECRUITER: {
-    title: 'HR Recruiter',
-    scope: 'Team',
+  HR_COORDINATOR: {
+    title: 'HR Coordinator',
+    scope: 'Org',
     color: 'text-amber-700',
     bg: 'bg-amber-50 border-amber-200',
-    email: 'recruiter@markanthony.ventures',
-    description: 'Hiring pipeline, interview scheduling & offer letters',
+    email: 'hr.coord@markanthony.in',
+    description: 'HR coordination, leave review, recruitment & onboarding support',
   },
-  TEAM_MANAGER: {
-    title: 'Team Manager',
+  TEAM_LEADER: {
+    title: 'Team Lead',
     scope: 'Team',
     color: 'text-emerald-700',
     bg: 'bg-emerald-50 border-emerald-200',
-    email: 'manager@markanthony.ventures',
-    description: 'Team attendance, leave approvals & scorecards',
+    email: 'tl.dhinesh@markanthony.in',
+    description: 'Team attendance, leave approvals & site visit verification',
   },
   EMPLOYEE: {
     title: 'Employee',

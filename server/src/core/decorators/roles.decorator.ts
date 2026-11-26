@@ -3,7 +3,7 @@ import { SetMetadata } from '@nestjs/common';
 export enum AppRole {
   SUPER_ADMIN = 'SUPER_ADMIN',
   HR_ADMIN = 'HR_ADMIN',
-  DEPARTMENT_HEAD = 'DEPARTMENT_HEAD',
+  HR_COORDINATOR = 'HR_COORDINATOR',
   TEAM_LEADER = 'TEAM_LEADER',
   EMPLOYEE = 'EMPLOYEE',
 }
