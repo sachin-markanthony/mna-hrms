@@ -20,4 +20,18 @@ export const appConfig = () => ({
     appKey: process.env.OBSERVE_APP_KEY ?? '',
     appSecret: process.env.OBSERVE_APP_SECRET ?? '',
   },
+  smtp: {
+    host: (process.env.SMTP_HOST ?? 'smtp.gmail.com').trim(),
+    port: Number(process.env.SMTP_PORT ?? 465),
+    secure: process.env.SMTP_SECURE
+      ? process.env.SMTP_SECURE.trim().toLowerCase() === 'true'
+      : Number(process.env.SMTP_PORT ?? 465) === 465,
+    user: (process.env.SMTP_USER ?? '').trim(),
+    pass: (process.env.SMTP_PASSWORD ?? process.env.SMTP_PASS ?? '').trim(),
+    from: (
+      process.env.SMTP_FROM ??
+      process.env.SMTP_USER ??
+      'Mark Anthony HRMS <no-reply@markanthony.in>'
+    ).trim(),
+  },
 });
