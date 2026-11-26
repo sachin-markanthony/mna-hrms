@@ -15,7 +15,6 @@ export const appConfig = () => ({
     refreshSecret: getRequiredEnv('JWT_REFRESH_SECRET'),
     expiresIn: getRequiredEnv('JWT_EXPIRES_IN'),
     refreshExpiresIn: getRequiredEnv('JWT_REFRESH_EXPIRES_IN'),
-    impersonateExpiresIn: getRequiredEnv('JWT_IMPERSONATE_EXPIRES_IN'),
   },
   observe: {
     appKey: process.env.OBSERVE_APP_KEY ?? '',

@@ -1,11 +1,9 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AppRole } from '../../core/decorators/roles.decorator.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { RequestMeta } from '../auth/auth.service.js';
@@ -35,7 +33,6 @@ export class SettingsService {
         roleId: true,
         employmentStatus: true,
         isArchived: true,
-        canImpersonate: true,
         lastLoginAt: true,
         teamId: true,
         team: { select: { id: true, name: true } },
@@ -63,10 +60,6 @@ export class SettingsService {
       throw new NotFoundException('User not found');
     }
 
-    if (dto.canImpersonate !== undefined && actor.role !== AppRole.SUPER_ADMIN) {
-      throw new ForbiddenException('Only SuperAdmin can grant or revoke impersonation rights');
-    }
-
     if (targetUserId === actor.id && (dto.isArchived === true || dto.employmentStatus === 'ARCHIVED')) {
       throw new BadRequestException('You cannot archive your own active account');
     }
@@ -76,7 +69,6 @@ export class SettingsService {
       data: {
         ...(dto.employmentStatus !== undefined ? { employmentStatus: dto.employmentStatus } : {}),
         ...(dto.isArchived !== undefined ? { isArchived: dto.isArchived } : {}),
-        ...(dto.canImpersonate !== undefined ? { canImpersonate: dto.canImpersonate } : {}),
         ...(dto.teamId !== undefined ? { teamId: dto.teamId } : {}),
       },
       select: {
@@ -88,7 +80,6 @@ export class SettingsService {
         roleId: true,
         employmentStatus: true,
         isArchived: true,
-        canImpersonate: true,
         teamId: true,
       },
     });
@@ -102,13 +93,11 @@ export class SettingsService {
       oldValuePayload: {
         employmentStatus: target.employmentStatus,
         isArchived: target.isArchived,
-        canImpersonate: target.canImpersonate,
         teamId: target.teamId,
       },
       newValuePayload: {
         employmentStatus: updated.employmentStatus,
         isArchived: updated.isArchived,
-        canImpersonate: updated.canImpersonate,
         teamId: updated.teamId,
       },
     });

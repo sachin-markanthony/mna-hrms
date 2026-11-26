@@ -12,7 +12,6 @@ import {
   ChevronLeft,
   Menu,
   X,
-  AlertTriangle,
   Bell,
   Sun,
   Moon,
@@ -306,14 +305,6 @@ export function AppLayout({ children }: { children: ReactNode }) {
           MAIN WORKSPACE (Fixed height with Independent Scroll)
           ==================================================== */}
       <div className="flex-1 h-screen flex flex-col min-w-0 overflow-hidden">
-        {user.isImpersonating && (
-          <div className="bg-amber-400 text-slate-950 px-6 py-2 text-xs font-bold flex items-center justify-center gap-2 shrink-0">
-            <AlertTriangle className="w-4 h-4" />
-            <span>
-              Impersonation Active: Browsing as {user.name} ({roleConfig.title})
-            </span>
-          </div>
-        )}
 
         {/* Top Navbar Header (Non-scrolling) */}
         <header className="h-16 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xs border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 z-10 shadow-2xs transition-colors duration-200">

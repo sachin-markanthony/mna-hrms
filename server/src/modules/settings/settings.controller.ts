@@ -29,13 +29,13 @@ export class SettingsController {
 
   // Users & Access
   @Get('users')
-  @ApiOperation({ summary: 'List all users with role, team, status, and impersonation flags' })
+  @ApiOperation({ summary: 'List all users with role, team, and status' })
   listUsers() {
     return this.settingsService.listUsers();
   }
 
   @Patch('users/:id/access')
-  @ApiOperation({ summary: 'Update user status, team, or impersonation access' })
+  @ApiOperation({ summary: 'Update user status or team assignment' })
   updateUserAccess(
     @Param('id') id: string,
     @Body() dto: UpdateUserAccessDto,
