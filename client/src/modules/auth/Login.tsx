@@ -18,6 +18,7 @@ export function Login() {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -52,8 +53,9 @@ export function Login() {
   };
 
   const handleQuickFill = (roleKey: UserRole) => {
+    setSelectedRole(roleKey);
     setEmail(ROLES[roleKey].email);
-    setPassword('password123');
+    setPassword(ROLES[roleKey].password);
     setError('');
   };
 
@@ -147,7 +149,7 @@ export function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@markanthony.ventures"
+                  placeholder="name@markanthony.in"
                   required
                   className="w-full pl-12 pr-4 py-3.5 rounded-xl border-2 border-slate-700 text-sm sm:text-base focus:outline-none focus:border-[#072b53] focus:ring-2 focus:ring-[#072b53]/20 transition-all placeholder:text-slate-400 font-normal bg-white text-slate-900"
                 />
@@ -213,12 +215,33 @@ export function Login() {
                   key={r}
                   type="button"
                   onClick={() => handleQuickFill(r)}
-                  className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer border border-slate-200"
+                  className={`px-2.5 py-1 text-xs font-bold rounded-lg transition cursor-pointer border ${
+                    selectedRole === r
+                      ? 'bg-[#072b53] text-white border-[#072b53]'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+                  }`}
                 >
                   {ROLES[r].title}
                 </button>
               ))}
             </div>
+
+            {selectedRole && (
+              <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 text-left text-[11px] space-y-1">
+                <div className="flex items-center justify-between font-bold text-slate-800">
+                  <span>{ROLES[selectedRole].personName}</span>
+                  <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
+                    {ROLES[selectedRole].employeeId}
+                  </span>
+                </div>
+                <div className="text-slate-600">
+                  Email: <span className="font-mono font-semibold">{ROLES[selectedRole].email}</span>
+                </div>
+                <div className="text-slate-600">
+                  Password: <span className="font-mono font-semibold">{ROLES[selectedRole].password}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -258,7 +281,7 @@ export function Login() {
                     type="email"
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
-                    placeholder="name@markanthony.ventures"
+                    placeholder="name@markanthony.in"
                     required
                     className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#072b53] bg-white text-slate-900"
                   />

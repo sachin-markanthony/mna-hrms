@@ -24,7 +24,10 @@ export interface RoleConfig {
   scope: 'Org' | 'Team' | 'Self';
   color: string;
   bg: string;
+  employeeId: string;
+  personName: string;
   email: string;
+  password: string;
   description: string;
 }
 
@@ -63,7 +66,10 @@ export const ROLES: Record<UserRole, RoleConfig> = {
     scope: 'Org',
     color: 'text-rose-700',
     bg: 'bg-rose-50 border-rose-200',
-    email: 'superadmin@markanthony.ventures',
+    employeeId: 'EMP-001',
+    personName: 'Mark Anthony (Managing Director)',
+    email: 'superadmin@markanthony.in',
+    password: 'SuperAdmin@123',
     description: 'Full portal control, RBAC, Master Settings & Payroll Lock',
   },
   HR_ADMIN: {
@@ -71,7 +77,10 @@ export const ROLES: Record<UserRole, RoleConfig> = {
     scope: 'Org',
     color: 'text-indigo-700',
     bg: 'bg-indigo-50 border-indigo-200',
+    employeeId: 'EMP-002',
+    personName: 'Ananya Sharma (HR Manager)',
     email: 'hr@markanthony.in',
+    password: 'HrAdmin@123',
     description: 'Operational control across all HRMS modules',
   },
   HR_COORDINATOR: {
@@ -79,7 +88,10 @@ export const ROLES: Record<UserRole, RoleConfig> = {
     scope: 'Org',
     color: 'text-amber-700',
     bg: 'bg-amber-50 border-amber-200',
+    employeeId: 'EMP-003',
+    personName: 'Vikram Nair (HR Coordinator)',
     email: 'hr.coord@markanthony.in',
+    password: 'HrCoord@123',
     description: 'HR coordination, leave review, recruitment & onboarding support',
   },
   TEAM_LEADER: {
@@ -87,7 +99,10 @@ export const ROLES: Record<UserRole, RoleConfig> = {
     scope: 'Team',
     color: 'text-emerald-700',
     bg: 'bg-emerald-50 border-emerald-200',
+    employeeId: 'EMP-004',
+    personName: 'Dhinesh Kumar (Sales Team Leader)',
     email: 'tl.dhinesh@markanthony.in',
+    password: 'TeamLead@123',
     description: 'Team attendance, leave approvals & site visit verification',
   },
   EMPLOYEE: {
@@ -95,7 +110,10 @@ export const ROLES: Record<UserRole, RoleConfig> = {
     scope: 'Self',
     color: 'text-slate-700',
     bg: 'bg-slate-100 border-slate-200',
-    email: 'employee@markanthony.ventures',
+    employeeId: 'EMP-005',
+    personName: 'Priya Menon (Senior Sales Executive)',
+    email: 'priya.sales@markanthony.in',
+    password: 'Employee@123',
     description: 'Self-service: Profile, QR, Attendance, Leave & Payslips',
   },
 };
