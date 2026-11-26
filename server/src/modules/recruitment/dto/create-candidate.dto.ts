@@ -59,4 +59,14 @@ export class CreateCandidateDto {
   @ApiPropertyOptional({ example: ['SEO', 'Google Ads', 'Meta Campaigns'] })
   @IsOptional()
   tags?: string[];
+
+  @ApiPropertyOptional({ example: 'Dhinesh Kumar', description: 'Assigned Team Leader name' })
+  @IsString()
+  @IsOptional()
+  teamLeaderName?: string;
+
+  @ApiPropertyOptional({ example: 'uuid-of-team-lead', description: 'Assigned Team Leader user ID' })
+  @IsString()
+  @IsOptional()
+  teamLeaderId?: string;
 }

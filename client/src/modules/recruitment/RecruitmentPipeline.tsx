@@ -12,6 +12,7 @@ import {
   Building2,
   RefreshCw,
 } from 'lucide-react';
+import { useAuth } from '../auth';
 import { recruitmentApi } from './recruitment.api';
 import type {
   Candidate,
@@ -37,6 +38,8 @@ const PIPELINE_COLUMNS: CandidateStatus[] = [
 ];
 
 export function RecruitmentPipeline() {
+  const { user } = useAuth();
+  const isTeamLeader = user?.role === 'TEAM_LEADER';
   const todayStr = new Date().toISOString().split('T')[0];
 
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -58,16 +61,20 @@ export function RecruitmentPipeline() {
 
   useEffect(() => {
     loadData();
-  }, [selectedDate]);
+  }, [selectedDate, isTeamLeader, user?.id]);
 
   const loadData = async () => {
     try {
       setLoading(true);
       setLoadError(null);
       const dateParam = selectedDate === 'ALL' ? undefined : selectedDate;
+      const tlParams = isTeamLeader && user
+        ? { teamLeaderId: user.id, teamLeaderName: user.name }
+        : undefined;
+
       const [candsData, statsData] = await Promise.all([
-        recruitmentApi.getCandidates({ visitDate: dateParam }),
-        recruitmentApi.getStats(dateParam),
+        recruitmentApi.getCandidates({ visitDate: dateParam, ...tlParams }),
+        recruitmentApi.getStats({ visitDate: dateParam, ...tlParams }),
       ]);
       setCandidates(candsData || []);
       setStats(statsData);
@@ -84,15 +91,69 @@ export function RecruitmentPipeline() {
     return candidates.filter((c) => {
       const matchesDept = selectedDept === 'ALL' || c.department === selectedDept;
       const matchesStatus = selectedStatus === 'ALL' || c.status === selectedStatus;
+      const tlName =
+        c.teamLeaderName ||
+        c.tags?.find((t) => t.startsWith('TL:'))?.replace('TL:', '');
+
       const matchesSearch =
         c.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.appliedRole.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.phone.includes(searchQuery);
+        c.phone.includes(searchQuery) ||
+        (tlName && tlName.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      return matchesDept && matchesStatus && matchesSearch;
+      const matchesTeamLeader =
+        !isTeamLeader ||
+        c.teamLeaderId === user?.id ||
+        (tlName &&
+          user?.name &&
+          tlName.trim().toLowerCase().includes(user.name.trim().toLowerCase())) ||
+        (c.tags &&
+          user?.name &&
+          c.tags.some((t) => t.toLowerCase().includes(user.name.toLowerCase())));
+
+      return matchesDept && matchesStatus && matchesSearch && matchesTeamLeader;
     });
-  }, [candidates, selectedDept, selectedStatus, searchQuery]);
+  }, [candidates, selectedDept, selectedStatus, searchQuery, isTeamLeader, user]);
+
+  // Derived / Display Stats: Ensure stats accurately reflect visible candidates when scoped to a Team Leader
+  const displayStats = useMemo(() => {
+    if (!stats) return null;
+    if (isTeamLeader) {
+      const total = filteredCandidates.length;
+      const digitalCount = filteredCandidates.filter((c) => c.department === 'DIGITAL').length;
+      const salesCount = filteredCandidates.filter((c) => c.department === 'SALES').length;
+      const registeredCount = filteredCandidates.filter((c) => c.status === 'REGISTERED').length;
+      const hrRoundCount = filteredCandidates.filter((c) => c.status === 'HR_ROUND').length;
+      const mrRoundCount = filteredCandidates.filter((c) => c.status === 'MR_ROUND').length;
+      const selectedCount = filteredCandidates.filter((c) => c.status === 'SELECTED').length;
+      const rejectedAtHrCount = filteredCandidates.filter((c) => c.status === 'REJECTED_HR').length;
+      const rejectedAtMrCount = filteredCandidates.filter((c) => c.status === 'REJECTED_MR').length;
+      const totalRejected = rejectedAtHrCount + rejectedAtMrCount;
+
+      return {
+        ...stats,
+        totalWalkIns: total,
+        departments: {
+          digital: digitalCount,
+          sales: salesCount,
+        },
+        stages: {
+          registered: registeredCount,
+          inHrRound: hrRoundCount,
+          inMrRound: mrRoundCount,
+          selected: selectedCount,
+        },
+        rejections: {
+          rejectedAtHr: rejectedAtHrCount,
+          rejectedAtMr: rejectedAtMrCount,
+          totalRejected,
+        },
+        selectionRate: total > 0 ? Number(((selectedCount / total) * 100).toFixed(1)) : 0,
+      };
+    }
+    return stats;
+  }, [stats, isTeamLeader, filteredCandidates]);
 
   // Handle Register Candidate - Synchronously pushes to DB and reloads live data
   const handleCreateCandidate = async (payload: CreateCandidatePayload) => {
@@ -147,13 +208,15 @@ export function RecruitmentPipeline() {
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
-          <button
-            onClick={() => setAddModalOpen(true)}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 text-amber-400" />
-            Register Office Walk-In
-          </button>
+          {!isTeamLeader && (
+            <button
+              onClick={() => setAddModalOpen(true)}
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer"
+            >
+              <Plus className="w-4 h-4 text-amber-400" />
+              Register Office Walk-In
+            </button>
+          )}
         </div>
       </div>
 
@@ -225,14 +288,14 @@ export function RecruitmentPipeline() {
             </span>
             <div className="mt-2 flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-slate-900 dark:text-white">
-                {stats?.totalWalkIns ?? candidates.length}
+                {displayStats?.totalWalkIns ?? filteredCandidates.length}
               </span>
               <span className="text-[10px] font-semibold text-slate-500">Candidates</span>
             </div>
             <div className="mt-1.5 text-[10px] text-slate-500 flex items-center gap-2">
-              <span>Digital: <strong>{stats?.departments.digital ?? 0}</strong></span>
+              <span>Digital: <strong>{displayStats?.departments.digital ?? 0}</strong></span>
               <span>&bull;</span>
-              <span>Sales: <strong>{stats?.departments.sales ?? 0}</strong></span>
+              <span>Sales: <strong>{displayStats?.departments.sales ?? 0}</strong></span>
             </div>
           </div>
 
@@ -243,7 +306,7 @@ export function RecruitmentPipeline() {
             </span>
             <div className="mt-2 flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-sky-900 dark:text-sky-100">
-                {stats?.stages.inHrRound ?? 0}
+                {displayStats?.stages.inHrRound ?? 0}
               </span>
               <span className="text-[10px] font-semibold text-sky-700 dark:text-sky-300">
                 Round 1
@@ -261,7 +324,7 @@ export function RecruitmentPipeline() {
             </span>
             <div className="mt-2 flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-indigo-900 dark:text-indigo-100">
-                {stats?.stages.inMrRound ?? 0}
+                {displayStats?.stages.inMrRound ?? 0}
               </span>
               <span className="text-[10px] font-semibold text-indigo-700 dark:text-indigo-300">
                 Round 2
@@ -282,10 +345,10 @@ export function RecruitmentPipeline() {
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-emerald-900 dark:text-emerald-100">
-                {stats?.stages.selected ?? 0}
+                {displayStats?.stages.selected ?? 0}
               </span>
               <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
-                {stats?.selectionRate ?? 0}% Rate
+                {displayStats?.selectionRate ?? 0}% Rate
               </span>
             </div>
             <p className="mt-1 text-[10px] text-emerald-600 dark:text-emerald-400">
@@ -297,7 +360,7 @@ export function RecruitmentPipeline() {
           <div className="p-3.5 rounded-xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase text-rose-700 dark:text-rose-300">
-                Rejected ({stats?.rejections.totalRejected ?? 0})
+                Rejected ({displayStats?.rejections.totalRejected ?? 0})
               </span>
               <XCircle className="w-3.5 h-3.5 text-rose-600" />
             </div>
@@ -305,13 +368,13 @@ export function RecruitmentPipeline() {
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-slate-600 dark:text-slate-300">At HR Round:</span>
                 <strong className="font-bold text-rose-600">
-                  {stats?.rejections.rejectedAtHr ?? 0}
+                  {displayStats?.rejections.rejectedAtHr ?? 0}
                 </strong>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-slate-600 dark:text-slate-300">At MR Round:</span>
                 <strong className="font-bold text-rose-700">
-                  {stats?.rejections.rejectedAtMr ?? 0}
+                  {displayStats?.rejections.rejectedAtMr ?? 0}
                 </strong>
               </div>
             </div>

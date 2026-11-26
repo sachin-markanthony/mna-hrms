@@ -22,4 +22,14 @@ export class CandidateFilterDto {
   @IsString()
   @IsOptional()
   search?: string;
+
+  @ApiPropertyOptional({ description: 'Filter candidates by assigned team leader user ID' })
+  @IsString()
+  @IsOptional()
+  teamLeaderId?: string;
+
+  @ApiPropertyOptional({ description: 'Filter candidates by assigned team leader name' })
+  @IsString()
+  @IsOptional()
+  teamLeaderName?: string;
 }
