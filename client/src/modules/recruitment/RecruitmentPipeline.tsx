@@ -513,6 +513,7 @@ export function RecruitmentPipeline() {
                         key={candidate.id}
                         candidate={candidate}
                         canEvaluate={!isTeamLeader}
+                        showTeamLeader={!isTeamLeader}
                         onOpenDetails={setDrawerCandidate}
                         onEvaluateRound={setEvaluateCandidate}
                       />
@@ -636,6 +637,7 @@ export function RecruitmentPipeline() {
         candidate={drawerCandidate}
         isOpen={Boolean(drawerCandidate)}
         canEvaluate={!isTeamLeader}
+        showTeamLeader={!isTeamLeader}
         onClose={() => setDrawerCandidate(null)}
         onEvaluateRound={(c) => {
           setDrawerCandidate(null);

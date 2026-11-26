@@ -19,6 +19,7 @@ interface CandidateDrawerProps {
   candidate: Candidate | null;
   isOpen: boolean;
   canEvaluate?: boolean;
+  showTeamLeader?: boolean;
   onClose: () => void;
   onEvaluateRound: (candidate: Candidate) => void;
 }
@@ -27,6 +28,7 @@ export function CandidateDrawer({
   candidate,
   isOpen,
   canEvaluate = true,
+  showTeamLeader = true,
   onClose,
   onEvaluateRound,
 }: CandidateDrawerProps) {
@@ -126,21 +128,22 @@ export function CandidateDrawer({
               <span>{candidate.expectedSalary || 'Not Disclosed'}</span>
             </div>
 
-            {(() => {
-              const tlName =
-                candidate.teamLeaderName ||
-                candidate.tags?.find((t) => t.startsWith('TL:'))?.replace('TL:', '');
-              if (!tlName) return null;
-              return (
-                <div className="col-span-2 flex items-center gap-2 text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800 font-medium">
-                  <Users className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span>
-                    <strong>Assigned Team Leader: </strong>
-                    {tlName}
-                  </span>
-                </div>
-              );
-            })()}
+            {showTeamLeader &&
+              (() => {
+                const tlName =
+                  candidate.teamLeaderName ||
+                  candidate.tags?.find((t) => t.startsWith('TL:'))?.replace('TL:', '');
+                if (!tlName) return null;
+                return (
+                  <div className="col-span-2 flex items-center gap-2 text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800 font-medium">
+                    <Users className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>
+                      <strong>Assigned Team Leader: </strong>
+                      {tlName}
+                    </span>
+                  </div>
+                );
+              })()}
           </div>
 
           {/* Two-Round Evaluation Tracking Cards */}
