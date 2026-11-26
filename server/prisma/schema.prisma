@@ -54,6 +54,7 @@ model User {
   attendanceMaster       AttendanceMaster[]
   inductionProgress      InductionProgress[]
   inductionNotifications InductionNotification[]
+  assignedCandidates     Candidate[]              @relation("CandidateTeamLeader")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -421,10 +422,14 @@ model Candidate {
   mrFeedback      String?
   mrEvaluatedAt   DateTime?
   rejectionReason String?
+  teamLeaderId    String?
+  teamLeaderName  String?
+  teamLeader      User?                      @relation("CandidateTeamLeader", fields: [teamLeaderId], references: [id], onDelete: SetNull)
   createdAt       DateTime                   @default(now())
   updatedAt       DateTime                   @updatedAt
   evaluations     RoundEvaluation[]
 
+  @@index([teamLeaderId])
   @@map("candidates")
 }
 

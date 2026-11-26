@@ -47,6 +47,8 @@ export interface Candidate {
   mrRating?: number;
   mrFeedback?: string;
   mrEvaluatedAt?: string;
+  teamLeaderId?: string;
+  teamLeaderName?: string;
   evaluations?: RoundEvaluation[];
   createdAt: string;
 }
@@ -83,6 +85,16 @@ export interface CreateCandidatePayload {
   currentCompany?: string;
   expectedSalary?: string;
   tags?: string[];
+  teamLeaderId?: string;
+  teamLeaderName?: string;
+}
+
+export interface TeamLeaderSummary {
+  id: string;
+  name: string;
+  email: string;
+  employeeId: string;
+  jobTitle?: string;
 }
 
 export interface EvaluateRoundPayload {

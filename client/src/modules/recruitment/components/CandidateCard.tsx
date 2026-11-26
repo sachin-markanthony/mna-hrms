@@ -1,4 +1,4 @@
-import { Calendar, Award, ChevronRight, XCircle, CheckCircle2 } from 'lucide-react';
+import { Calendar, Award, ChevronRight, XCircle, CheckCircle2, Users } from 'lucide-react';
 import type { Candidate, CandidateStatus } from '../types';
 import { STATUS_CONFIG } from '../types';
 
@@ -61,6 +61,20 @@ export function CandidateCard({
           {candidate.experienceYears} yrs exp &bull; {candidate.currentCompany || 'Direct'}
         </span>
       </div>
+
+      {/* Team Leader Badge */}
+      {(() => {
+        const tlName =
+          candidate.teamLeaderName ||
+          candidate.tags?.find((t) => t.startsWith('TL:'))?.replace('TL:', '');
+        if (!tlName) return null;
+        return (
+          <div className="mt-2 flex items-center gap-1.5 text-[10px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md font-bold border border-amber-200 dark:border-amber-800/60 w-fit">
+            <Users className="w-3 h-3 text-amber-500 shrink-0" />
+            <span>TL: {tlName}</span>
+          </div>
+        );
+      })()}
 
       {/* If Rejected: Show Exact Rejection Reason Banner */}
       {(candidate.status === 'REJECTED_HR' || candidate.status === 'REJECTED_MR') && (
