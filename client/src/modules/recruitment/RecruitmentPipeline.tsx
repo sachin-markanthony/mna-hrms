@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   XCircle,
   Building2,
+  RefreshCw,
 } from 'lucide-react';
 import { recruitmentApi } from './recruitment.api';
 import type {
@@ -136,13 +137,19 @@ export function RecruitmentPipeline() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          {loading && (
-            <span className="text-xs text-slate-400 animate-pulse font-medium">Syncing DB...</span>
-          )}
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => void loadData()}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0f172a] text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            title="Refresh Recruitment Data"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
           <button
             onClick={() => setAddModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4 text-amber-400" />
             Register Office Walk-In
