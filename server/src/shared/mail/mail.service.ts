@@ -11,6 +11,12 @@ export interface SendMailOptions {
   bcc?: string | string[];
   replyTo?: string;
   from?: string;
+  attachments?: Array<{
+    filename: string;
+    content?: any;
+    path?: string;
+    contentType?: string;
+  }>;
 }
 
 export interface SendMailResult {
@@ -100,6 +106,7 @@ export class MailService {
         subject: options.subject,
         text: options.text,
         html: options.html,
+        attachments: options.attachments,
       });
 
       const accepted = (info.accepted ?? []).map(String);

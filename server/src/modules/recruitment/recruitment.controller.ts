@@ -112,6 +112,9 @@ export class RecruitmentController {
     @CurrentUser() actor: AuthenticatedUser,
     @Req() req: Request,
   ) {
+    if (actor?.role === 'TEAM_LEADER') {
+      throw new ForbiddenException('Team Leaders do not have permission to evaluate interview rounds.');
+    }
     return this.recruitmentService.evaluateRound(id, dto, actor?.id, this.extractMeta(req));
   }
 

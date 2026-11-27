@@ -24,6 +24,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { RolesModule } from './modules/roles/roles.module.js';
 import { SettingsModule } from './modules/settings/settings.module.js';
 import { MailModule } from './shared/mail/mail.module.js';
+import { LettersModule } from './modules/letters/letters.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -38,6 +39,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     AttendanceModule,
     LeaveModule,
     RecruitmentModule,
+    LettersModule,
     OnboardingModule,
     OffboardingModule,
     PerformanceModule,

@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AuditModule } from '../audit/audit.module.js';
+import { MailModule } from '../../shared/mail/mail.module.js';
 import { RecruitmentController } from './recruitment.controller.js';
 import { RecruitmentService } from './recruitment.service.js';
 
 @Module({
-  imports: [AuditModule],
+  imports: [AuditModule, MailModule],
   controllers: [RecruitmentController],
   providers: [RecruitmentService],
   exports: [RecruitmentService],

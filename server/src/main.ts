@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { json, urlencoded } from 'express';
 import { AppModule, ObserveInstrument } from './app.module.js';
 
 async function bootstrap() {
@@ -9,6 +10,8 @@ async function bootstrap() {
     instrument: ObserveInstrument,
   });
 
+  app.use(json({ limit: '15mb' }));
+  app.use(urlencoded({ extended: true, limit: '15mb' }));
   app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({

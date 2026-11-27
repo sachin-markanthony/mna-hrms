@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import {
   X,
   Star,
@@ -11,6 +12,7 @@ import {
   XCircle,
   AlertOctagon,
   Users,
+  FileCheck,
 } from 'lucide-react';
 import type { Candidate } from '../types';
 import { STATUS_CONFIG } from '../types';
@@ -18,6 +20,8 @@ import { STATUS_CONFIG } from '../types';
 interface CandidateDrawerProps {
   candidate: Candidate | null;
   isOpen: boolean;
+  canEvaluate?: boolean;
+  showTeamLeader?: boolean;
   onClose: () => void;
   onEvaluateRound: (candidate: Candidate) => void;
 }
@@ -25,9 +29,12 @@ interface CandidateDrawerProps {
 export function CandidateDrawer({
   candidate,
   isOpen,
+  canEvaluate = true,
+  showTeamLeader = true,
   onClose,
   onEvaluateRound,
 }: CandidateDrawerProps) {
+  const navigate = useNavigate();
   if (!isOpen || !candidate) return null;
 
   const statusInfo = STATUS_CONFIG[candidate.status];
@@ -97,7 +104,7 @@ export function CandidateDrawer({
               <Calendar className="w-4 h-4 text-[#072b53] dark:text-amber-400" />
               <span>
                 <strong>Visit Date: </strong>
-                {candidate.visitDate}
+                {candidate.visitDate?.split('T')[0] || candidate.visitDate}
               </span>
             </div>
             <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
@@ -124,21 +131,22 @@ export function CandidateDrawer({
               <span>{candidate.expectedSalary || 'Not Disclosed'}</span>
             </div>
 
-            {(() => {
-              const tlName =
-                candidate.teamLeaderName ||
-                candidate.tags?.find((t) => t.startsWith('TL:'))?.replace('TL:', '');
-              if (!tlName) return null;
-              return (
-                <div className="col-span-2 flex items-center gap-2 text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800 font-medium">
-                  <Users className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span>
-                    <strong>Assigned Team Leader: </strong>
-                    {tlName}
-                  </span>
-                </div>
-              );
-            })()}
+            {showTeamLeader &&
+              (() => {
+                const tlName =
+                  candidate.teamLeaderName ||
+                  candidate.tags?.find((t) => t.startsWith('TL:'))?.replace('TL:', '');
+                if (!tlName) return null;
+                return (
+                  <div className="col-span-2 flex items-center gap-2 text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800 font-medium">
+                    <Users className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>
+                      <strong>Assigned Team Leader: </strong>
+                      {tlName}
+                    </span>
+                  </div>
+                );
+              })()}
           </div>
 
           {/* Two-Round Evaluation Tracking Cards */}
@@ -278,7 +286,21 @@ export function CandidateDrawer({
             Close
           </button>
 
-          {candidate.status !== 'SELECTED' &&
+          {candidate.status === 'SELECTED' && canEvaluate && (
+            <button
+              onClick={() => {
+                onClose();
+                navigate(`/letters?candidateId=${candidate.id}`);
+              }}
+              className="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+            >
+              <FileCheck className="w-4 h-4 text-emerald-200" />
+              Issue Official Offer Letter
+            </button>
+          )}
+
+          {canEvaluate &&
+            candidate.status !== 'SELECTED' &&
             candidate.status !== 'REJECTED_HR' &&
             candidate.status !== 'REJECTED_MR' && (
               <button

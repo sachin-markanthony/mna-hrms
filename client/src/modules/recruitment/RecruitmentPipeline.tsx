@@ -11,6 +11,8 @@ import {
   XCircle,
   Building2,
   RefreshCw,
+  Eye,
+  Award,
 } from 'lucide-react';
 import { useAuth } from '../auth';
 import { recruitmentApi } from './recruitment.api';
@@ -505,6 +507,8 @@ export function RecruitmentPipeline() {
                       <CandidateCard
                         key={candidate.id}
                         candidate={candidate}
+                        canEvaluate={!isTeamLeader}
+                        showTeamLeader={!isTeamLeader}
                         onOpenDetails={setDrawerCandidate}
                         onEvaluateRound={setEvaluateCandidate}
                       />
@@ -565,7 +569,7 @@ export function RecruitmentPipeline() {
                       </td>
 
                       <td className="px-5 py-3.5 font-semibold text-slate-700 dark:text-slate-300">
-                        {c.visitDate}
+                        {c.visitDate?.split('T')[0] || c.visitDate}
                       </td>
 
                       <td className="px-5 py-3.5">
@@ -582,15 +586,34 @@ export function RecruitmentPipeline() {
                       </td>
 
                       <td className="px-5 py-3.5 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEvaluateCandidate(c);
-                          }}
-                          className="px-3 py-1 rounded-lg text-[11px] font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-colors"
-                        >
-                          Evaluate Round
-                        </button>
+                        {isTeamLeader ||
+                        c.status === 'SELECTED' ||
+                        c.status === 'REJECTED_HR' ||
+                        c.status === 'REJECTED_MR' ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDrawerCandidate(c);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-slate-500" />
+                            View Details
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEvaluateCandidate(c);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-colors cursor-pointer shadow-2xs"
+                          >
+                            <Award className="w-3.5 h-3.5 text-amber-400" />
+                            Evaluate {c.status === 'MR_ROUND' ? 'MR Round' : 'HR Round'}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );
@@ -607,6 +630,8 @@ export function RecruitmentPipeline() {
       <CandidateDrawer
         candidate={drawerCandidate}
         isOpen={Boolean(drawerCandidate)}
+        canEvaluate={!isTeamLeader}
+        showTeamLeader={!isTeamLeader}
         onClose={() => setDrawerCandidate(null)}
         onEvaluateRound={(c) => {
           setDrawerCandidate(null);

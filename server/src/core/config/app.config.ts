@@ -27,7 +27,7 @@ export const appConfig = () => ({
       ? process.env.SMTP_SECURE.trim().toLowerCase() === 'true'
       : Number(process.env.SMTP_PORT ?? 465) === 465,
     user: (process.env.SMTP_USER ?? '').trim(),
-    pass: (process.env.SMTP_PASSWORD ?? process.env.SMTP_PASS ?? '').trim(),
+    pass: (process.env.SMTP_PASSWORD ?? process.env.SMTP_PASS ?? '').replace(/\s+/g, '').trim(),
     from: (
       process.env.SMTP_FROM ??
       process.env.SMTP_USER ??

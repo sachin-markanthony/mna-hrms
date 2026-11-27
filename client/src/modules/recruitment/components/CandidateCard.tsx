@@ -4,6 +4,8 @@ import { STATUS_CONFIG } from '../types';
 
 interface CandidateCardProps {
   candidate: Candidate;
+  canEvaluate?: boolean;
+  showTeamLeader?: boolean;
   onOpenDetails: (candidate: Candidate) => void;
   onEvaluateRound: (candidate: Candidate) => void;
   onQuickAdvance?: (candidateId: string, nextStatus: CandidateStatus) => void;
@@ -11,6 +13,8 @@ interface CandidateCardProps {
 
 export function CandidateCard({
   candidate,
+  canEvaluate = true,
+  showTeamLeader = true,
   onOpenDetails,
   onEvaluateRound,
 }: CandidateCardProps) {
@@ -54,26 +58,27 @@ export function CandidateCard({
       <div className="mt-2 text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
         <span className="flex items-center gap-1">
           <Calendar className="w-3 h-3 text-slate-400" />
-          Walk-In: <strong className="text-slate-700 dark:text-slate-300">{candidate.visitDate}</strong>
+          Walk-In: <strong className="text-slate-700 dark:text-slate-300">{candidate.visitDate?.split('T')[0] || candidate.visitDate}</strong>
         </span>
         <span>
           {candidate.experienceYears} yrs exp &bull; {candidate.currentCompany || 'Direct'}
         </span>
       </div>
 
-      {/* Team Leader Badge */}
-      {(() => {
-        const tlName =
-          candidate.teamLeaderName ||
-          candidate.tags?.find((t) => t.startsWith('TL:'))?.replace('TL:', '');
-        if (!tlName) return null;
-        return (
-          <div className="mt-2 flex items-center gap-1.5 text-[10px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md font-bold border border-amber-200 dark:border-amber-800/60 w-fit">
-            <Users className="w-3 h-3 text-amber-500 shrink-0" />
-            <span>TL: {tlName}</span>
-          </div>
-        );
-      })()}
+      {/* Team Leader Badge - Only shown for HR / Admins, not in scoped Team Lead Portal */}
+      {showTeamLeader &&
+        (() => {
+          const tlName =
+            candidate.teamLeaderName ||
+            candidate.tags?.find((t) => t.startsWith('TL:'))?.replace('TL:', '');
+          if (!tlName) return null;
+          return (
+            <div className="mt-2 flex items-center gap-1.5 text-[10px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md font-bold border border-amber-200 dark:border-amber-800/60 w-fit">
+              <Users className="w-3 h-3 text-amber-500 shrink-0" />
+              <span>TL: {tlName}</span>
+            </div>
+          );
+        })()}
 
       {/* If Rejected: Show Exact Rejection Reason Banner */}
       {(candidate.status === 'REJECTED_HR' || candidate.status === 'REJECTED_MR') && (
@@ -104,21 +109,44 @@ export function CandidateCard({
           Expected: {candidate.expectedSalary || 'N/A'}
         </span>
 
-        {candidate.status !== 'SELECTED' &&
-          candidate.status !== 'REJECTED_HR' &&
-          candidate.status !== 'REJECTED_MR' && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEvaluateRound(candidate);
-              }}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-2xs"
-            >
-              <Award className="w-3 h-3 text-amber-400" />
-              Evaluate {candidate.status === 'MR_ROUND' ? 'MR' : 'HR'}
-              <ChevronRight className="w-3 h-3" />
-            </button>
-          )}
+        {canEvaluate &&
+        candidate.status !== 'SELECTED' &&
+        candidate.status !== 'REJECTED_HR' &&
+        candidate.status !== 'REJECTED_MR' ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEvaluateRound(candidate);
+            }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-2xs cursor-pointer"
+          >
+            <Award className="w-3 h-3 text-amber-400" />
+            Evaluate {candidate.status === 'MR_ROUND' ? 'MR' : 'HR'}
+            <ChevronRight className="w-3 h-3" />
+          </button>
+        ) : canEvaluate && candidate.status === 'SELECTED' ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails(candidate);
+            }}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 transition-all cursor-pointer"
+          >
+            <span>View & Issue Offer</span>
+            <ChevronRight className="w-3 h-3 text-emerald-500" />
+          </button>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails(candidate);
+            }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
+          >
+            <span>View Details</span>
+            <ChevronRight className="w-3 h-3 text-slate-400" />
+          </button>
+        )}
       </div>
     </div>
   );
