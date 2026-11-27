@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -12,6 +13,7 @@ import { getRequiredEnv } from '../../core/config/app.config.js';
 import { AppRole } from '../../core/decorators/roles.decorator.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { MailService } from '../../shared/mail/mail.service.js';
 import type { AuthTokensResponseDto, AuthUserViewDto } from './dto/auth-response.dto.js';
 import type { ChangePasswordDto } from './dto/change-password.dto.js';
 import type { LoginDto } from './dto/login.dto.js';
@@ -26,11 +28,16 @@ export interface RequestMeta {
 @Injectable()
 export class AuthService {
   private readonly BCRYPT_ROUNDS = 10;
+  private readonly resetCodes = new Map<
+    string,
+    { code: string; expiresAt: number; verified: boolean }
+  >();
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly auditService: AuditService,
+    private readonly mailService: MailService,
   ) {}
 
   async login(dto: LoginDto, meta: RequestMeta): Promise<AuthTokensResponseDto> {
@@ -259,6 +266,199 @@ export class AuthService {
     });
 
     return { message: 'Password updated successfully' };
+  }
+
+  async forgotPassword(email: string, meta: RequestMeta): Promise<{ message: string }> {
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    if (!normalizedEmail) {
+      throw new BadRequestException('Email is required.');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: { id: true, name: true, email: true, isArchived: true, employmentStatus: true },
+    });
+
+    if (
+      user &&
+      !user.isArchived &&
+      user.employmentStatus !== EmploymentStatus.ARCHIVED &&
+      user.employmentStatus !== EmploymentStatus.INACTIVE
+    ) {
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      this.resetCodes.set(normalizedEmail, {
+        code,
+        expiresAt: Date.now() + 45 * 1000,
+        verified: false,
+      });
+
+      if (this.mailService.isConfigured()) {
+        const subject = 'Mark Anthony Ventures — Password Reset OTP (Valid 45 Seconds)';
+        const text = `Dear ${user.name},
+
+We received a request to reset your password for your Mark Anthony Ventures CRM & HRMS account.
+
+Your 6-digit password reset OTP is: ${code}
+
+Please enter this OTP within 45 seconds to verify and set your new password. If you did not request a password reset, you can safely ignore this email.
+
+Best regards,
+Shilpa Kumari.P
+Head of Human Resource /Finance
+Mark Anthony Ventures`;
+
+        const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color: #1e293b; margin: 0; padding: 12px 0;">
+  ${text
+    .split('\n\n')
+    .map(
+      (p) =>
+        `<p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.6; color: #1e293b;">${p.replace(/\n/g, '<br>')}</p>`,
+    )
+    .join('\n')}
+</body>
+</html>`.trim();
+
+        await this.mailService.sendMail({
+          to: user.email,
+          subject,
+          text,
+          html,
+        });
+      }
+
+      await this.auditService.log({
+        actorUserId: user.id,
+        targetUserId: user.id,
+        actionType: 'PASSWORD_RESET_REQUESTED',
+        ipAddress: meta.ipAddress,
+        userAgent: meta.userAgent,
+        newValuePayload: {
+          email: user.email,
+          requestedAt: new Date().toISOString(),
+        },
+      });
+    }
+
+    return {
+      message: 'If your account exists, a 6-digit OTP (valid for 45 seconds) has been sent to your email.',
+    };
+  }
+
+  async verifyResetOtp(
+    email: string,
+    otp: string,
+    meta: RequestMeta,
+  ): Promise<{ verified: boolean; message: string }> {
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    const record = this.resetCodes.get(normalizedEmail);
+    const user = await this.prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: { id: true, email: true },
+    });
+
+    if (!record || Date.now() > record.expiresAt) {
+      this.resetCodes.delete(normalizedEmail);
+      if (user) {
+        await this.auditService.log({
+          actorUserId: user.id,
+          targetUserId: user.id,
+          actionType: 'PASSWORD_RESET_OTP_EXPIRED',
+          ipAddress: meta.ipAddress,
+          userAgent: meta.userAgent,
+          newValuePayload: { email: normalizedEmail, attemptedAt: new Date().toISOString() },
+        });
+      }
+      throw new BadRequestException('OTP has expired (45 seconds limit). Please request a new OTP.');
+    }
+
+    if (record.code !== (otp || '').trim()) {
+      if (user) {
+        await this.auditService.log({
+          actorUserId: user.id,
+          targetUserId: user.id,
+          actionType: 'PASSWORD_RESET_OTP_INVALID',
+          ipAddress: meta.ipAddress,
+          userAgent: meta.userAgent,
+          newValuePayload: { email: normalizedEmail, attemptedAt: new Date().toISOString() },
+        });
+      }
+      throw new BadRequestException('Invalid OTP code. Please check your email and try again.');
+    }
+
+    record.verified = true;
+    this.resetCodes.set(normalizedEmail, record);
+
+    if (user) {
+      await this.auditService.log({
+        actorUserId: user.id,
+        targetUserId: user.id,
+        actionType: 'PASSWORD_RESET_OTP_VERIFIED',
+        ipAddress: meta.ipAddress,
+        userAgent: meta.userAgent,
+        newValuePayload: { email: normalizedEmail, verifiedAt: new Date().toISOString() },
+      });
+    }
+
+    return { verified: true, message: 'OTP verified. You can now set your new password.' };
+  }
+
+  async resetPassword(
+    email: string,
+    otp: string,
+    newPassword: string,
+    meta: RequestMeta,
+  ): Promise<{ success: boolean; message: string }> {
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    const record = this.resetCodes.get(normalizedEmail);
+
+    if (
+      !record ||
+      record.code !== (otp || '').trim() ||
+      (!record.verified && Date.now() > record.expiresAt)
+    ) {
+      throw new BadRequestException('OTP is invalid or expired. Please request a new OTP.');
+    }
+
+    const trimmedPwd = (newPassword || '').trim();
+    if (trimmedPwd.length < 4 || trimmedPwd.length > 10) {
+      throw new BadRequestException('New password must be between 4 and 10 characters.');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    const newHash = await bcrypt.hash(trimmedPwd, this.BCRYPT_ROUNDS);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: newHash,
+        refreshTokenHash: null,
+      },
+    });
+
+    this.resetCodes.delete(normalizedEmail);
+
+    await this.auditService.log({
+      actorUserId: user.id,
+      targetUserId: user.id,
+      actionType: 'PASSWORD_RESET_COMPLETED',
+      ipAddress: meta.ipAddress,
+      userAgent: meta.userAgent,
+      newValuePayload: {
+        email: user.email,
+        resetAt: new Date().toISOString(),
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Password has been reset successfully. You can now log in with your new password.',
+    };
   }
 
   private async issueTokens(user: {

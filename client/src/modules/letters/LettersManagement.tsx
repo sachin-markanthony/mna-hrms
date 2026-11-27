@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FileCheck,
   Plus,
@@ -8,6 +8,7 @@ import {
   Eye,
   FileText,
   Mail,
+  UserPlus,
 } from 'lucide-react';
 import { lettersApi } from './letters.api';
 import { recruitmentApi } from '../recruitment/recruitment.api';
@@ -18,6 +19,7 @@ import type { OfficialLetter, LetterType, LetterStatus } from './types';
 import type { Candidate } from '../recruitment/types';
 
 export function LettersManagement() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preSelectedCandidateId = searchParams.get('candidateId');
 
@@ -406,6 +408,40 @@ export function LettersManagement() {
                               Reject
                             </button>
                           </div>
+                        ) : l.emailSentAt && l.letterType === 'OFFER_LETTER' && l.candidateResponse === 'ACCEPTED' ? (
+                          l.isEmployeeCreated || l.employeeId ? (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              Onboarded
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate('/employees', {
+                                  state: {
+                                    prefillFromLetter: {
+                                      name: l.recipientName,
+                                      email: l.recipientEmail,
+                                      phone: l.recipientPhone || '',
+                                      jobTitle: l.designation,
+                                      departmentName: l.department,
+                                      salary: l.monthlyGross
+                                        ? String(Math.round(l.monthlyGross))
+                                        : l.annualGrossCtc
+                                        ? String(Math.round(l.annualGrossCtc / 12))
+                                        : '',
+                                    },
+                                  },
+                                });
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors cursor-pointer"
+                              title="Onboard accepted candidate into Employee Directory"
+                            >
+                              <UserPlus className="w-3.5 h-3.5" />
+                              <span>Add to Employee</span>
+                            </button>
+                          )
                         ) : l.emailSentAt ? (
                           <span
                             className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold border ${

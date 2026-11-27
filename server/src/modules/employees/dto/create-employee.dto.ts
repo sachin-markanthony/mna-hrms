@@ -28,10 +28,11 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'Welcome@123', minLength: 8 })
+  @ApiPropertyOptional({ example: '1234', minLength: 4, default: '1234' })
   @IsString()
-  @MinLength(8)
-  password: string;
+  @MinLength(4)
+  @IsOptional()
+  password?: string;
 
   @ApiPropertyOptional({ enum: AppRole, default: AppRole.EMPLOYEE })
   @IsEnum(AppRole)
