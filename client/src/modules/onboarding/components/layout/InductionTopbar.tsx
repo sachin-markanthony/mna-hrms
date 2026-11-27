@@ -12,12 +12,15 @@ import {
   LockKeyhole,
   LogOut,
   Menu,
+  Moon,
   Search,
   Sparkles,
+  Sun,
   TrendingUp,
   UserRound,
 } from 'lucide-react';
-import { useAuth } from '../../../auth';
+import { ROLES, useAuth } from '../../../auth';
+import { useTheme } from '../../../../services/theme';
 import type { ChapterView, EmployeeProfile, InductionNotification, InductionSummary } from '../../types/learning.types';
 import { getInitials } from '../../utils/chapterStatus';
 
@@ -95,7 +98,8 @@ export function InductionTopbar({
   onMarkAllNotificationsRead,
   onResetProgress,
 }: InductionTopbarProps) {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,6 +113,7 @@ export function InductionTopbar({
 
   const unreadCount = notifications.filter((notification) => !notification.read).length;
   const trail = getBreadcrumbTrail(location.pathname, chapters);
+  const roleConfig = user ? ROLES[user.role] : null;
 
   useEffect(() => {
     setSearchOpen(false);
@@ -214,13 +219,13 @@ export function InductionTopbar({
   };
 
   return (
-    <header className="shrink-0 border-b border-[#E9DED2] bg-[#FFFCF7]/95 backdrop-blur-md">
+    <header className="induction-topbar shrink-0 border-b border-[#E9DED2] bg-[#FFFCF7]/95 backdrop-blur-md">
       <div className="flex min-h-[76px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={onOpenMobileSidebar}
-            className="rounded-xl border border-[#E9DED2] bg-white p-2 text-[#3B2314] shadow-sm transition hover:bg-[#F8F1E7] lg:hidden"
+            className="induction-topbar-control rounded-xl border border-[#E9DED2] bg-white p-2 text-[#3B2314] shadow-sm transition hover:bg-[#F8F1E7] lg:hidden"
             aria-label="Open navigation"
           >
             <Menu className="h-4 w-4" />
@@ -230,11 +235,7 @@ export function InductionTopbar({
             <div className="hidden items-center gap-1.5 text-[10px] font-semibold text-[#A09182] sm:flex">
               <Link to="/dashboard" className="inline-flex items-center gap-1 transition hover:text-[#3B2314]">
                 <Home className="h-3 w-3" />
-                Home
-              </Link>
-              <ChevronRight className="h-2.5 w-2.5" />
-              <Link to="/induction" className="transition hover:text-[#3B2314]">
-                My Learning
+                HRMS
               </Link>
               <ChevronRight className="h-2.5 w-2.5" />
               <Link to="/induction" className="transition hover:text-[#3B2314]">
@@ -258,6 +259,11 @@ export function InductionTopbar({
                 <Sparkles className="h-2.5 w-2.5" />
                 MA Ventures
               </span>
+              {roleConfig && (
+                <span className="induction-role-badge hidden rounded-full border px-2.5 py-0.5 text-[11px] font-bold xl:inline-flex">
+                  {roleConfig.title} &bull; {roleConfig.scope} Scope
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -280,7 +286,7 @@ export function InductionTopbar({
               }}
               placeholder="Search chapters…"
               aria-label="Search induction chapters"
-              className="w-44 rounded-xl border border-[#E9DED2] bg-white py-2 pl-9 pr-3 text-[11px] font-medium text-[#3B2314] shadow-sm outline-none transition placeholder:text-[#B3A597] focus:border-[#C9A46A] focus:ring-2 focus:ring-[#B8893A]/15 lg:w-60"
+              className="induction-topbar-control w-44 rounded-xl border border-[#E9DED2] bg-white py-2 pl-9 pr-3 text-[11px] font-medium text-[#3B2314] shadow-sm outline-none transition placeholder:text-[#B3A597] focus:border-[#C9A46A] focus:ring-2 focus:ring-[#B8893A]/15 lg:w-60"
             />
 
             {searchOpen && searchQuery.trim() && (
@@ -338,6 +344,25 @@ export function InductionTopbar({
             )}
           </div>
 
+          <span className="induction-topbar-date hidden items-center rounded-full border px-3 py-1 text-[11px] font-semibold xl:inline-flex">
+            {new Date().toLocaleDateString('en-IN', {
+              weekday: 'short',
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+            })}
+          </span>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="induction-topbar-control rounded-lg border p-2 transition"
+            title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+            aria-label="Toggle theme"
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+
           <div ref={notificationsRef} className="relative">
             <button
               type="button"
@@ -345,7 +370,7 @@ export function InductionTopbar({
                 setNotificationsOpen((open) => !open);
                 setProfileOpen(false);
               }}
-              className="relative rounded-xl border border-[#E9DED2] bg-white p-2 text-[#5F4B3C] shadow-sm transition hover:bg-[#F8F1E7]"
+              className="induction-topbar-control relative rounded-xl border border-[#E9DED2] bg-white p-2 text-[#5F4B3C] shadow-sm transition hover:bg-[#F8F1E7]"
               aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
               aria-expanded={notificationsOpen}
             >
@@ -443,7 +468,7 @@ export function InductionTopbar({
                 setProfileOpen((open) => !open);
                 setNotificationsOpen(false);
               }}
-              className="flex items-center gap-2 rounded-xl border border-[#E9DED2] bg-white p-1 pr-1.5 shadow-sm transition hover:bg-[#F8F1E7] sm:pl-2.5 sm:pr-2"
+              className="induction-topbar-control flex items-center gap-2 rounded-xl border border-[#E9DED2] bg-white p-1 pr-1.5 shadow-sm transition hover:bg-[#F8F1E7] sm:pl-2.5 sm:pr-2"
               aria-label="Employee profile menu"
               aria-expanded={profileOpen}
             >

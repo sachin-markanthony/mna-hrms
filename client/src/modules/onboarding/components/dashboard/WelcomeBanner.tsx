@@ -11,7 +11,7 @@ interface WelcomeBannerProps {
 
 export function WelcomeBanner({ employee, summary, onContinue }: WelcomeBannerProps) {
   return (
-    <section className="relative overflow-hidden rounded-[28px] bg-[#3B2314] text-[#FFFDF9] shadow-[0_18px_50px_rgba(59,35,20,0.18)]">
+    <section className="induction-welcome-banner relative overflow-hidden rounded-[28px] bg-[#3B2314] text-[#FFFDF9] shadow-[0_18px_50px_rgba(59,35,20,0.18)]">
       <div className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full border border-[#D8B777]/25" />
       <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full border border-[#D8B777]/20" />
       <div className="pointer-events-none absolute right-20 top-10 h-40 w-40 rounded-full border border-[#D8B777]/15" />
@@ -28,7 +28,7 @@ export function WelcomeBanner({ employee, summary, onContinue }: WelcomeBannerPr
 
       <div className="relative z-10 grid gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-10">
         <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#E6C687]/25 bg-white/[0.08] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#E6C687]">
+          <div className="induction-welcome-badge inline-flex items-center gap-2 rounded-full border border-[#E6C687]/25 bg-white/[0.08] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#E6C687]">
             <Sparkles className="h-3 w-3" />
             Your MA Ventures induction
           </div>
@@ -64,12 +64,12 @@ export function WelcomeBanner({ employee, summary, onContinue }: WelcomeBannerPr
               variant="gold"
               size="lg"
               onClick={onContinue}
-              className="w-full sm:w-auto"
+              className="induction-welcome-cta w-full sm:w-auto"
             >
               {summary.currentChapter ? 'Continue learning' : 'Review your learning'}
               <ArrowRight className="h-4 w-4" />
             </Button>
-            <p className="max-w-sm text-[10.5px] leading-5 text-[#CBB69C]">
+            <p className="induction-welcome-supporting-text max-w-sm text-[10.5px] leading-5 text-[#CBB69C]">
               {getMotivationalMessage(summary.overallPercentage)}
             </p>
           </div>
