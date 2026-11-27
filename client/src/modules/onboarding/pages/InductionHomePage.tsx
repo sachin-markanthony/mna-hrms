@@ -28,7 +28,7 @@ const JOURNEY_STEPS = [
 
 export function InductionHomePage() {
   const navigate = useNavigate();
-  const { employee, summary, learningChapters, finalAssessment } = useInductionLearning();
+  const { summary, learningChapters, finalAssessment } = useInductionLearning();
 
   const current = summary.currentChapter;
   const currentMeta = current ? getChapterStatusMeta(current) : null;
@@ -47,7 +47,7 @@ export function InductionHomePage() {
 
   return (
     <div className="space-y-6">
-      <WelcomeBanner employee={employee} summary={summary} onContinue={handleContinue} />
+      <WelcomeBanner summary={summary} onContinue={handleContinue} />
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-5">

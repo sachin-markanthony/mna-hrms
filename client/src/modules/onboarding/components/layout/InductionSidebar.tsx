@@ -25,6 +25,7 @@ interface InductionSidebarProps {
   mobileOpen: boolean;
   onToggleCollapse: () => void;
   onCloseMobile: () => void;
+  onResetProgress: () => void;
 }
 
 const NAV_SECTIONS = [
@@ -57,6 +58,7 @@ export function InductionSidebar({
   mobileOpen,
   onToggleCollapse,
   onCloseMobile,
+  onResetProgress,
 }: InductionSidebarProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -65,6 +67,18 @@ export function InductionSidebar({
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleReset = () => {
+    if (
+      window.confirm(
+        'Reset your induction progress and assessment history back to Chapter 1? This cannot be undone.',
+      )
+    ) {
+      onResetProgress();
+      setProfileOpen(false);
+      navigate('/induction');
+    }
   };
 
   return (
@@ -241,6 +255,14 @@ export function InductionSidebar({
                   >
                     <TrendingUp className="h-3.5 w-3.5 text-[#A28F7D]" />
                     View my progress
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-[#9A6420] transition hover:bg-[#FDF3E1]"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Reset demo progress
                   </button>
                   <button
                     type="button"
