@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useInductionLearning } from '../../hooks/useInductionLearning';
 import { InductionSidebar } from './InductionSidebar';
 import { InductionTopbar } from './InductionTopbar';
+import '../../induction.css';
 
 export function InductionLayout() {
   const {
@@ -18,7 +19,7 @@ export function InductionLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#FAF7F2] text-[#3B2314] antialiased">
+    <div className="induction-shell flex h-screen w-full overflow-hidden antialiased">
       <InductionSidebar
         employee={employee}
         summary={summary}
@@ -42,9 +43,9 @@ export function InductionLayout() {
 
         <main
           id="induction-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth"
+          className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth p-4 sm:p-6 lg:p-8"
         >
-          <div className="mx-auto w-full max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="w-full">
             <Outlet />
           </div>
         </main>

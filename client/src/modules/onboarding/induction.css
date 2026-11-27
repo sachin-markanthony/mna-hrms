@@ -1,45 +1,36 @@
+.induction-shell,
 .induction-page {
-  --kindle-orange: #ff9900;
-  --kindle-orange-hover: #e88b00;
-  --kindle-black: #1a1a1a;
-  --kindle-blue: #1a98ff;
+  --induction-primary: var(--primary);
+  --induction-primary-hover: var(--primary-hover);
+  --induction-primary-light: var(--primary-light);
+  --induction-accent: var(--color-brand-gold);
+  --induction-surface: var(--color-brand-card);
+  --induction-soft: color-mix(in srgb, var(--primary-light) 35%, var(--induction-surface));
+  --induction-page-bg: color-mix(in srgb, var(--induction-surface) 96%, var(--primary));
+  --induction-text: var(--color-brand-surface);
+  --induction-muted: var(--color-brand-muted);
+  --induction-border: var(--color-brand-border);
 
-  --bg-primary: #ffffff;
-  --bg-secondary: #f4f2ee;
-  --bg-card: #ffffff;
+  color: var(--induction-text);
+  background-color: var(--induction-page-bg);
+}
 
-  --text-primary: #1a1a1a;
-  --text-secondary: #6b6b6b;
-  --text-white: #ffffff;
+.dark .induction-shell,
+.dark .induction-page {
+  --induction-surface: var(--color-brand-surface);
+  --induction-soft: color-mix(in srgb, var(--primary) 12%, var(--induction-surface));
+  --induction-page-bg: var(--color-primary-950);
+  --induction-text: var(--color-brand-card);
+  --induction-muted: color-mix(in srgb, var(--color-brand-muted) 88%, var(--color-brand-card));
+  --induction-border: color-mix(in srgb, var(--color-brand-surface) 82%, var(--color-brand-card));
+}
 
-  --border-color: #e4e2dd;
-
-  --button-primary: #ff9900;
-  --button-hover: #e88b00;
-
-  --reader-white: #ffffff;
-  --reader-sepia: #fbf0d9;
-  --reader-green: #c5e1c5;
-  --reader-dark: #2a2a2a;
-  --reader-black: #000000;
-
-  --dark-bg: #0e0e0e;
-  --dark-surface: #1a1a1a;
-  --dark-card: #242424;
-  --dark-border: #2e2e2e;
-  --dark-text: #e8e8e8;
-  --dark-muted: #9a9a9a;
-
+.induction-page {
   box-sizing: border-box;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100%;
   overflow: auto;
   padding: clamp(1rem, 3vw, 2rem);
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
 }
 
 .induction-page *,
@@ -50,22 +41,214 @@
 
 .induction-page--state {
   display: flex;
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100%;
 }
 
-.induction-page.induction-page--dark {
-  --bg-primary: var(--dark-bg);
-  --bg-secondary: var(--dark-surface);
-  --bg-card: var(--dark-card);
-  --text-primary: var(--dark-text);
-  --text-secondary: var(--dark-muted);
-  --border-color: var(--dark-border);
+.induction-shell>aside {
+  width: 264px;
+  background-color: var(--induction-surface);
+  border-color: var(--induction-border);
+}
+
+.induction-shell>aside[class*="w-[84px]"] {
+  width: 84px;
+}
+
+.induction-shell>aside[class*="w-[272px]"] {
+  width: 264px;
+}
+
+.induction-shell>aside>div:first-child {
+  height: 64px;
+}
+
+.induction-shell .induction-topbar {
+  min-height: 64px;
+  background-color: color-mix(in srgb, var(--induction-surface) 95%, transparent);
+  border-color: var(--induction-border);
+}
+
+.induction-shell .induction-topbar>div {
+  min-height: 64px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.induction-shell .induction-topbar-control,
+.induction-shell .induction-topbar-date {
+  color: var(--induction-muted);
+  background-color: var(--induction-surface);
+  border-color: var(--induction-border);
+}
+
+.induction-shell .induction-topbar-control:hover {
+  color: var(--induction-text);
+  background-color: var(--induction-soft);
+}
+
+.induction-shell .induction-role-badge {
+  color: var(--induction-primary);
+  background-color: color-mix(in srgb, var(--induction-primary) 8%, var(--induction-surface));
+  border-color: color-mix(in srgb, var(--induction-primary) 18%, var(--induction-border));
+}
+
+.induction-shell :is([class~="bg-white"],
+  [class~="bg-[#FFFCF7]"],
+  [class~="bg-[#FBF7F0]"]) {
+  background-color: var(--induction-surface) !important;
+}
+
+.induction-shell :is([class~="bg-slate-50"],
+  [class~="bg-slate-100"],
+  [class~="bg-stone-50"],
+  [class~="bg-stone-100"],
+  [class~="bg-[#FAF7F2]"],
+  [class~="bg-[#FBF5EA]"],
+  [class~="bg-[#F7F0E4]"],
+  [class~="bg-[#F8F1E7]"],
+  [class~="bg-[#F5EDE2]"],
+  [class~="bg-[#F6EEE3]"],
+  [class~="bg-[#F7F4F0]"],
+  [class~="bg-[#F5F2EE]"],
+  [class~="bg-[#EDE2D2]"],
+  [class~="bg-[#F0E7DC]"]) {
+  background-color: var(--induction-soft) !important;
+}
+
+.induction-shell :is([class~="bg-slate-900"],
+  [class~="bg-slate-800"],
+  [class~="bg-[#3B2314]"],
+  [class~="bg-[#2B1810]"],
+  [class~="bg-[#3D2217]"],
+  [class~="bg-[#2D1A10]"],
+  [class~="bg-[#24150D]"],
+  [class~="bg-[#1E110A]"],
+  [class~="bg-[#422616]"]) {
+  background-color: var(--induction-primary) !important;
+}
+
+.induction-shell :is([class*="bg-[#B8893A]/"],
+  [class*="bg-[#D4AF37]/"]) {
+  background-color: color-mix(in srgb, var(--induction-accent) 15%, transparent) !important;
+}
+
+.induction-shell [class*="bg-[#2B1810]/"] {
+  background-color: color-mix(in srgb, var(--induction-primary) 50%, transparent) !important;
+}
+
+.induction-shell :is([class*="border-[#D8B777]/"],
+  [class*="border-[#E6C687]/"],
+  [class*="border-[#D4AF37]/"]) {
+  border-color: color-mix(in srgb, var(--induction-accent) 30%, transparent) !important;
+}
+
+.induction-shell :is([class*="from-[#3D2217]"],
+  [class*="from-[#2D1A10]"],
+  [class*="from-[#24150D]"],
+  [class*="from-[#1E110A]"]) {
+  background-image: linear-gradient(135deg, var(--induction-primary), var(--induction-primary-hover)) !important;
+}
+
+.induction-shell :is([class~="text-slate-900"],
+  [class~="text-slate-800"],
+  [class~="text-stone-900"],
+  [class~="text-stone-800"],
+  [class~="text-[#3B2314]"],
+  [class~="text-[#2B1810]"],
+  [class~="text-[#1A120B]"]) {
+  color: var(--induction-text) !important;
+}
+
+.induction-shell :is([class~="text-slate-700"],
+  [class~="text-slate-600"],
+  [class~="text-slate-500"],
+  [class~="text-slate-400"],
+  [class~="text-stone-700"],
+  [class~="text-stone-600"],
+  [class~="text-stone-500"],
+  [class~="text-stone-400"],
+  [class~="text-[#8A7A6C]"],
+  [class~="text-[#7A6A5C]"],
+  [class~="text-[#6E5B4C]"],
+  [class~="text-[#5F4B3C]"],
+  [class~="text-[#A09182]"],
+  [class~="text-[#A28F7D]"],
+  [class~="text-[#9A8B7E]"],
+  [class~="text-[#8A7765]"]) {
+  color: var(--induction-muted) !important;
+}
+
+.induction-shell :is([class~="text-[#9A7A45]"],
+  [class~="text-[#8A6427]"],
+  [class~="text-[#B8893A]"],
+  [class~="text-[#D4AF37]"]) {
+  color: var(--induction-primary) !important;
+}
+
+.induction-shell :is([class~="text-[#E6C687]"],
+  [class~="text-[#CBB69C]"],
+  [class~="text-[#F3DFC0]"]) {
+  color: var(--induction-accent) !important;
+}
+
+.induction-shell :is([class~="border-slate-200"],
+  [class~="border-slate-300"],
+  [class~="border-stone-200"],
+  [class~="border-stone-300"],
+  [class~="border-[#E9DED2]"],
+  [class~="border-[#EFE5D9]"],
+  [class~="border-[#EDE2D6]"],
+  [class~="border-[#EDE4D8]"],
+  [class~="border-[#F0E7DC]"],
+  [class~="border-[#EFE7DE]"],
+  [class~="border-[#E4D8CA]"],
+  [class~="border-[#E5DDD5]"]) {
+  border-color: var(--induction-border) !important;
+}
+
+.induction-shell :is([class~="border-[#E6C687]"],
+  [class~="border-[#D8B777]"],
+  [class~="border-[#EBDCC4]"],
+  [class~="border-[#E8D9C2]"]) {
+  border-color: color-mix(in srgb, var(--induction-primary) 24%, var(--induction-border)) !important;
+}
+
+.induction-shell :is([class*="hover:bg-[#F8F1E7]"],
+  [class*="hover:bg-[#FBF5EA]"],
+  [class*="hover:bg-[#F5EDE2]"]):hover {
+  background-color: var(--induction-soft) !important;
+}
+
+.induction-shell [class*="hover:bg-[#2B1810]/"]:hover {
+  background-color: color-mix(in srgb, var(--induction-primary) 8%, var(--induction-surface)) !important;
+}
+
+.induction-shell [class*="rounded-3xl"],
+.induction-shell [class*="rounded-[28px]"] {
+  border-radius: 0.75rem !important;
+}
+
+.induction-shell [class*="rounded-xl"] {
+  border-radius: 0.5rem !important;
+}
+
+.induction-shell [class*="font-serif"] {
+  font-family: var(--font-sans) !important;
+}
+
+.induction-shell [class*="shadow-["] {
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--induction-text) 5%, transparent),
+    0 4px 12px color-mix(in srgb, var(--induction-text) 4%, transparent) !important;
+}
+
+.induction-shell [class~="bg-[#3B2314]"] [class~="text-[#3B2314]"] {
+  color: var(--color-brand-card) !important;
 }
 
 .induction-page :is([class~="bg-white"],
   [class~="bg-[#FFFFFF]"]) {
-  background-color: var(--bg-card) !important;
+  background-color: var(--induction-surface) !important;
 }
 
 .induction-page :is([class~="bg-slate-50"],
@@ -74,17 +257,7 @@
   [class~="bg-stone-100"],
   [class~="bg-[#FAF7F2]"],
   [class~="bg-[#FBF7EE]"]) {
-  background-color: var(--bg-secondary) !important;
-}
-
-.induction-page [class~="bg-[#1e3a8a]"] {
-  background-color: var(--kindle-blue) !important;
-}
-
-.induction-page :is([class~="bg-[#D4AF37]"],
-  [class~="bg-amber-500"],
-  [class~="bg-amber-600"]) {
-  background-color: var(--button-primary) !important;
+  background-color: var(--induction-soft) !important;
 }
 
 .induction-page :is([class~="bg-slate-900"],
@@ -92,7 +265,7 @@
   [class~="bg-[#1A120B]"],
   [class~="bg-[#2B1810]"],
   [class~="bg-[#422616]"]) {
-  background-color: var(--kindle-black) !important;
+  background-color: var(--induction-primary) !important;
 }
 
 .induction-page :is([class~="text-slate-900"],
@@ -101,7 +274,7 @@
   [class~="text-stone-800"],
   [class~="text-[#2B1810]"],
   [class~="text-[#1A120B]"]) {
-  color: var(--text-primary) !important;
+  color: var(--induction-text) !important;
 }
 
 .induction-page :is([class~="text-slate-700"],
@@ -112,93 +285,21 @@
   [class~="text-stone-600"],
   [class~="text-stone-500"],
   [class~="text-stone-400"]) {
-  color: var(--text-secondary) !important;
-}
-
-.induction-page [class~="text-stone-300"] {
-  color: var(--dark-muted) !important;
-}
-
-.induction-page [class~="text-[#FAF7F2]"] {
-  color: var(--text-white) !important;
-}
-
-.induction-page :is([class~="text-[#D4AF37]"],
-  [class~="text-[#8C6D37]"],
-  [class~="text-[#E6C687]"],
-  [class~="text-amber-700"],
-  [class~="text-amber-800"]) {
-  color: var(--kindle-orange-hover) !important;
-}
-
-.induction-page :is([class~="text-emerald-300"],
-  [class~="text-emerald-400"],
-  [class~="text-emerald-600"],
-  [class~="text-emerald-800"],
-  [class~="text-blue-600"],
-  [class~="text-blue-700"]) {
-  color: var(--kindle-blue) !important;
-}
-
-.induction-page :is([class~="text-rose-600"],
-  [class~="text-rose-700"],
-  [class~="text-rose-900"]) {
-  color: var(--kindle-orange-hover) !important;
+  color: var(--induction-muted) !important;
 }
 
 .induction-page :is([class~="border-slate-200"],
   [class~="border-slate-300"],
   [class~="border-stone-200"],
-  [class~="border-stone-300"],
-  [class~="border-[#E5DDD5]"],
-  [class~="border-[#E4E2DD]"],
-  [class~="border-[#EFE7DE]"],
-  [class~="border-[#F0EAE1]"]) {
-  border-color: var(--border-color) !important;
-}
-
-.induction-page :is([class~="border-[#D4AF37]"],
-  [class~="border-amber-200"],
-  [class~="border-amber-300"]) {
-  border-color: var(--kindle-orange) !important;
-}
-
-.induction-page :is([class~="bg-emerald-50"],
-  [class~="bg-emerald-100"],
-  [class~="bg-blue-50"]) {
-  background-color: color-mix(in srgb, var(--kindle-blue) 10%, white) !important;
-}
-
-.induction-page :is([class~="bg-rose-50"],
-  [class~="bg-amber-50"]) {
-  background-color: color-mix(in srgb, var(--kindle-orange) 12%, white) !important;
-}
-
-.induction-page [class*="border-[#D4AF37]"],
-.induction-page [class*="focus:border-[#1e3a8a]"] {
-  border-color: var(--kindle-orange) !important;
-}
-
-.induction-page [class*="ring-[#1e3a8a]"] {
-  --tw-ring-color: color-mix(in srgb, var(--kindle-orange) 20%, transparent) !important;
-}
-
-.induction-page [class~="hover:bg-slate-800"]:hover,
-.induction-page [class~="hover:bg-amber-600"]:hover {
-  background-color: var(--button-hover) !important;
-}
-
-.induction-page.induction-page--dark :is([class~="bg-white"],
-  [class~="bg-slate-50"],
-  [class~="bg-stone-50"]) {
-  background-color: var(--bg-card) !important;
+  [class~="border-stone-300"]) {
+  border-color: var(--induction-border) !important;
 }
 
 .induction-page .induction-hero-surface {
-  color: var(--text-primary);
-  background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
-  border: 1px solid var(--border-color);
-  box-shadow: 0 12px 30px rgb(26 26 26 / 7%);
+  color: var(--induction-text);
+  background: linear-gradient(135deg, var(--induction-surface), var(--induction-soft));
+  border: 1px solid var(--induction-border);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--induction-text) 7%, transparent);
 }
 
 .induction-page .induction-hero-pattern {
@@ -206,51 +307,86 @@
 }
 
 .induction-page .induction-hero-glow {
-  background-color: color-mix(in srgb, var(--kindle-orange) 7%, transparent);
+  background-color: color-mix(in srgb, var(--induction-primary) 7%, transparent);
 }
 
 .induction-page .induction-hero-badge {
-  color: var(--text-primary);
-  background-color: color-mix(in srgb, var(--kindle-orange) 10%, white);
-  border: 1px solid color-mix(in srgb, var(--kindle-orange) 38%, white);
+  color: var(--induction-text);
+  background-color: color-mix(in srgb, var(--induction-primary) 10%, var(--induction-surface));
+  border: 1px solid color-mix(in srgb, var(--induction-primary) 38%, var(--induction-surface));
 }
 
 .induction-page .induction-hero-chip {
-  color: var(--text-secondary);
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
+  color: var(--induction-muted);
+  background-color: var(--induction-surface);
+  border: 1px solid var(--induction-border);
 }
 
 .induction-page .induction-hero-muted {
-  color: var(--text-secondary);
+  color: var(--induction-muted);
 }
 
 .induction-page .induction-hero-title {
-  color: var(--text-primary);
+  color: var(--induction-text);
 }
 
 .induction-page .induction-hero-accent {
-  color: var(--kindle-orange);
+  color: var(--induction-primary);
 }
 
 .induction-page .induction-primary-button {
-  color: var(--kindle-black);
-  background-color: var(--button-primary);
-  border: 1px solid var(--button-primary);
-  box-shadow: 0 8px 20px rgb(255 153 0 / 18%);
+  color: var(--color-brand-card);
+  background-color: var(--induction-primary);
+  border: 1px solid var(--induction-primary);
 }
 
 .induction-page .induction-primary-button:hover {
-  background-color: var(--button-hover);
-  border-color: var(--button-hover);
+  background-color: var(--induction-primary-hover);
+  border-color: var(--induction-primary-hover);
 }
 
 .induction-page .induction-primary-button:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--kindle-orange) 45%, transparent);
+  outline: 3px solid color-mix(in srgb, var(--induction-primary) 45%, transparent);
   outline-offset: 3px;
 }
 
 .induction-page .induction-hero-icon-disc {
-  color: var(--kindle-black);
-  background-color: var(--kindle-orange);
+  color: var(--induction-text);
+  background-color: var(--induction-accent);
+}
+
+.induction-shell .induction-welcome-banner {
+  color: var(--color-brand-card);
+  background:
+    radial-gradient(
+      ellipse at 68% 14%,
+      color-mix(in srgb, var(--color-emerald-500) 16%, transparent),
+      transparent 36%
+    ),
+    linear-gradient(
+      112deg,
+      color-mix(in srgb, var(--color-brand-gold) 58%, var(--color-primary-950)) 0%,
+      color-mix(in srgb, var(--color-emerald-700) 72%, var(--color-primary-900)) 52%,
+      var(--color-primary-800) 100%
+    ) !important;
+}
+
+.induction-shell .induction-welcome-badge {
+  color: var(--color-secondary-200) !important;
+  border-color: color-mix(in srgb, var(--color-brand-gold) 45%, transparent) !important;
+}
+
+.induction-shell .induction-welcome-supporting-text {
+  color: color-mix(in srgb, var(--color-brand-card) 86%, transparent) !important;
+}
+
+.induction-shell .induction-welcome-cta {
+  color: var(--color-brand-surface) !important;
+  background-color: var(--color-brand-gold) !important;
+  border-color: var(--color-brand-gold) !important;
+}
+
+.induction-shell .induction-welcome-cta:hover {
+  background-color: var(--color-secondary-400) !important;
+  border-color: var(--color-secondary-400) !important;
 }
