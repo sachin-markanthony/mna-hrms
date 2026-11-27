@@ -75,6 +75,33 @@ export class AuthController {
     return this.authService.changePassword(user.id, dto, this.extractMeta(req));
   }
 
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send a 6-digit password reset OTP (valid 45s) to employee email' })
+  forgotPassword(@Body('email') email: string, @Req() req: Request) {
+    return this.authService.forgotPassword(email, this.extractMeta(req));
+  }
+
+  @Public()
+  @Post('verify-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify 6-digit password reset OTP within 45 seconds' })
+  verifyOtp(@Body() body: { email: string; otp: string }, @Req() req: Request) {
+    return this.authService.verifyResetOtp(body.email, body.otp, this.extractMeta(req));
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset employee password (4-10 chars) after OTP verification' })
+  resetPassword(
+    @Body() body: { email: string; otp: string; newPassword: string },
+    @Req() req: Request,
+  ) {
+    return this.authService.resetPassword(body.email, body.otp, body.newPassword, this.extractMeta(req));
+  }
+
   private extractMeta(req: Request): RequestMeta {
     return {
       ipAddress: req.ip,

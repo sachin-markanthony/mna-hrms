@@ -28,6 +28,7 @@ export interface OfficialLetter {
   customNotes?: string;
   candidateId?: string;
   employeeId?: string;
+  isEmployeeCreated?: boolean;
   emailSentAt?: string;
   emailSentTo?: string;
   candidateResponse?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | string;

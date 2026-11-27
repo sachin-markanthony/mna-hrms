@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -14,6 +15,7 @@ import bcrypt from 'bcryptjs';
 import { AppRole } from '../../core/decorators/roles.decorator.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { MailService } from '../../shared/mail/mail.service.js';
 import type { RequestMeta } from '../auth/auth.service.js';
 import type { AuthenticatedUser } from '../auth/types/jwt-payload.type.js';
 import type { CreateEmployeeDto } from './dto/create-employee.dto.js';
@@ -54,9 +56,12 @@ type EmployeeWithRelations = Prisma.EmployeeGetPayload<{
 
 @Injectable()
 export class EmployeesService {
+  private readonly logger = new Logger(EmployeesService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly mailService: MailService,
   ) {}
 
   async getDirectoryMeta() {
@@ -154,7 +159,8 @@ export class EmployeesService {
       select: { id: true },
     });
 
-    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const plainPassword = dto.password?.trim() || '1234';
+    const passwordHash = await bcrypt.hash(plainPassword, 10);
     const currentYear = new Date().getUTCFullYear();
 
     const created = await this.prisma.$transaction(async (tx) => {
@@ -209,6 +215,18 @@ export class EmployeesService {
         skipDuplicates: true,
       });
 
+      // Link any matching accepted Offer Letter(s) to this newly created employee
+      await tx.officialLetter.updateMany({
+        where: {
+          recipientEmail: normalizedEmail,
+          letterType: 'OFFER_LETTER',
+          employeeId: null,
+        },
+        data: {
+          employeeId: employee.id,
+        },
+      });
+
       return employee;
     });
 
@@ -224,6 +242,68 @@ export class EmployeesService {
         role: created.user.role,
       },
     });
+
+    // Dispatch CRM & HRMS login credentials email to the newly created employee
+    if (this.mailService.isConfigured()) {
+      const subject = 'Your Mark Anthony Ventures CRM & HRMS Login Credentials';
+      const text = `Dear ${created.user.name},
+
+Welcome to Mark Anthony Ventures! Your employee account has been created.
+
+Here are your login credentials for both the CRM and HRMS portals:
+- Employee ID: ${created.user.employeeId}
+- Email: ${created.user.email}
+- Password: ${plainPassword}
+
+You can change your password anytime after logging in once (via Change Password or Forgot Password) to maintain your personal privacy. If you choose not to change it, you can continue using these credentials without any problem.
+
+Best regards,
+Shilpa Kumari.P
+Head of Human Resource /Finance
+Mark Anthony Ventures`;
+
+      const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color: #1e293b; margin: 0; padding: 12px 0;">
+  ${text
+    .split('\n\n')
+    .map(
+      (p) =>
+        `<p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.6; color: #1e293b;">${p.replace(/\n/g, '<br>')}</p>`,
+    )
+    .join('\n')}
+</body>
+</html>`.trim();
+
+      try {
+        const mailRes = await this.mailService.sendMail({
+          to: created.user.email,
+          subject,
+          text,
+          html,
+        });
+
+        await this.auditService.log({
+          actorUserId,
+          targetUserId: created.userId,
+          actionType: 'EMPLOYEE_CREDENTIALS_EMAILED',
+          ipAddress: meta.ipAddress,
+          userAgent: meta.userAgent,
+          newValuePayload: {
+            employeeId: created.user.employeeId,
+            recipientEmail: created.user.email,
+            subject,
+            messageId: mailRes.messageId,
+            sentAt: new Date().toISOString(),
+          },
+        });
+      } catch (err) {
+        this.logger.error(
+          `Failed to email credentials to ${created.user.email}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
 
     return created;
   }
