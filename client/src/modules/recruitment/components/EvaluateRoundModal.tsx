@@ -15,14 +15,24 @@ export function EvaluateRoundModal({
   onClose,
   onSubmit,
 }: EvaluateRoundModalProps) {
-  // If candidate is already in MR_ROUND, default to MR_ROUND, else HR_ROUND
-  const initialRound: InterviewRoundType =
-    candidate.status === 'MR_ROUND' ? 'MR_ROUND' : 'HR_ROUND';
+  const isFinalized =
+    candidate.status === 'SELECTED' ||
+    candidate.status === 'REJECTED_HR' ||
+    candidate.status === 'REJECTED_MR';
 
-  const [round, setRound] = useState<InterviewRoundType>(initialRound);
+  const hasClearedHr =
+    candidate.status === 'MR_ROUND' ||
+    Boolean(candidate.hrEvaluatedAt) ||
+    candidate.status === 'SELECTED' ||
+    candidate.status === 'REJECTED_MR';
+
+  // If candidate is already in MR_ROUND, strictly enforce MR_ROUND; otherwise HR_ROUND
+  const activeRound: InterviewRoundType = hasClearedHr ? 'MR_ROUND' : 'HR_ROUND';
+
+  const [round, setRound] = useState<InterviewRoundType>(activeRound);
   const [result, setResult] = useState<RoundEvaluationResult>('PASSED');
   const [interviewerName, setInterviewerName] = useState(
-    initialRound === 'HR_ROUND' ? 'Sarah Jenkins (HR)' : 'Alexander Anthony (MR)'
+    activeRound === 'HR_ROUND' ? 'Sarah Jenkins (HR)' : 'Alexander Anthony (MR)'
   );
   const [rating, setRating] = useState(4);
   const [feedback, setFeedback] = useState('');
@@ -33,6 +43,11 @@ export function EvaluateRoundModal({
   if (!isOpen) return null;
 
   const handleRoundChange = (newRound: InterviewRoundType) => {
+    // Prevent switching back to HR Round if HR is already cleared
+    if (hasClearedHr && newRound === 'HR_ROUND') return;
+    // Prevent switching to MR Round if HR is not yet cleared
+    if (!hasClearedHr && newRound === 'MR_ROUND') return;
+
     setRound(newRound);
     setInterviewerName(
       newRound === 'HR_ROUND' ? 'Sarah Jenkins (HR)' : 'Alexander Anthony (MR)'
@@ -42,6 +57,11 @@ export function EvaluateRoundModal({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (isFinalized) {
+      setError('Candidate is already finalized and cannot be re-evaluated.');
+      return;
+    }
 
     if (result === 'REJECTED' && !rejectionReason.trim()) {
       setError('Please provide a specific reason for rejection to maintain our audit record.');
@@ -125,10 +145,11 @@ export function EvaluateRoundModal({
               <button
                 type="button"
                 onClick={() => handleRoundChange('MR_ROUND')}
-                className={`py-3 px-4 rounded-lg border text-xs font-bold transition-all text-left flex flex-col ${round === 'MR_ROUND'
-                  ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
-                  : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
-                  }`}
+                className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all text-left flex flex-col ${
+                  round === 'MR_ROUND'
+                    ? 'bg-[#072b53] text-white border-[#072b53] shadow-xs'
+                    : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-400'
+                }`}
               >
                 <span className="text-sm font-extrabold">Round 2: MR Round</span>
                 <span className="text-[10px] font-normal opacity-80 mt-0.5">

@@ -179,10 +179,7 @@ function AppRoutes() {
           <ProtectedRoute
             requiredPermissions={['letters:release']}
           >
-            <SectionPlaceholder
-              title="Automated Letters Releasing"
-              description="One-click PDF generation and email release of Offer & Experience Letters with audit logs."
-            />
+            <LettersManagement />
           </ProtectedRoute>
         }
       />
