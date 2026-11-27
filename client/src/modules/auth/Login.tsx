@@ -2,6 +2,7 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, X, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { HrmsIllustration } from './HrmsIllustration';
+import { notifyError, notifySuccess } from '../../services/toast';
 import { BrandLogo } from '../../components/ui/BrandLogo';
 import { useAuth } from './AuthContext';
 import { authApi } from './auth.api';
@@ -40,19 +41,26 @@ export function Login() {
     setError('');
 
     if (!email.trim()) {
-      setError('Please provide your work email address.');
+      const msg = 'Please provide your work email address.';
+      setError(msg);
+      notifyError(msg);
       return;
     }
     if (!password.trim()) {
-      setError('Please enter your portal password.');
+      const msg = 'Please enter your portal password.';
+      setError(msg);
+      notifyError(msg);
       return;
     }
 
     try {
       await login(email, password);
+      notifySuccess('Signed in successfully.');
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err?.message || 'Authentication failed. Please verify credentials.');
+      const msg = err?.message || 'Authentication failed. Please verify credentials.';
+      setError(msg);
+      notifyError(msg);
     }
   };
 

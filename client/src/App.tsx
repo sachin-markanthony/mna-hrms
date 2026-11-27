@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider, useAuth, Login, type UserRole } from './modules/auth';
 import { Dashboard } from './modules/dashboard/Dashboard';
 import { AppLayout } from './components/layout/AppLayout';
@@ -192,6 +194,15 @@ export default function App() {
   return (
     <AuthProvider>
       <AppRoutes />
+      <ToastContainer
+        position="top-right"
+        autoClose={3500}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
     </AuthProvider>
   );
 }

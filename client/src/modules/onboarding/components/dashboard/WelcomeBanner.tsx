@@ -1,15 +1,14 @@
 import { ArrowRight, BookOpen, CheckCircle2, Clock3, Sparkles } from 'lucide-react';
-import type { EmployeeProfile, InductionSummary } from '../../types/learning.types';
+import type { InductionSummary } from '../../types/learning.types';
 import { getMotivationalMessage } from '../../utils/chapterStatus';
 import { Button } from '../ui/Button';
 
 interface WelcomeBannerProps {
-  employee: EmployeeProfile;
   summary: InductionSummary;
   onContinue: () => void;
 }
 
-export function WelcomeBanner({ employee, summary, onContinue }: WelcomeBannerProps) {
+export function WelcomeBanner({ summary, onContinue }: WelcomeBannerProps) {
   return (
     <section className="induction-welcome-banner relative overflow-hidden rounded-[28px] bg-[#3B2314] text-[#FFFDF9] shadow-[0_18px_50px_rgba(59,35,20,0.18)]">
       <div className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full border border-[#D8B777]/25" />
@@ -34,7 +33,7 @@ export function WelcomeBanner({ employee, summary, onContinue }: WelcomeBannerPr
           </div>
 
           <h2 className="mt-4 font-serif text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-[34px]">
-            Welcome to MA Ventures, {employee.firstName}!
+            Welcome to MA Ventures!
           </h2>
 
           <p className="mt-3 max-w-xl text-[12.5px] leading-6 text-[#EADCCB] sm:text-sm">

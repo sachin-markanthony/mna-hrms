@@ -11,6 +11,7 @@ import {
   FileCheck,
   Paperclip,
 } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../../services/toast';
 import { lettersApi } from '../letters.api';
 import { exportElementToPdfBase64 } from '../utils/pdfExport';
 import { LetterDocument } from './LetterDocument';
@@ -128,9 +129,12 @@ Mark Anthony Ventures`
       });
 
       setSuccessResult(res);
+      notifySuccess(`Email dispatched to ${recipientEmail.trim()}.`);
       onSuccess?.();
     } catch (err: any) {
-      setError(err?.message || 'Failed to dispatch offer letter email.');
+      const msg = err?.message || 'Failed to dispatch offer letter email.';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setSending(false);
     }

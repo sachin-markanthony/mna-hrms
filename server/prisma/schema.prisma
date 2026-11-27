@@ -646,6 +646,7 @@ model Payslip {
 // Official Corporate Letters & Certificates
 // ==========================================
 
+
 enum LetterType {
   OFFER_LETTER
   EXPERIENCE_LETTER
@@ -659,44 +660,43 @@ enum LetterStatus {
 }
 
 model OfficialLetter {
-  id                String       @id @default(uuid())
-  refNumber         String       @unique
-  letterType        LetterType   @default(OFFER_LETTER)
-  status            LetterStatus @default(ISSUED)
-  recipientName     String
-  recipientEmail    String
-  recipientPhone    String?
-  designation       String
-  department        String
-  annualGrossCtc    Float?
-  monthlyGross      Float?
-  joiningDate       DateTime?
-  relievingDate     DateTime?
-  employeeCode      String?
-  recipientGender   String?
-  workLocation      String?      @default("Bangalore, Karnataka")
-  probationMonths   Int?         @default(3)
-  validUntil        DateTime?
-  ceoName           String       @default("Mark Anthony Fegradoe")
-  ceoTitle          String       @default("Founder & Chief Executive Officer")
-  headOfHrName      String       @default("Shilpa Kumari P")
-  headOfHrTitle     String       @default("Head of Finance and Human Resources")
-  customNotes       String?
-  candidateId       String?
-  candidate         Candidate?   @relation(fields: [candidateId], references: [id], onDelete: SetNull)
-  employeeId        String?
-  employee          Employee?    @relation(fields: [employeeId], references: [id], onDelete: SetNull)
-  emailSentAt       DateTime?
-  emailSentTo       String?
-  candidateResponse String?
-  respondedAt       DateTime?
-  responseRemarks   String?
-  createdById       String?
-  createdBy         User?        @relation("LetterCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
 
-  @@index([letterType, status])
-  @@index([recipientEmail])
+  id              String       @id @default(uuid())
+  refNumber       String       @unique
+  letterType      LetterType   @default(OFFER_LETTER)
+  status          LetterStatus @default(ISSUED)
+  recipientName   String
+  recipientEmail  String
+  recipientPhone  String?
+  designation     String
+  department      String
+  annualGrossCtc  Float?
+  monthlyGross    Float?
+  joiningDate     DateTime?
+  workLocation    String?
+  probationMonths Int?
+  validUntil      DateTime?
+  ceoName         String       @default("Mark Anthony Fegradoe")
+  ceoTitle        String       @default("Founder & Chief Executive Officer")
+  headOfHrName    String       @default("Shilpa Kumari P")
+  headOfHrTitle   String       @default("Head of Finance and Human Resources")
+  customNotes     String?
+  candidateId     String?
+  employeeId      String?
+  createdById     String?
+  employeeCode    String?
+  recipientGender String?
+  relievingDate   DateTime?
+  emailSentAt     DateTime?
+  emailSentTo     String?
+  candidateResponse String?
+  respondedAt     DateTime?
+  responseRemarks String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  candidate Candidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+  employee  Employee?  @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+
   @@map("official_letters")
 }

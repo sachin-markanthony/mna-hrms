@@ -4,35 +4,23 @@ import {
   AlertCircle,
   Bell,
   CheckCircle2,
-  ChevronDown,
   ChevronRight,
-  ClipboardCheck,
-  Home,
-  LifeBuoy,
   LockKeyhole,
-  LogOut,
   Menu,
   Moon,
   Search,
-  Sparkles,
   Sun,
-  TrendingUp,
-  UserRound,
 } from 'lucide-react';
 import { ROLES, useAuth } from '../../../auth';
 import { useTheme } from '../../../../services/theme';
-import type { ChapterView, EmployeeProfile, InductionNotification, InductionSummary } from '../../types/learning.types';
-import { getInitials } from '../../utils/chapterStatus';
+import type { ChapterView, InductionNotification } from '../../types/learning.types';
 
 interface InductionTopbarProps {
-  employee: EmployeeProfile;
-  summary: InductionSummary;
   chapters: ChapterView[];
   notifications: InductionNotification[];
   onOpenMobileSidebar: () => void;
   onMarkNotificationRead: (id: string) => void;
   onMarkAllNotificationsRead: () => void;
-  onResetProgress: () => void;
 }
 
 interface SearchResult {
@@ -44,7 +32,7 @@ interface SearchResult {
 
 function getBreadcrumbTrail(pathname: string, chapters: ChapterView[]) {
   if (pathname === '/induction' || pathname === '/induction/overview') {
-    return [{ label: 'Induction Overview', to: '/induction' }];
+    return [{ label: 'Employee Induction', to: '/induction' }];
   }
   if (pathname.startsWith('/induction/chapters')) {
     const match = pathname.match(/\/induction\/chapters\/(\d+)(\/assessment|\/result)?/);
@@ -89,27 +77,22 @@ function getBreadcrumbTrail(pathname: string, chapters: ChapterView[]) {
 }
 
 export function InductionTopbar({
-  employee,
-  summary,
   chapters,
   notifications,
   onOpenMobileSidebar,
   onMarkNotificationRead,
   onMarkAllNotificationsRead,
-  onResetProgress,
 }: InductionTopbarProps) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
 
   const searchRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((notification) => !notification.read).length;
   const trail = getBreadcrumbTrail(location.pathname, chapters);
@@ -118,7 +101,6 @@ export function InductionTopbar({
   useEffect(() => {
     setSearchOpen(false);
     setNotificationsOpen(false);
-    setProfileOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -128,13 +110,11 @@ export function InductionTopbar({
       if (notificationsRef.current && !notificationsRef.current.contains(target)) {
         setNotificationsOpen(false);
       }
-      if (profileRef.current && !profileRef.current.contains(target)) setProfileOpen(false);
     };
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setSearchOpen(false);
         setNotificationsOpen(false);
-        setProfileOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -201,75 +181,53 @@ export function InductionTopbar({
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const handleReset = () => {
-    if (
-      window.confirm(
-        'Reset your induction progress and assessment history back to Chapter 1? This cannot be undone.',
-      )
-    ) {
-      onResetProgress();
-      setProfileOpen(false);
-      navigate('/induction');
-    }
-  };
-
   return (
-    <header className="induction-topbar shrink-0 border-b border-[#E9DED2] bg-[#FFFCF7]/95 backdrop-blur-md">
-      <div className="flex min-h-[76px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-3">
+    <header className="induction-topbar z-10 h-16 shrink-0 border-b border-[#E9DED2] bg-[#FFFCF7]/95 backdrop-blur-md">
+      <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2.5">
           <button
             type="button"
             onClick={onOpenMobileSidebar}
-            className="induction-topbar-control rounded-xl border border-[#E9DED2] bg-white p-2 text-[#3B2314] shadow-sm transition hover:bg-[#F8F1E7] lg:hidden"
+            className="induction-topbar-control rounded-lg border border-[#E9DED2] bg-white p-2 text-[#3B2314] shadow-sm transition hover:bg-[#F8F1E7] lg:hidden"
             aria-label="Open navigation"
           >
             <Menu className="h-4 w-4" />
           </button>
 
-          <div className="min-w-0">
-            <div className="hidden items-center gap-1.5 text-[10px] font-semibold text-[#A09182] sm:flex">
-              <Link to="/dashboard" className="inline-flex items-center gap-1 transition hover:text-[#3B2314]">
-                <Home className="h-3 w-3" />
+          <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
+            <div className="hidden items-center gap-2 text-[11px] font-black uppercase tracking-widest text-[#A09182] sm:flex">
+              <Link to="/dashboard" className="transition hover:text-[#3B2314]">
                 HRMS
               </Link>
-              <ChevronRight className="h-2.5 w-2.5" />
-              <Link to="/induction" className="transition hover:text-[#3B2314]">
-                Employee Induction
-              </Link>
+              <span className="text-slate-300">/</span>
               {trail.map((item) => (
-                <span key={`${item.to}-${item.label}`} className="flex items-center gap-1.5">
-                  <ChevronRight className="h-2.5 w-2.5" />
-                  <Link to={item.to} className="max-w-[180px] truncate transition hover:text-[#3B2314]">
+                <span key={`${item.to}-${item.label}`} className="flex min-w-0 items-center gap-2">
+                  {item !== trail[0] && <span className="text-slate-300">/</span>}
+                  <Link
+                    to={item.to}
+                    className={`max-w-[180px] truncate transition hover:text-[#3B2314] ${item === trail[trail.length - 1]
+                        ? 'text-sm font-bold normal-case tracking-normal text-[#3B2314]'
+                        : ''
+                      }`}
+                  >
                     {item.label}
                   </Link>
                 </span>
               ))}
             </div>
-
-            <div className="mt-1 flex items-center gap-2.5">
-              <h1 className="truncate text-lg font-extrabold tracking-tight text-[#3B2314] sm:text-xl">
-                Employee Induction
-              </h1>
-              <span className="hidden items-center gap-1 rounded-full border border-[#EBDCC4] bg-[#FBF5EA] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#8A6427] md:inline-flex">
-                <Sparkles className="h-2.5 w-2.5" />
-                MA Ventures
+            <span className="truncate text-sm font-bold text-[#3B2314] sm:hidden">
+              {trail[trail.length - 1]?.label ?? 'Employee Induction'}
+            </span>
+            {roleConfig && (
+              <span className="induction-role-badge hidden shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-bold md:inline-flex">
+                {roleConfig.title} &bull; {roleConfig.scope} Scope
               </span>
-              {roleConfig && (
-                <span className="induction-role-badge hidden rounded-full border px-2.5 py-0.5 text-[11px] font-bold xl:inline-flex">
-                  {roleConfig.title} &bull; {roleConfig.scope} Scope
-                </span>
-              )}
-            </div>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div ref={searchRef} className="relative hidden md:block">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+          <div ref={searchRef} className="relative hidden lg:block">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#A09182]" />
             <input
               type="search"
@@ -314,11 +272,10 @@ export function InductionTopbar({
                         type="button"
                         disabled={!result.available}
                         onClick={() => openResult(result)}
-                        className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition ${
-                          result.available
+                        className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition ${result.available
                             ? 'hover:bg-[#FBF5EA]'
                             : 'cursor-not-allowed opacity-60'
-                        }`}
+                          }`}
                       >
                         <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#F7F0E4] text-[10px] font-extrabold text-[#9A7A45]">
                           {result.chapter.chapterNumber}
@@ -368,7 +325,6 @@ export function InductionTopbar({
               type="button"
               onClick={() => {
                 setNotificationsOpen((open) => !open);
-                setProfileOpen(false);
               }}
               className="induction-topbar-control relative rounded-xl border border-[#E9DED2] bg-white p-2 text-[#5F4B3C] shadow-sm transition hover:bg-[#F8F1E7]"
               aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
@@ -413,18 +369,16 @@ export function InductionTopbar({
                         key={notification.id}
                         type="button"
                         onClick={() => handleNotificationClick(notification)}
-                        className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#FBF5EA] ${
-                          notification.read ? 'opacity-70' : ''
-                        }`}
+                        className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-[#FBF5EA] ${notification.read ? 'opacity-70' : ''
+                          }`}
                       >
                         <span
-                          className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                            notification.tone === 'success'
+                          className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${notification.tone === 'success'
                               ? 'bg-[#EEF6F0] text-[#356B4A]'
                               : notification.tone === 'warning'
                                 ? 'bg-[#FDF3E1] text-[#9A6420]'
                                 : 'bg-[#F3F6F8] text-[#406B7A]'
-                          }`}
+                            }`}
                         >
                           {notification.tone === 'success' ? (
                             <CheckCircle2 className="h-3.5 w-3.5" />
@@ -461,136 +415,6 @@ export function InductionTopbar({
             )}
           </div>
 
-          <div ref={profileRef} className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setProfileOpen((open) => !open);
-                setNotificationsOpen(false);
-              }}
-              className="induction-topbar-control flex items-center gap-2 rounded-xl border border-[#E9DED2] bg-white p-1 pr-1.5 shadow-sm transition hover:bg-[#F8F1E7] sm:pl-2.5 sm:pr-2"
-              aria-label="Employee profile menu"
-              aria-expanded={profileOpen}
-            >
-              <div className="hidden text-right sm:block">
-                <p className="max-w-[130px] truncate text-[10.5px] font-bold leading-tight text-[#3B2314]">
-                  {employee.fullName}
-                </p>
-                <p className="text-[9px] font-semibold text-[#9A7A45]">
-                  {employee.employeeCode}
-                </p>
-              </div>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3B2314] text-[10px] font-extrabold text-[#F3DFC0]">
-                {getInitials(employee.fullName)}
-              </div>
-              <ChevronDown className="hidden h-3 w-3 text-[#A09182] sm:block" />
-            </button>
-
-            {profileOpen && (
-              <div className="absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-[#E9DED2] bg-white shadow-[0_18px_50px_rgba(59,35,20,0.14)]">
-                <div className="border-b border-[#F0E7DC] bg-[#FBF7F0] px-4 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3B2314] text-[11px] font-extrabold text-[#F3DFC0]">
-                      {getInitials(employee.fullName)}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-[12px] font-bold text-[#3B2314]">
-                        {employee.fullName}
-                      </p>
-                      <p className="truncate text-[10px] font-semibold text-[#9A7A45]">
-                        {employee.designation}
-                      </p>
-                      <p className="truncate text-[9.5px] text-[#8A7A6C]">{employee.email}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-2">
-                  <div className="mb-2 grid grid-cols-2 gap-2 px-1">
-                    <div className="rounded-xl border border-[#EFE5D9] bg-[#FFFCF7] p-2">
-                      <p className="text-[9px] font-bold uppercase tracking-wide text-[#A09182]">
-                        Completed
-                      </p>
-                      <p className="mt-0.5 text-sm font-extrabold text-[#3B2314]">
-                        {summary.completedChapters}/{summary.totalLearningChapters}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-[#EFE5D9] bg-[#FFFCF7] p-2">
-                      <p className="text-[9px] font-bold uppercase tracking-wide text-[#A09182]">
-                        Progress
-                      </p>
-                      <p className="mt-0.5 text-sm font-extrabold text-[#3B2314]">
-                        {summary.overallPercentage}%
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      navigate('/induction/progress');
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[11px] font-semibold text-[#6E5B4C] transition hover:bg-[#F8F1E7]"
-                  >
-                    <TrendingUp className="h-3.5 w-3.5 text-[#A28F7D]" />
-                    My progress
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      navigate('/induction/assessments');
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[11px] font-semibold text-[#6E5B4C] transition hover:bg-[#F8F1E7]"
-                  >
-                    <ClipboardCheck className="h-3.5 w-3.5 text-[#A28F7D]" />
-                    My assessments
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      navigate('/induction/support');
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[11px] font-semibold text-[#6E5B4C] transition hover:bg-[#F8F1E7]"
-                  >
-                    <LifeBuoy className="h-3.5 w-3.5 text-[#A28F7D]" />
-                    Help & support
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      navigate('/induction/reference');
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[11px] font-semibold text-[#6E5B4C] transition hover:bg-[#F8F1E7]"
-                  >
-                    <UserRound className="h-3.5 w-3.5 text-[#A28F7D]" />
-                    Reference notes
-                  </button>
-
-                  <div className="my-1.5 border-t border-[#F0E7DC]" />
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[11px] font-semibold text-[#9A6420] transition hover:bg-[#FDF3E1]"
-                  >
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Reset demo progress
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[11px] font-semibold text-[#A34C35] transition hover:bg-[#FDF2EE]"
-                  >
-                    <LogOut className="h-3.5 w-3.5" />
-                    Sign out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </header>

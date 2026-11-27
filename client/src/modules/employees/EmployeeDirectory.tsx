@@ -11,6 +11,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../services/toast';
 import { useAuth, type UserRole } from '../auth';
 import { employeesApi } from './employees.api';
 import type {
@@ -160,8 +161,11 @@ export function EmployeeDirectory() {
         emergencyContactPhone: '',
       });
       await loadDirectory();
+      notifySuccess('Employee provisioned successfully.');
     } catch (err: any) {
-      setCreateError(err?.message || 'Failed to create employee');
+      const msg = err?.message || 'Failed to create employee';
+      setCreateError(msg);
+      notifyError(msg);
     } finally {
       setCreating(false);
     }
@@ -174,8 +178,11 @@ export function EmployeeDirectory() {
     try {
       await employeesApi.archive(emp.id);
       await loadDirectory();
+      notifySuccess(`${emp.user.name} archived.`);
     } catch (err: any) {
-      setError(err?.message || 'Failed to archive employee');
+      const msg = err?.message || 'Failed to archive employee';
+      setError(msg);
+      notifyError(msg);
     }
   };
 

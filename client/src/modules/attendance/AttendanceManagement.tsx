@@ -9,6 +9,7 @@ import {
   X,
   XCircle,
 } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../services/toast';
 import { useAuth } from '../auth';
 import { attendanceApi } from './attendance.api';
 import type {
@@ -97,7 +98,9 @@ export function AttendanceManagement() {
       setSiteVisits(sRes);
       setRegularizations(regRes);
     } catch (err: any) {
-      setError(err?.message || 'Failed to load attendance data');
+      const msg = err?.message || 'Failed to load attendance data';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setLoading(false);
     }
@@ -129,8 +132,11 @@ export function AttendanceManagement() {
       setRegModalOpen(false);
       setRegForm({ attendanceDate: new Date().toISOString().slice(0, 10), reason: '' });
       await loadData();
+      notifySuccess('Regularization request submitted.');
     } catch (err: any) {
-      setRegError(err?.message || 'Failed to submit regularization');
+      const msg = err?.message || 'Failed to submit regularization';
+      setRegError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -142,8 +148,11 @@ export function AttendanceManagement() {
     try {
       await attendanceApi.decideRegularization(id, decision);
       await loadData();
+      notifySuccess(`Regularization ${decision.toLowerCase()}.`);
     } catch (err: any) {
-      setError(err?.message || 'Failed to update regularization');
+      const msg = err?.message || 'Failed to update regularization';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -155,8 +164,11 @@ export function AttendanceManagement() {
     try {
       await attendanceApi.reconcile();
       await loadData();
+      notifySuccess('Attendance reconciliation completed.');
     } catch (err: any) {
-      setError(err?.message || 'Reconciliation failed');
+      const msg = err?.message || 'Reconciliation failed';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }

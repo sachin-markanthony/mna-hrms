@@ -15,6 +15,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../services/toast';
 import { useAuth } from '../auth';
 import { downloadPayslipFile, buildPayslipHtml } from './downloadPayslip';
 import { exportPayrollRunToExcel } from './exportPayrollExcel';
@@ -106,7 +107,9 @@ export function PayrollManagement() {
           setActiveRun(null);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load payroll runs');
+        const msg = err instanceof Error ? err.message : 'Failed to load payroll runs';
+        setError(msg);
+        notifyError(msg);
       } finally {
         setLoading(false);
       }
@@ -146,11 +149,13 @@ export function PayrollManagement() {
       const detail = await payrollApi.generateRun({ month, year });
       setActiveRun(detail);
       await loadRuns(detail.id);
-      setNotice(
-        `Draft payroll generated for ${MONTHS[month - 1]} ${year} (${detail.totalEmployees} employees).`,
-      );
+      const msg = `Draft payroll generated for ${MONTHS[month - 1]} ${year} (${detail.totalEmployees} employees).`;
+      setNotice(msg);
+      notifySuccess(msg);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate payroll');
+      const msg = err instanceof Error ? err.message : 'Failed to generate payroll';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -172,9 +177,13 @@ export function PayrollManagement() {
       const updated = await payrollApi.lockRun(activeRun.id);
       setActiveRun(updated);
       await loadRuns(updated.id);
-      setNotice(`Payroll for ${MONTHS[updated.month - 1]} ${updated.year} is now LOCKED.`);
+      const msg = `Payroll for ${MONTHS[updated.month - 1]} ${updated.year} is now LOCKED.`;
+      setNotice(msg);
+      notifySuccess(msg);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to lock payroll run');
+      const msg = err instanceof Error ? err.message : 'Failed to lock payroll run';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -196,9 +205,13 @@ export function PayrollManagement() {
       const updated = await payrollApi.markPaid(activeRun.id);
       setActiveRun(updated);
       await loadRuns(updated.id);
-      setNotice(`Payroll for ${MONTHS[updated.month - 1]} ${updated.year} marked as PAID.`);
+      const msg = `Payroll for ${MONTHS[updated.month - 1]} ${updated.year} marked as PAID.`;
+      setNotice(msg);
+      notifySuccess(msg);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to mark payroll as paid');
+      const msg = err instanceof Error ? err.message : 'Failed to mark payroll as paid';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -214,13 +227,15 @@ export function PayrollManagement() {
       const updated = await payrollApi.setVisibility(activeRun.id, nextVisible);
       setActiveRun(updated);
       await loadRuns(updated.id);
-      setNotice(
-        nextVisible
-          ? `Salary slips for ${MONTHS[updated.month - 1]} ${updated.year} are now visible for employee download in My Payslips.`
-          : `Salary slips for ${MONTHS[updated.month - 1]} ${updated.year} are now hidden from the employee portal.`,
-      );
+      const msg = nextVisible
+        ? `Salary slips for ${MONTHS[updated.month - 1]} ${updated.year} are now visible for employee download in My Payslips.`
+        : `Salary slips for ${MONTHS[updated.month - 1]} ${updated.year} are now hidden from the employee portal.`;
+      setNotice(msg);
+      notifySuccess(msg);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update portal visibility');
+      const msg = err instanceof Error ? err.message : 'Failed to update portal visibility';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -251,9 +266,13 @@ export function PayrollManagement() {
       setEditingSlip(null);
       const refreshed = await payrollApi.getRun(activeRun.id);
       setActiveRun(refreshed);
-      setNotice(`Updated payslip adjustment for ${editingSlip.user.name}.`);
+      const msg = `Updated payslip adjustment for ${editingSlip.user.name}.`;
+      setNotice(msg);
+      notifySuccess(msg);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update payslip adjustment');
+      const msg = err instanceof Error ? err.message : 'Failed to update payslip adjustment';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { X, Star, CheckCircle2, XCircle, Award, AlertTriangle } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../../services/toast';
 import type { Candidate, InterviewRoundType, RoundEvaluationResult, EvaluateRoundPayload } from '../types';
 
 interface EvaluateRoundModalProps {
@@ -59,12 +60,16 @@ export function EvaluateRoundModal({
     setError('');
 
     if (isFinalized) {
-      setError('Candidate is already finalized and cannot be re-evaluated.');
+      const msg = 'Candidate is already finalized and cannot be re-evaluated.';
+      setError(msg);
+      notifyError(msg);
       return;
     }
 
     if (result === 'REJECTED' && !rejectionReason.trim()) {
-      setError('Please provide a specific reason for rejection to maintain our audit record.');
+      const msg = 'Please provide a specific reason for rejection to maintain our audit record.';
+      setError(msg);
+      notifyError(msg);
       return;
     }
 
@@ -78,9 +83,12 @@ export function EvaluateRoundModal({
         feedback,
         rejectionReason: result === 'REJECTED' ? rejectionReason.trim() : undefined,
       });
+      notifySuccess(`Evaluation submitted (${result}).`);
       onClose();
     } catch (err: any) {
-      setError(err?.message || 'Failed to submit evaluation.');
+      const msg = err?.message || 'Failed to submit evaluation.';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setSubmitting(false);
     }
