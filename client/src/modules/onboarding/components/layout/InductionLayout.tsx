@@ -27,18 +27,16 @@ export function InductionLayout() {
         mobileOpen={mobileOpen}
         onToggleCollapse={() => setCollapsed((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
+        onResetProgress={resetProgress}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <InductionTopbar
-          employee={employee}
-          summary={summary}
           chapters={chapters}
           notifications={notifications}
           onOpenMobileSidebar={() => setMobileOpen(true)}
           onMarkNotificationRead={markNotificationRead}
           onMarkAllNotificationsRead={markAllNotificationsRead}
-          onResetProgress={resetProgress}
         />
 
         <main
