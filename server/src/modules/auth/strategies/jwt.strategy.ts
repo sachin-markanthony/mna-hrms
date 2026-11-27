@@ -27,7 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         name: true,
         role: true,
         roleId: true,
-        canImpersonate: true,
         isArchived: true,
         employmentStatus: true,
         roleDefinition: {
@@ -76,9 +75,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       role: user.role as unknown as AppRole,
       roleId: user.roleId ?? undefined,
       permissions,
-      canImpersonate: user.canImpersonate,
-      isImpersonated: Boolean(payload.isImpersonated),
-      originalAdminId: payload.originalAdminId,
     };
   }
 }

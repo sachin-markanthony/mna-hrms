@@ -430,7 +430,6 @@ export function SettingsManagement() {
                     <th className="py-3 px-4">Role Assignment</th>
                     <th className="py-3 px-4">Team</th>
                     <th className="py-3 px-4">Status</th>
-                    {isSuperAdmin && <th className="py-3 px-4">Impersonate</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
@@ -501,25 +500,6 @@ export function SettingsManagement() {
                           <option value="ARCHIVED">ARCHIVED</option>
                         </select>
                       </td>
-                      {isSuperAdmin && (
-                        <td className="py-3 px-4">
-                          <button
-                            type="button"
-                            disabled={busy || u.id === user?.id}
-                            onClick={() =>
-                              void handleUpdateUserAccess(u.id, {
-                                canImpersonate: !u.canImpersonate,
-                              })
-                            }
-                            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${u.canImpersonate
-                              ? 'bg-amber-50 text-amber-800 border-amber-200'
-                              : 'bg-slate-50 text-slate-600 border-slate-200'
-                              }`}
-                          >
-                            {u.canImpersonate ? 'Allowed' : 'Disabled'}
-                          </button>
-                        </td>
-                      )}
                     </tr>
                   ))}
                 </tbody>

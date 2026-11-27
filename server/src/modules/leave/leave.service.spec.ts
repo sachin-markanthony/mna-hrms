@@ -44,8 +44,6 @@ describe('LeaveService', () => {
     name: 'Priya Menon',
     role: AppRole.EMPLOYEE,
     permissions: [],
-    canImpersonate: false,
-    isImpersonated: false,
   };
 
   const teamLeadUser: AuthenticatedUser = {
@@ -55,8 +53,6 @@ describe('LeaveService', () => {
     name: 'Dhinesh Kumar',
     role: AppRole.TEAM_LEADER,
     permissions: [],
-    canImpersonate: false,
-    isImpersonated: false,
   };
 
   const hrUser: AuthenticatedUser = {
@@ -66,8 +62,6 @@ describe('LeaveService', () => {
     name: 'Ananya Sharma',
     role: AppRole.HR_ADMIN,
     permissions: [],
-    canImpersonate: false,
-    isImpersonated: false,
   };
 
   beforeEach(() => {

@@ -38,8 +38,6 @@ describe('AttendanceService', () => {
     name: 'Priya Menon',
     role: AppRole.EMPLOYEE,
     permissions: [],
-    canImpersonate: false,
-    isImpersonated: false,
   };
 
   beforeEach(() => {

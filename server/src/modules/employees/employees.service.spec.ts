@@ -26,8 +26,6 @@ describe('EmployeesService', () => {
     name: 'Ananya Sharma',
     role: AppRole.HR_ADMIN,
     permissions: [],
-    canImpersonate: false,
-    isImpersonated: false,
   };
 
   const regularEmployee: AuthenticatedUser = {
@@ -37,8 +35,6 @@ describe('EmployeesService', () => {
     name: 'Priya Menon',
     role: AppRole.EMPLOYEE,
     permissions: [],
-    canImpersonate: false,
-    isImpersonated: false,
   };
 
   beforeEach(() => {

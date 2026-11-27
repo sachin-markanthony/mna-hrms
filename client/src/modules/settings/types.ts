@@ -10,7 +10,6 @@ export interface SettingsUser {
   roleId?: string | null;
   employmentStatus: 'ACTIVE' | 'ON_NOTICE' | 'INACTIVE' | 'ARCHIVED';
   isArchived: boolean;
-  canImpersonate: boolean;
   lastLoginAt?: string | null;
   teamId?: string | null;
   team?: { id: string; name: string } | null;

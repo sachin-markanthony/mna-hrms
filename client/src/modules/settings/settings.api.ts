@@ -16,7 +16,6 @@ export const settingsApi = {
     payload: {
       employmentStatus?: SettingsUser['employmentStatus'];
       isArchived?: boolean;
-      canImpersonate?: boolean;
       teamId?: string | null;
     },
   ) => httpClient.patch<SettingsUser>(`/settings/users/${id}/access`, payload),
