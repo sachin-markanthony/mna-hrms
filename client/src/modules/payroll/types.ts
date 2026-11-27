@@ -101,6 +101,7 @@ export interface OfficialLetterItem {
   annualGrossCtc?: number | null;
   monthlyGross?: number | null;
   joiningDate?: string | null;
+  relievingDate?: string | null;
   workLocation?: string | null;
   probationMonths?: number | null;
   ceoName: string;
@@ -109,5 +110,7 @@ export interface OfficialLetterItem {
   headOfHrTitle: string;
   customNotes?: string | null;
   employeeCode?: string | null;
+  recipientGender?: string | null;
+  candidateResponse?: string | null;
   createdAt: string;
 }

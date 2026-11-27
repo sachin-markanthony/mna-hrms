@@ -11,13 +11,15 @@ import {
   X,
 } from 'lucide-react';
 import {
-  buildOfficialLetterHtml,
   buildPayslipHtml,
-  downloadOfficialLetterFile,
   downloadPayslipFile,
 } from './downloadPayslip';
 import { payrollApi } from './payroll.api';
+import { lettersApi } from '../letters/letters.api';
+import { LetterDocument } from '../letters/components/LetterDocument';
+import { downloadElementAsPdf } from '../letters/utils/pdfExport';
 import type { OfficialLetterItem, PayslipItem } from './types';
+import type { OfficialLetter } from '../letters/types';
 
 const MONTHS = [
   'January',
@@ -51,6 +53,50 @@ export function MyPayslips() {
 
   const [previewSlip, setPreviewSlip] = useState<PayslipItem | null>(null);
   const [previewLetter, setPreviewLetter] = useState<OfficialLetterItem | null>(null);
+  const [downloadingLetter, setDownloadingLetter] = useState<OfficialLetterItem | null>(null);
+
+  const toOfficialLetter = (item: OfficialLetterItem): Partial<OfficialLetter> => ({
+    id: item.id,
+    refNumber: item.refNumber,
+    letterType: item.letterType as OfficialLetter['letterType'],
+    status: item.status as OfficialLetter['status'],
+    recipientName: item.recipientName,
+    recipientEmail: item.recipientEmail,
+    designation: item.designation,
+    department: item.department,
+    annualGrossCtc: item.annualGrossCtc ?? undefined,
+    monthlyGross: item.monthlyGross ?? undefined,
+    joiningDate: item.joiningDate ?? undefined,
+    relievingDate: item.relievingDate ?? undefined,
+    workLocation: item.workLocation ?? 'Bangalore, Karnataka',
+    probationMonths: item.probationMonths ?? 3,
+    ceoName: item.ceoName,
+    ceoTitle: item.ceoTitle,
+    headOfHrName: item.headOfHrName,
+    headOfHrTitle: item.headOfHrTitle,
+    customNotes: item.customNotes ?? undefined,
+    employeeCode: item.employeeCode ?? undefined,
+    recipientGender: item.recipientGender ?? undefined,
+    createdAt: item.createdAt,
+  });
+
+  const handleDownloadOfficialLetterPdf = async (
+    letter: OfficialLetterItem,
+    elementId = 'employee-letter-download-target',
+  ) => {
+    setDownloadingLetter(letter);
+    // Allow hidden LetterDocument to render for the selected letter before capturing
+    await new Promise((r) => setTimeout(r, 80));
+    try {
+      await lettersApi.logAction(letter.id, 'DOWNLOADED');
+    } catch {
+      // non-blocking audit call
+    }
+    const prefix = letter.letterType === 'EXPERIENCE_LETTER' ? 'Experience_Letter' : 'Offer_Letter';
+    const filename = `${prefix}_${letter.recipientName.replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
+    await downloadElementAsPdf(elementId, filename);
+    setDownloadingLetter(null);
+  };
 
   const loadDocuments = useCallback(async () => {
     setLoading(true);
@@ -187,11 +233,12 @@ export function MyPayslips() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => void downloadOfficialLetterFile(letter)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white text-xs font-semibold shadow-xs"
+                        onClick={() => void handleDownloadOfficialLetterPdf(letter)}
+                        disabled={downloadingLetter?.id === letter.id}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#072b53] hover:bg-[#051e3b] disabled:opacity-50 text-white text-xs font-semibold shadow-xs cursor-pointer"
                       >
                         <Download className="w-3.5 h-3.5" />
-                        Download
+                        {downloadingLetter?.id === letter.id ? 'Preparing PDF...' : 'Download PDF'}
                       </button>
                     </div>
                   </div>
@@ -337,42 +384,54 @@ export function MyPayslips() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => void downloadOfficialLetterFile(previewLetter)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-white/15 hover:bg-white/25 text-xs font-semibold"
+                  onClick={() =>
+                    void handleDownloadOfficialLetterPdf(previewLetter, 'employee-preview-letterhead')
+                  }
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-white/15 hover:bg-white/25 text-xs font-semibold cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  Download
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const frame = document.getElementById(
-                      'employee-letter-frame',
-                    ) as HTMLIFrameElement | null;
-                    frame?.contentWindow?.print();
-                  }}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-white/15 hover:bg-white/25 text-xs font-semibold"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  Print
+                  Download PDF
                 </button>
                 <button
                   type="button"
                   onClick={() => setPreviewLetter(null)}
-                  className="p-1 rounded hover:bg-white/15"
+                  className="p-1 rounded hover:bg-white/15 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            <iframe
-              id="employee-letter-frame"
-              title="Official Letter Preview"
-              srcDoc={buildOfficialLetterHtml(previewLetter)}
-              className="w-full flex-1 border-0 bg-[#e8e8e8]"
-            />
+            <div className="flex-1 overflow-y-auto p-6 bg-slate-100 flex justify-center">
+              <div className="w-full max-w-[794px]">
+                <LetterDocument
+                  id="employee-preview-letterhead"
+                  letter={toOfficialLetter(previewLetter)}
+                  showWatermark={false}
+                />
+              </div>
+            </div>
           </div>
+        </div>
+      )}
+
+      {/* Off-screen A4 letterhead renderer for one-click employee PDF download */}
+      {downloadingLetter && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            left: '-9999px',
+            top: 0,
+            width: '794px',
+            pointerEvents: 'none',
+          }}
+        >
+          <LetterDocument
+            id="employee-letter-download-target"
+            letter={toOfficialLetter(downloadingLetter)}
+            showWatermark={false}
+          />
         </div>
       )}
     </div>

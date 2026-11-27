@@ -34,6 +34,7 @@ export function LettersManagement() {
   const [viewLetter, setViewLetter] = useState<OfficialLetter | null>(null);
   const [emailLetter, setEmailLetter] = useState<OfficialLetter | null>(null);
   const [preSelectedCandidate, setPreSelectedCandidate] = useState<Candidate | null>(null);
+  const [respondingId, setRespondingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadLetters();
@@ -86,6 +87,7 @@ export function LettersManagement() {
     letter: OfficialLetter,
     response: 'ACCEPTED' | 'REJECTED',
   ) => {
+    if (respondingId) return;
     let remarks: string | undefined;
     if (response === 'REJECTED') {
       const input = window.prompt(
@@ -99,10 +101,13 @@ export function LettersManagement() {
       }
     }
     try {
+      setRespondingId(letter.id);
       await lettersApi.recordResponse(letter.id, response, remarks);
       await loadLetters();
     } catch (err: any) {
       alert(err?.message || 'Failed to record response.');
+    } finally {
+      setRespondingId(null);
     }
   };
 
@@ -389,23 +394,25 @@ export function LettersManagement() {
                           <div className="inline-flex items-center gap-1.5">
                             <button
                               type="button"
+                              disabled={respondingId === l.id}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleRecordResponse(l, 'ACCEPTED');
+                                void handleRecordResponse(l, 'ACCEPTED');
                               }}
-                              className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer"
+                              className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors cursor-pointer"
                             >
-                              Accept
+                              {respondingId === l.id ? 'Processing...' : 'Accept'}
                             </button>
                             <button
                               type="button"
+                              disabled={respondingId === l.id}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleRecordResponse(l, 'REJECTED');
+                                void handleRecordResponse(l, 'REJECTED');
                               }}
-                              className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-rose-600 hover:bg-rose-700 text-white transition-colors cursor-pointer"
+                              className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors cursor-pointer"
                             >
-                              Reject
+                              {respondingId === l.id ? 'Processing...' : 'Reject'}
                             </button>
                           </div>
                         ) : l.emailSentAt && l.letterType === 'OFFER_LETTER' && l.candidateResponse === 'ACCEPTED' ? (

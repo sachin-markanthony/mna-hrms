@@ -50,6 +50,22 @@ export class LettersService {
     const relievingDate = dto.relievingDate ? new Date(dto.relievingDate) : null;
     const validUntil = dto.validUntil ? new Date(dto.validUntil) : null;
 
+    let resolvedEmployeeId = dto.employeeId;
+    if (!resolvedEmployeeId) {
+      const matchedUser = await this.prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: dto.recipientEmail.trim().toLowerCase() },
+            ...(dto.employeeCode?.trim() ? [{ employeeId: dto.employeeCode.trim() }] : []),
+          ],
+        },
+        select: { employee: { select: { id: true } } },
+      });
+      if (matchedUser?.employee?.id) {
+        resolvedEmployeeId = matchedUser.employee.id;
+      }
+    }
+
     const letter = await this.prisma.officialLetter.create({
       data: {
         refNumber,
@@ -75,7 +91,7 @@ export class LettersService {
         headOfHrTitle: dto.headOfHrTitle || 'Head of Finance and Human Resources',
         customNotes: dto.customNotes,
         candidateId: dto.candidateId,
-        employeeId: dto.employeeId,
+        employeeId: resolvedEmployeeId,
         createdById: actorUserId,
       },
       include: {
@@ -240,12 +256,13 @@ export class LettersService {
     if (actor) {
       await this.auditService.log({
         actorUserId: actor,
-        actionType: `OFFER_LETTER_${action}`,
+        actionType: `OFFICIAL_LETTER_${action}`,
         ipAddress: meta?.ipAddress,
         userAgent: meta?.userAgent,
         newValuePayload: {
           letterId: letter.id,
           refNumber: letter.refNumber,
+          letterType: letter.letterType,
           recipientName: letter.recipientName,
           action,
         },
