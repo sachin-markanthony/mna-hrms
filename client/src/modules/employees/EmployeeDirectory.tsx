@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Building2,
   Plus,
@@ -21,6 +21,7 @@ import type {
 
 export function EmployeeDirectory() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, hasPermission } = useAuth();
   const [employees, setEmployees] = useState<EmployeeRecord[]>([]);
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
@@ -40,7 +41,7 @@ export function EmployeeDirectory() {
     employeeId: '',
     name: '',
     email: '',
-    password: '',
+    password: '1234',
     role: 'EMPLOYEE' as UserRole,
     phone: '',
     departmentId: '',
@@ -83,6 +84,29 @@ export function EmployeeDirectory() {
     void loadDirectory();
   }, [loadDirectory]);
 
+  // Pre-fill Add Employee modal when navigated from an Accepted Offer Letter
+  useEffect(() => {
+    const prefill = (location.state as any)?.prefillFromLetter;
+    if (!prefill) return;
+
+    const matchedDept = departments.find(
+      (d) =>
+        d.name.toUpperCase().includes((prefill.departmentName || '').toUpperCase()) ||
+        (prefill.departmentName || '').toUpperCase().includes(d.name.toUpperCase()),
+    );
+
+    setForm((prev) => ({
+      ...prev,
+      name: prefill.name || prev.name,
+      email: prefill.email || prev.email,
+      phone: prefill.phone || prev.phone,
+      jobTitle: prefill.jobTitle || prev.jobTitle,
+      salary: prefill.salary || prev.salary,
+      departmentId: matchedDept?.id || prev.departmentId,
+    }));
+    setCreateOpen(true);
+  }, [location.state, departments]);
+
   const pendingKycCount = useMemo(
     () =>
       employees.reduce(
@@ -117,7 +141,7 @@ export function EmployeeDirectory() {
         employeeId: '',
         name: '',
         email: '',
-        password: '',
+        password: '1234',
         role: 'EMPLOYEE',
         phone: '',
         departmentId: '',
@@ -438,15 +462,16 @@ export function EmployeeDirectory() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Initial Password * (min 8 chars)
+                    Initial Password * (Default: 1234)
                   </label>
                   <input
-                    type="password"
+                    type="text"
                     required
-                    minLength={8}
+                    minLength={4}
+                    placeholder="1234"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-mono"
                   />
                 </div>
                 <div>

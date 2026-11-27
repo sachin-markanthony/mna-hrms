@@ -15,8 +15,8 @@ export const api = {
   getCurrentUser: () => authApi.getMe(),
   logout: () => authApi.logout(),
   forgotPassword: (email: string) => authApi.forgotPassword({ email }),
-  resetPassword: (token: string, newPassword: string) =>
-    authApi.resetPassword({ token, newPassword }),
+  resetPassword: (email: string, otp: string, newPassword: string) =>
+    authApi.resetPassword({ email, otp, newPassword }),
   changePassword: (currentPassword: string, newPassword: string) =>
     authApi.changePassword(currentPassword, newPassword),
 

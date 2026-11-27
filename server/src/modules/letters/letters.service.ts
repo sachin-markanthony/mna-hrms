@@ -115,9 +115,16 @@ export class LettersService {
           department: letter.department,
           annualGrossCtc: letter.annualGrossCtc,
           monthlyGross: letter.monthlyGross,
+          joiningDate: letter.joiningDate,
+          relievingDate: letter.relievingDate,
+          employeeCode: letter.employeeCode,
+          recipientGender: letter.recipientGender,
+          workLocation: letter.workLocation,
           ceoName: letter.ceoName,
           headOfHrName: letter.headOfHrName,
           candidateId: letter.candidateId,
+          employeeId: letter.employeeId,
+          source: letter.candidateId ? 'CANDIDATE_IMPORT' : letter.employeeId ? 'EMPLOYEE_IMPORT' : 'MANUAL',
         },
       });
     }
@@ -146,7 +153,7 @@ export class LettersService {
       ];
     }
 
-    return this.prisma.officialLetter.findMany({
+    const letters = await this.prisma.officialLetter.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -166,6 +173,24 @@ export class LettersService {
         },
       },
     });
+
+    const emails = Array.from(
+      new Set(letters.map((l) => l.recipientEmail.toLowerCase()).filter(Boolean)),
+    );
+    const existingUsers = emails.length
+      ? await this.prisma.user.findMany({
+          where: { email: { in: emails }, isArchived: false },
+          select: { email: true, employee: { select: { id: true } } },
+        })
+      : [];
+    const onboardedEmailSet = new Set(
+      existingUsers.filter((u) => Boolean(u.employee)).map((u) => u.email.toLowerCase()),
+    );
+
+    return letters.map((l) => ({
+      ...l,
+      isEmployeeCreated: Boolean(l.employeeId) || onboardedEmailSet.has(l.recipientEmail.toLowerCase()),
+    }));
   }
 
   async getLetterById(id: string) {
@@ -188,7 +213,19 @@ export class LettersService {
       throw new NotFoundException(`Official Letter #${id} not found.`);
     }
 
-    return letter;
+    let isEmployeeCreated = Boolean(letter.employeeId || letter.employee);
+    if (!isEmployeeCreated && letter.recipientEmail) {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: letter.recipientEmail.toLowerCase() },
+        select: { isArchived: true, employee: { select: { id: true } } },
+      });
+      isEmployeeCreated = Boolean(existingUser && !existingUser.isArchived && existingUser.employee);
+    }
+
+    return {
+      ...letter,
+      isEmployeeCreated,
+    };
   }
 
   async logLetterAction(
@@ -220,6 +257,12 @@ export class LettersService {
 
   async revokeLetter(id: string, actorUserId?: string, meta?: RequestMeta) {
     const letter = await this.getLetterById(id);
+
+    if (letter.candidateResponse === 'ACCEPTED' || letter.isEmployeeCreated || letter.employeeId) {
+      throw new BadRequestException(
+        'Cannot revoke a letter that has already been accepted or onboarded.',
+      );
+    }
 
     const updated = await this.prisma.officialLetter.update({
       where: { id },
