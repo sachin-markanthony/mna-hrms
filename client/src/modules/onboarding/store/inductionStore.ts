@@ -235,9 +235,9 @@ function buildProgress(
   const averageScore =
     scoredChapters.length > 0
       ? Math.round(
-          scoredChapters.reduce((total, chapter) => total + (chapter.bestScore ?? 0), 0) /
-            scoredChapters.length,
-        )
+        scoredChapters.reduce((total, chapter) => total + (chapter.bestScore ?? 0), 0) /
+        scoredChapters.length,
+      )
       : 0;
 
   const pendingAssessments = countable.filter(
@@ -327,9 +327,9 @@ function buildSnapshot(state: InductionState): InductionSnapshot {
   const averageScore =
     scoredChapters.length > 0
       ? Math.round(
-          scoredChapters.reduce((total, chapter) => total + (chapter.bestScore ?? 0), 0) /
-            scoredChapters.length,
-        )
+        scoredChapters.reduce((total, chapter) => total + (chapter.bestScore ?? 0), 0) /
+        scoredChapters.length,
+      )
       : 0;
 
   const summary: TrainingSummary = {
@@ -342,10 +342,10 @@ function buildSnapshot(state: InductionState): InductionSnapshot {
     nextChapter,
     nextSession: nextSession
       ? {
-          id: nextSession.id,
-          title: nextSession.title,
-          sessionNumber: nextSession.sessionNumber,
-        }
+        id: nextSession.id,
+        title: nextSession.title,
+        sessionNumber: nextSession.sessionNumber,
+      }
       : null,
     pendingAssessments: progress.pendingAssessments ?? 0,
     averageScore,
