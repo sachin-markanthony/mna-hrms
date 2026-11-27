@@ -13,6 +13,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../services/toast';
 import { useAuth } from '../auth';
 import { settingsApi } from './settings.api';
 import type {
@@ -166,10 +167,14 @@ export function SettingsManagement() {
     setNotice(null);
     try {
       await settingsApi.syncRolePermissions(selectedRole.id, Array.from(checkedPermIds));
-      setNotice(`Permissions updated for "${selectedRole.displayName}".`);
+      const msg = `Permissions updated for "${selectedRole.displayName}".`;
+      setNotice(msg);
+      notifySuccess(msg);
       await loadAll();
     } catch (err: any) {
-      setError(err?.message || 'Failed to update role permissions');
+      const msg = err?.message || 'Failed to update role permissions';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -187,11 +192,15 @@ export function SettingsManagement() {
       });
       setRoleModalOpen(false);
       setNewRoleForm({ name: '', displayName: '', description: '' });
-      setNotice(`Role "${created.displayName}" created.`);
+      const msg = `Role "${created.displayName}" created.`;
+      setNotice(msg);
+      notifySuccess(msg);
       await loadAll();
       selectRole(created);
     } catch (err: any) {
-      setError(err?.message || 'Failed to create role');
+      const msg = err?.message || 'Failed to create role';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -204,9 +213,12 @@ export function SettingsManagement() {
     try {
       await settingsApi.assignUserRole(userId, roleId);
       setNotice('User role updated.');
+      notifySuccess('User role updated.');
       await loadAll();
     } catch (err: any) {
-      setError(err?.message || 'Failed to assign user role');
+      const msg = err?.message || 'Failed to assign user role';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -221,9 +233,12 @@ export function SettingsManagement() {
     try {
       await settingsApi.updateUserAccess(userId, payload);
       setNotice('User access updated.');
+      notifySuccess('User access updated.');
       await loadAll();
     } catch (err: any) {
-      setError(err?.message || 'Failed to update user access');
+      const msg = err?.message || 'Failed to update user access';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -240,9 +255,12 @@ export function SettingsManagement() {
       });
       setDeptForm({ name: '', description: '' });
       setNotice('Department created.');
+      notifySuccess('Department created.');
       await loadAll();
     } catch (err: any) {
-      setError(err?.message || 'Failed to create department');
+      const msg = err?.message || 'Failed to create department';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -259,9 +277,12 @@ export function SettingsManagement() {
       });
       setTeamForm({ name: '', description: '' });
       setNotice('Team created.');
+      notifySuccess('Team created.');
       await loadAll();
     } catch (err: any) {
-      setError(err?.message || 'Failed to create team');
+      const msg = err?.message || 'Failed to create team';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -279,9 +300,12 @@ export function SettingsManagement() {
       });
       setDesigForm({ title: '', departmentId: '', description: '' });
       setNotice('Designation created.');
+      notifySuccess('Designation created.');
       await loadAll();
     } catch (err: any) {
-      setError(err?.message || 'Failed to create designation');
+      const msg = err?.message || 'Failed to create designation';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -308,9 +332,12 @@ export function SettingsManagement() {
         isDefault: false,
       });
       setNotice('Shift configuration saved.');
+      notifySuccess('Shift configuration saved.');
       await loadAll();
     } catch (err: any) {
-      setError(err?.message || 'Failed to create shift');
+      const msg = err?.message || 'Failed to create shift';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }
@@ -329,10 +356,14 @@ export function SettingsManagement() {
         halfDayHours: s.halfDayHours,
         isDefault: true,
       });
-      setNotice(`"${s.name}" set as default shift.`);
+      const msg = `"${s.name}" set as default shift.`;
+      setNotice(msg);
+      notifySuccess(msg);
       await loadAll();
     } catch (err: any) {
-      setError(err?.message || 'Failed to update shift');
+      const msg = err?.message || 'Failed to update shift';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setBusy(false);
     }

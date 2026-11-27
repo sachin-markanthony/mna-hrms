@@ -9,6 +9,7 @@ import {
   X,
   XCircle,
 } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../services/toast';
 import { useAuth } from '../auth';
 import { leaveApi } from './leave.api';
 import type {
@@ -151,8 +152,11 @@ export function LeaveManagement() {
       setEndDate('');
       setReason('');
       await loadData();
+      notifySuccess('Leave request submitted.');
     } catch (err: any) {
-      setFormError(err?.message || 'Failed to submit leave request');
+      const msg = err?.message || 'Failed to submit leave request';
+      setFormError(msg);
+      notifyError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -178,8 +182,11 @@ export function LeaveManagement() {
         await leaveApi.submitHrDecision(req.id, decision, remarks || undefined);
       }
       await loadData();
+      notifySuccess(`Leave ${decision.toLowerCase()} successfully.`);
     } catch (err: any) {
-      setError(err?.message || 'Failed to update leave approval');
+      const msg = err?.message || 'Failed to update leave approval';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setActionBusyId(null);
     }
@@ -192,8 +199,11 @@ export function LeaveManagement() {
     try {
       await leaveApi.cancelLeave(id);
       await loadData();
+      notifySuccess('Leave request cancelled.');
     } catch (err: any) {
-      setError(err?.message || 'Failed to cancel leave request');
+      const msg = err?.message || 'Failed to cancel leave request';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setActionBusyId(null);
     }

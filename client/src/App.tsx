@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider, useAuth, Login, type UserRole } from './modules/auth';
 import { Dashboard } from './modules/dashboard/Dashboard';
 import { AppLayout } from './components/layout/AppLayout';
@@ -10,6 +12,7 @@ import { AttendanceManagement } from './modules/attendance';
 import { SettingsManagement } from './modules/settings';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
 import { PayrollManagement, MyPayslips } from './modules/payroll';
+import { LettersManagement } from './modules/letters';
 function ProtectedRoute({
   children,
   withLayout = true,
@@ -61,21 +64,6 @@ function ProtectedRoute({
   }
 
   return withLayout ? <AppLayout>{children}</AppLayout> : children;
-}
-
-function SectionPlaceholder({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-xs max-w-4xl mx-auto">
-      <h2 className="text-xl font-bold text-slate-900 tracking-tight">{title}</h2>
-      <p className="text-xs text-slate-500 mt-1 mb-6">{description}</p>
-      <div className="p-4 rounded-lg bg-orange-50 border border-orange-200 text-xs text-orange-900 flex items-center justify-between">
-        <span>Connected to Mark Anthony Ventures NestJS Backend &bull; Postgres Connected</span>
-        <span className="font-bold text-[11px] bg-white px-2.5 py-1 rounded-md border border-orange-200">
-          Ready for API Integration
-        </span>
-      </div>
-    </div>
-  );
 }
 
 function AppRoutes() {
@@ -206,6 +194,15 @@ export default function App() {
   return (
     <AuthProvider>
       <AppRoutes />
+      <ToastContainer
+        position="top-right"
+        autoClose={3500}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
     </AuthProvider>
   );
 }

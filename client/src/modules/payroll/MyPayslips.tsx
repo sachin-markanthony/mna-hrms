@@ -10,6 +10,7 @@ import {
   RefreshCw,
   X,
 } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../services/toast';
 import {
   buildOfficialLetterHtml,
   buildPayslipHtml,
@@ -63,7 +64,9 @@ export function MyPayslips() {
       setPayslips(slipData);
       setLetters(letterData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load official letters');
+      const msg = err instanceof Error ? err.message : 'Failed to load official letters';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setLoading(false);
     }
@@ -187,7 +190,10 @@ export function MyPayslips() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => void downloadOfficialLetterFile(letter)}
+                        onClick={() => {
+                          void downloadOfficialLetterFile(letter);
+                          notifySuccess(`Downloaded ${letter.refNumber}`);
+                        }}
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white text-xs font-semibold shadow-xs"
                       >
                         <Download className="w-3.5 h-3.5" />
@@ -252,7 +258,10 @@ export function MyPayslips() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => void downloadPayslipFile(slip)}
+                        onClick={() => {
+                          void downloadPayslipFile(slip);
+                          notifySuccess(`Downloaded salary slip for ${MONTHS[slip.month - 1]} ${slip.year}`);
+                        }}
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white text-xs font-semibold shadow-xs"
                       >
                         <Download className="w-3.5 h-3.5" />

@@ -21,6 +21,7 @@ import {
   UserCheck,
   X,
 } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../services/toast';
 import { useAuth, type UserRole } from '../auth';
 import { employeesApi } from './employees.api';
 import type {
@@ -205,9 +206,13 @@ export function EmployeeDetailsPage() {
       setEmployee(updated);
       hydrateEditForm(updated);
       setEditing(false);
-      setSaveMessage('Employee details updated successfully.');
+      const msg = 'Employee details updated successfully.';
+      setSaveMessage(msg);
+      notifySuccess(msg);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update employee details');
+      const msg = err instanceof Error ? err.message : 'Failed to update employee details';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setSaving(false);
     }
@@ -218,9 +223,12 @@ export function EmployeeDetailsPage() {
     if (!confirm(`Archive ${employee.user.name} (${employee.user.employeeId})?`)) return;
     try {
       await employeesApi.archive(employee.id);
+      notifySuccess(`${employee.user.name} archived successfully.`);
       navigate('/employees');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to archive employee');
+      const msg = err instanceof Error ? err.message : 'Failed to archive employee';
+      setError(msg);
+      notifyError(msg);
     }
   };
 
@@ -233,8 +241,11 @@ export function EmployeeDetailsPage() {
       setDocForm({ docType: 'PAN', fileName: '', fileUrl: '' });
       const refreshed = await employeesApi.getOne(employee.id);
       setEmployee(refreshed);
+      notifySuccess('KYC document added to vault.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add document');
+      const msg = err instanceof Error ? err.message : 'Failed to add document';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setDocBusy(false);
     }
@@ -247,8 +258,11 @@ export function EmployeeDetailsPage() {
       await employeesApi.verifyDocument(docId);
       const refreshed = await employeesApi.getOne(employee.id);
       setEmployee(refreshed);
+      notifySuccess('KYC document verified.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to verify document');
+      const msg = err instanceof Error ? err.message : 'Failed to verify document';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setDocBusy(false);
     }

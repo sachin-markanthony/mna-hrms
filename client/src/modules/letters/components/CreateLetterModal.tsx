@@ -7,6 +7,7 @@ import {
   Search,
   Loader2,
 } from 'lucide-react';
+import { notifyError, notifySuccess } from '../../../services/toast';
 import { LetterDocument } from './LetterDocument';
 import { lettersApi } from '../letters.api';
 import { recruitmentApi } from '../../recruitment/recruitment.api';
@@ -207,7 +208,9 @@ export function CreateLetterModal({
     setError(null);
 
     if (!recipientName.trim() || !recipientEmail.trim() || !designation.trim()) {
-      setError('Please provide recipient name, email, and designation.');
+      const msg = 'Please provide recipient name, email, and designation.';
+      setError(msg);
+      notifyError(msg);
       return;
     }
 
@@ -238,9 +241,12 @@ export function CreateLetterModal({
       };
 
       const created = await lettersApi.createLetter(payload);
+      notifySuccess(`Official letter ${created.refNumber} created.`);
       onSuccess(created);
     } catch (err: any) {
-      setError(err?.message || 'Failed to create official letter.');
+      const msg = err?.message || 'Failed to create official letter.';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setSubmitting(false);
     }
