@@ -182,6 +182,7 @@ export class PayrollService {
         annualGrossCtc: number | null;
         monthlyGross: number | null;
         joiningDate: Date | null;
+        relievingDate: Date | null;
         workLocation: string | null;
         probationMonths: number | null;
         ceoName: string;
@@ -190,6 +191,8 @@ export class PayrollService {
         headOfHrTitle: string;
         customNotes: string | null;
         employeeCode: string | null;
+        recipientGender: string | null;
+        candidateResponse: string | null;
         createdAt: Date;
       }>
     >`
@@ -205,6 +208,7 @@ export class PayrollService {
         "annualGrossCtc",
         "monthlyGross",
         "joiningDate",
+        "relievingDate",
         "workLocation",
         "probationMonths",
         "ceoName",
@@ -213,11 +217,14 @@ export class PayrollService {
         "headOfHrTitle",
         "customNotes",
         "employeeCode",
+        "recipientGender",
+        "candidateResponse",
         "createdAt"
       FROM "official_letters"
       WHERE "status"::text <> 'REVOKED'
         AND (
           "employeeId" = ${user.id}
+          OR "employeeId" IN (SELECT "id" FROM "employees" WHERE "userId" = ${user.id})
           OR "employeeCode" = ${user.employeeId}
           OR LOWER("recipientEmail") = LOWER(${user.email})
         )

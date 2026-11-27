@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -37,6 +37,7 @@ export function EmployeeDirectory() {
   // Create Employee Modal
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const prefillAppliedRef = useRef(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [form, setForm] = useState({
     employeeId: '',
@@ -85,7 +86,7 @@ export function EmployeeDirectory() {
     void loadDirectory();
   }, [loadDirectory]);
 
-  // Pre-fill Add Employee modal when navigated from an Accepted Offer Letter
+  // Pre-fill Add Employee modal once when navigated from an Accepted Offer Letter
   useEffect(() => {
     const prefill = (location.state as any)?.prefillFromLetter;
     if (!prefill) return;
@@ -96,16 +97,21 @@ export function EmployeeDirectory() {
         (prefill.departmentName || '').toUpperCase().includes(d.name.toUpperCase()),
     );
 
-    setForm((prev) => ({
-      ...prev,
-      name: prefill.name || prev.name,
-      email: prefill.email || prev.email,
-      phone: prefill.phone || prev.phone,
-      jobTitle: prefill.jobTitle || prev.jobTitle,
-      salary: prefill.salary || prev.salary,
-      departmentId: matchedDept?.id || prev.departmentId,
-    }));
-    setCreateOpen(true);
+    if (!prefillAppliedRef.current) {
+      prefillAppliedRef.current = true;
+      setForm((prev) => ({
+        ...prev,
+        name: prefill.name || prev.name,
+        email: prefill.email || prev.email,
+        phone: prefill.phone || prev.phone,
+        jobTitle: prefill.jobTitle || prev.jobTitle,
+        salary: prefill.salary || prev.salary,
+        departmentId: matchedDept?.id || prev.departmentId,
+      }));
+      setCreateOpen(true);
+    } else if (matchedDept?.id) {
+      setForm((prev) => (prev.departmentId ? prev : { ...prev, departmentId: matchedDept.id }));
+    }
   }, [location.state, departments]);
 
   const pendingKycCount = useMemo(
@@ -138,6 +144,7 @@ export function EmployeeDirectory() {
         emergencyContactPhone: form.emergencyContactPhone.trim() || undefined,
       });
       setCreateOpen(false);
+      navigate(location.pathname, { replace: true, state: null });
       setForm({
         employeeId: '',
         name: '',

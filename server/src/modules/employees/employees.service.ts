@@ -243,7 +243,7 @@ export class EmployeesService {
       },
     });
 
-    // Dispatch CRM & HRMS login credentials email to the newly created employee
+    // Dispatch CRM & HRMS login credentials email in the background so UI responds immediately
     if (this.mailService.isConfigured()) {
       const subject = 'Your Mark Anthony Ventures CRM & HRMS Login Credentials';
       const text = `Dear ${created.user.name},
@@ -255,7 +255,7 @@ Here are your login credentials for both the CRM and HRMS portals:
 - Email: ${created.user.email}
 - Password: ${plainPassword}
 
-You can change your password anytime after logging in once (via Change Password or Forgot Password) to maintain your personal privacy. If you choose not to change it, you can continue using these credentials without any problem.
+You can change your password anytime after logging in once (via Forgot Password) to maintain your personal privacy. If you choose not to change it, you can continue using these credentials without any problem.
 
 Best regards,
 Shilpa Kumari.P
@@ -276,33 +276,34 @@ Mark Anthony Ventures`;
 </body>
 </html>`.trim();
 
-      try {
-        const mailRes = await this.mailService.sendMail({
+      void this.mailService
+        .sendMail({
           to: created.user.email,
           subject,
           text,
           html,
+        })
+        .then((mailRes) =>
+          this.auditService.log({
+            actorUserId,
+            targetUserId: created.userId,
+            actionType: 'EMPLOYEE_CREDENTIALS_EMAILED',
+            ipAddress: meta.ipAddress,
+            userAgent: meta.userAgent,
+            newValuePayload: {
+              employeeId: created.user.employeeId,
+              recipientEmail: created.user.email,
+              subject,
+              messageId: mailRes.messageId,
+              sentAt: new Date().toISOString(),
+            },
+          }),
+        )
+        .catch((err) => {
+          this.logger.error(
+            `Failed to email credentials to ${created.user.email}: ${err instanceof Error ? err.message : String(err)}`,
+          );
         });
-
-        await this.auditService.log({
-          actorUserId,
-          targetUserId: created.userId,
-          actionType: 'EMPLOYEE_CREDENTIALS_EMAILED',
-          ipAddress: meta.ipAddress,
-          userAgent: meta.userAgent,
-          newValuePayload: {
-            employeeId: created.user.employeeId,
-            recipientEmail: created.user.email,
-            subject,
-            messageId: mailRes.messageId,
-            sentAt: new Date().toISOString(),
-          },
-        });
-      } catch (err) {
-        this.logger.error(
-          `Failed to email credentials to ${created.user.email}: ${err instanceof Error ? err.message : String(err)}`,
-        );
-      }
     }
 
     return created;

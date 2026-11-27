@@ -63,6 +63,7 @@ model User {
   lockedPayrollRuns      PayrollRun[]             @relation("PayrollLocker")
   paidPayrollRuns        PayrollRun[]             @relation("PayrollPayer")
   payslips               Payslip[]
+  createdLetters         OfficialLetter[]         @relation("LetterCreator")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -641,9 +642,10 @@ model Payslip {
   @@map("payslips")
 }
 
-// ============================================================================
-// Official Letters (Offer, Experience, Internship)
-// ============================================================================
+// ==========================================
+// Official Corporate Letters & Certificates
+// ==========================================
+
 
 enum LetterType {
   OFFER_LETTER
@@ -658,6 +660,7 @@ enum LetterStatus {
 }
 
 model OfficialLetter {
+
   id              String       @id @default(uuid())
   refNumber       String       @unique
   letterType      LetterType   @default(OFFER_LETTER)
