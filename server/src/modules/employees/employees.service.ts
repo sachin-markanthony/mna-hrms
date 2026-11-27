@@ -22,9 +22,9 @@ import type { UpdateEmployeeDto } from './dto/update-employee.dto.js';
 import type { UploadDocumentDto } from './dto/upload-document.dto.js';
 
 const DEFAULT_LEAVE_ALLOCATIONS: Array<{ leaveType: LeaveType; days: number }> = [
-  { leaveType: LeaveType.CASUAL, days: 12 },
-  { leaveType: LeaveType.SICK, days: 8 },
-  { leaveType: LeaveType.EARNED, days: 15 },
+  { leaveType: LeaveType.CASUAL, days: 0 },
+  { leaveType: LeaveType.SICK, days: 0 },
+  { leaveType: LeaveType.EARNED, days: 0 },
   { leaveType: LeaveType.LOP, days: 0 },
 ];
 
@@ -511,8 +511,11 @@ export class EmployeesService {
       return { userId: currentUser.id };
     }
 
-    // Standard EMPLOYEE sees public directory cards (sensitive fields masked below)
-    return {};
+    // Standard EMPLOYEE only sees their own profile unless granted employees:manage_all
+    if (currentUser.permissions?.includes('employees:manage_all')) {
+      return {};
+    }
+    return { userId: currentUser.id };
   }
 
   private async assertCanViewEmployee(
@@ -523,6 +526,7 @@ export class EmployeesService {
       currentUser.role === AppRole.SUPER_ADMIN ||
       currentUser.role === AppRole.HR_ADMIN ||
       currentUser.role === AppRole.HR_COORDINATOR ||
+      currentUser.permissions?.includes('employees:manage_all') ||
       employee.userId === currentUser.id
     ) {
       return;
@@ -537,6 +541,8 @@ export class EmployeesService {
         return;
       }
     }
+
+    throw new ForbiddenException('You do not have permission to view this employee dossier');
   }
 
   /**

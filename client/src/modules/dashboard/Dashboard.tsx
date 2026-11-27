@@ -51,10 +51,10 @@ export function Dashboard() {
           bg: 'bg-blue-50 dark:bg-blue-950/40',
         },
         {
-          title: 'Available Leave Balance',
-          count: '14 Days',
-          note: 'Casual: 6 | Sick: 8',
-          change: 'Locks on apply',
+          title: 'LOP Days Taken',
+          count: '0 Days',
+          note: 'All leaves are Loss of Pay',
+          change: 'Salary deducted per day',
           icon: CalendarDays,
           color: 'text-emerald-600 dark:text-emerald-400',
           bg: 'bg-emerald-50 dark:bg-emerald-950/40',
@@ -183,10 +183,10 @@ export function Dashboard() {
         bg: 'bg-emerald-50 dark:bg-emerald-950/40',
       },
       {
-        title: 'Approved On Leave',
+        title: 'Approved On Leave (LOP)',
         count: '9',
-        note: 'Balances deducted & locked',
-        change: '3 Casual | 6 Privilege',
+        note: 'Synced to payroll LOP',
+        change: 'Salary deducted per day',
         icon: CalendarDays,
         color: 'text-indigo-600 dark:text-indigo-400',
         bg: 'bg-indigo-50 dark:bg-indigo-950/40',
@@ -530,7 +530,7 @@ export function Dashboard() {
               <div className="p-3 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-center justify-between">
                 <div>
                   <div className="font-bold text-slate-900 dark:text-white">David Chen (Leave)</div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400">Casual Leave &bull; Nov 28 - Nov 29</div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400">Loss of Pay (LOP) &bull; Nov 28 - Nov 29</div>
                 </div>
                 <div className="flex gap-1.5">
                   <button className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold text-[11px] hover:bg-emerald-700 cursor-pointer">

@@ -25,7 +25,6 @@ interface NavItem {
   name: string;
   path: string;
   icon: typeof LayoutDashboard;
-  roles: string[];
   permissions?: string[];
   badge?: string;
 }
@@ -43,7 +42,6 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         name: 'Dashboard',
         path: '/dashboard',
         icon: LayoutDashboard,
-        roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER', 'EMPLOYEE'],
       },
     ],
   },
@@ -54,19 +52,17 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         name: 'Employees',
         path: '/employees',
         icon: Users,
-        roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER', 'EMPLOYEE'],
+        permissions: ['employees:manage_all', 'documents:vault_all'],
       },
       {
-        name: 'Time & Attendance',
+        name: 'Attendance',
         path: '/attendance',
         icon: Clock,
-        roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER', 'EMPLOYEE'],
       },
       {
         name: 'Leave Management',
         path: '/leave',
         icon: CalendarDays,
-        roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER', 'EMPLOYEE'],
       },
     ],
   },
@@ -77,7 +73,6 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         name: 'Payroll Engine',
         path: '/payroll',
         icon: Receipt,
-        roles: ['SUPER_ADMIN', 'HR_ADMIN', 'EMPLOYEE'],
         permissions: ['payroll:run', 'payroll:salary_manage'],
         badge: 'Nov 26',
       },
@@ -90,14 +85,12 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         name: 'Recruitment',
         path: '/recruitment',
         icon: Briefcase,
-        roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER'],
         permissions: ['recruitment:manage_all', 'recruitment:question_bank_manage'],
       },
       {
         name: 'Official Letters Releasing',
         path: '/letters',
         icon: FileCheck,
-        roles: ['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR'],
         permissions: ['letters:release'],
       },
     ],
@@ -109,7 +102,6 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         name: 'Master Settings & RBAC',
         path: '/settings',
         icon: Settings,
-        roles: ['SUPER_ADMIN', 'HR_ADMIN'],
         permissions: ['roles:manage'],
       },
     ],
@@ -195,8 +187,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
           {NAVIGATION_SECTIONS.map((section) => {
             const visibleItems = section.items.filter(
               (item) =>
-                item.roles.includes(user.role) ||
-                Boolean(item.permissions?.some((perm) => hasPermission(perm))),
+                !item.permissions ||
+                item.permissions.length === 0 ||
+                item.permissions.some((perm) => hasPermission(perm)),
             );
             if (visibleItems.length === 0) return null;
 

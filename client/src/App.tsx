@@ -5,7 +5,7 @@ import { Dashboard } from './modules/dashboard/Dashboard';
 import { AppLayout } from './components/layout/AppLayout';
 import { inductionRoutes } from './modules/onboarding/routes/induction.routes';
 import { LeaveManagement } from './modules/leave';
-import { EmployeeDirectory } from './modules/employees';
+import { EmployeeDirectory, EmployeeDetailsPage } from './modules/employees';
 import { AttendanceManagement } from './modules/attendance';
 import { SettingsManagement } from './modules/settings';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
@@ -107,8 +107,20 @@ function AppRoutes() {
       <Route
         path="/employees"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute
+            requiredPermissions={['employees:manage_all', 'documents:vault_all']}
+          >
             <EmployeeDirectory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employees/:id"
+        element={
+          <ProtectedRoute
+            requiredPermissions={['employees:manage_all', 'documents:vault_all']}
+          >
+            <EmployeeDetailsPage />
           </ProtectedRoute>
         }
       />
@@ -132,7 +144,6 @@ function AppRoutes() {
         path="/payroll"
         element={
           <ProtectedRoute
-            allowedRoles={['SUPER_ADMIN', 'HR_ADMIN', 'EMPLOYEE']}
             requiredPermissions={['payroll:run', 'payroll:salary_manage']}
           >
             <SectionPlaceholder
@@ -146,7 +157,6 @@ function AppRoutes() {
         path="/recruitment"
         element={
           <ProtectedRoute
-            allowedRoles={['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR', 'TEAM_LEADER']}
             requiredPermissions={['recruitment:manage_all', 'recruitment:question_bank_manage']}
           >
             <RecruitmentPipeline />
@@ -157,7 +167,6 @@ function AppRoutes() {
         path="/letters"
         element={
           <ProtectedRoute
-            allowedRoles={['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR']}
             requiredPermissions={['letters:release']}
           >
             <SectionPlaceholder
@@ -171,7 +180,6 @@ function AppRoutes() {
         path="/settings"
         element={
           <ProtectedRoute
-            allowedRoles={['SUPER_ADMIN', 'HR_ADMIN']}
             requiredPermissions={['roles:manage']}
           >
             <SettingsManagement />

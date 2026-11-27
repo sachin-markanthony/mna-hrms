@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  BadgeCheck,
   Building2,
-  Copy,
-  FileText,
   Plus,
-  QrCode,
   RefreshCw,
   Search,
   Shield,
@@ -18,22 +15,12 @@ import { useAuth, type UserRole } from '../auth';
 import { employeesApi } from './employees.api';
 import type {
   DepartmentOption,
-  DocumentType,
-  EmployeeQrBadge,
   EmployeeRecord,
   TeamOption,
 } from './types';
 
-function formatCurrency(amount?: number | null) {
-  if (amount == null) return 'Restricted';
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 export function EmployeeDirectory() {
+  const navigate = useNavigate();
   const { user, hasPermission } = useAuth();
   const [employees, setEmployees] = useState<EmployeeRecord[]>([]);
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
@@ -65,26 +52,10 @@ export function EmployeeDirectory() {
     emergencyContactPhone: '',
   });
 
-  // Dossier Drawer
-  const [selected, setSelected] = useState<EmployeeRecord | null>(null);
-  const [dossierTab, setDossierTab] = useState<'profile' | 'vault' | 'qr'>('profile');
-  const [qrBadge, setQrBadge] = useState<EmployeeQrBadge | null>(null);
-  const [docForm, setDocForm] = useState({
-    docType: 'PAN' as DocumentType,
-    fileName: '',
-    fileUrl: '',
-  });
-  const [docBusy, setDocBusy] = useState(false);
-  const [copiedVCard, setCopiedVCard] = useState(false);
-
   const isHrAdminOrSuper =
     user?.role === 'SUPER_ADMIN' ||
     user?.role === 'HR_ADMIN' ||
     hasPermission('employees:manage_all');
-  const canVerifyKyc =
-    isHrAdminOrSuper ||
-    user?.role === 'HR_COORDINATOR' ||
-    hasPermission('documents:vault_all');
 
   const loadDirectory = useCallback(async () => {
     setLoading(true);
@@ -120,22 +91,6 @@ export function EmployeeDirectory() {
       ),
     [employees],
   );
-
-  const openDossier = async (emp: EmployeeRecord) => {
-    setSelected(emp);
-    setDossierTab('profile');
-    setQrBadge(null);
-    try {
-      const [fresh, qr] = await Promise.all([
-        employeesApi.getOne(emp.id),
-        employeesApi.getQrBadge(emp.id),
-      ]);
-      setSelected(fresh);
-      setQrBadge(qr);
-    } catch {
-      // Keep current list record if detail fetch fails
-    }
-  };
 
   const handleCreateSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -187,50 +142,10 @@ export function EmployeeDirectory() {
     }
     try {
       await employeesApi.archive(emp.id);
-      if (selected?.id === emp.id) setSelected(null);
       await loadDirectory();
     } catch (err: any) {
       setError(err?.message || 'Failed to archive employee');
     }
-  };
-
-  const handleAddDocument = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!selected) return;
-    setDocBusy(true);
-    try {
-      await employeesApi.addDocument(selected.id, docForm);
-      setDocForm({ docType: 'PAN', fileName: '', fileUrl: '' });
-      const fresh = await employeesApi.getOne(selected.id);
-      setSelected(fresh);
-      await loadDirectory();
-    } catch (err: any) {
-      setError(err?.message || 'Failed to add KYC document');
-    } finally {
-      setDocBusy(false);
-    }
-  };
-
-  const handleVerifyDoc = async (docId: string) => {
-    if (!selected) return;
-    setDocBusy(true);
-    try {
-      await employeesApi.verifyDocument(docId);
-      const fresh = await employeesApi.getOne(selected.id);
-      setSelected(fresh);
-      await loadDirectory();
-    } catch (err: any) {
-      setError(err?.message || 'Failed to verify document');
-    } finally {
-      setDocBusy(false);
-    }
-  };
-
-  const copyVCard = async () => {
-    if (!qrBadge) return;
-    await navigator.clipboard.writeText(qrBadge.vCard);
-    setCopiedVCard(true);
-    setTimeout(() => setCopiedVCard(false), 2000);
   };
 
   return (
@@ -391,7 +306,13 @@ export function EmployeeDirectory() {
                           </div>
                           <div>
                             <div className="font-bold text-slate-900">
-                              {emp.user.name}{' '}
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/employees/${emp.id}`)}
+                                className="text-left hover:text-[#072b53] hover:underline cursor-pointer"
+                              >
+                                {emp.user.name}
+                              </button>{' '}
                               <span className="font-mono text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded ml-1">
                                 {emp.user.employeeId}
                               </span>
@@ -428,7 +349,7 @@ export function EmployeeDirectory() {
                       <td className="py-3.5 px-4 text-right space-x-2">
                         <button
                           type="button"
-                          onClick={() => void openDossier(emp)}
+                          onClick={() => navigate(`/employees/${emp.id}`)}
                           className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                         >
                           View Dossier
@@ -658,224 +579,6 @@ export function EmployeeDirectory() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Employee Dossier Modal */}
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white">
-              <div>
-                <h2 className="text-sm font-bold text-slate-900">
-                  {selected.user.name}{' '}
-                  <span className="font-mono text-xs text-slate-500">
-                    ({selected.user.employeeId})
-                  </span>
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  {selected.jobTitle ?? 'Team Member'} &bull;{' '}
-                  {selected.department?.name ?? 'General'}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelected(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="px-6 pt-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center gap-2">
-              {(['profile', 'vault', 'qr'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setDossierTab(tab)}
-                  className={`px-3 py-2 text-xs font-semibold border-b-2 transition-colors ${dossierTab === tab
-                    ? 'border-slate-900 text-slate-900'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
-                    }`}
-                >
-                  {tab === 'profile'
-                    ? 'Personnel Dossier'
-                    : tab === 'vault'
-                      ? `KYC Document Vault (${selected.documents.length})`
-                      : 'Digital QR & vCard'}
-                </button>
-              ))}
-            </div>
-
-            <div className="p-6">
-              {dossierTab === 'profile' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="font-bold text-slate-800">Work &amp; Organization</div>
-                    <div>Email: {selected.user.email}</div>
-                    <div>Phone: {selected.user.phone ?? 'â€”'}</div>
-                    <div>Department: {selected.department?.name ?? 'â€”'}</div>
-                    <div>Team: {selected.user.team?.name ?? 'â€”'}</div>
-                    <div>Role: {selected.user.role}</div>
-                    <div>Monthly Gross: {formatCurrency(selected.salary)}</div>
-                  </div>
-                  <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="font-bold text-slate-800">Personal, Banking &amp; Statutory</div>
-                    <div>Blood Group: {selected.bloodGroup ?? 'â€”'}</div>
-                    <div>
-                      Emergency Contact: {selected.emergencyContactName ?? 'â€”'}{' '}
-                      {selected.emergencyContactPhone ? `(${selected.emergencyContactPhone})` : ''}
-                    </div>
-                    <div>Bank: {selected.bankName ?? 'Restricted / Not set'}</div>
-                    <div>IFSC: {selected.bankIfsc ?? 'â€”'}</div>
-                    <div>PAN: {selected.panNumber ?? 'Restricted / Not set'}</div>
-                    <div>Aadhaar: {selected.aadhaarNumber ?? 'Restricted / Not set'}</div>
-                  </div>
-                </div>
-              )}
-
-              {dossierTab === 'vault' && (
-                <div className="space-y-4">
-                  {(isHrAdminOrSuper || selected.userId === user?.id) && (
-                    <form
-                      onSubmit={(e) => void handleAddDocument(e)}
-                      className="p-4 rounded-lg bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-2.5 items-end"
-                    >
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                          Doc Type
-                        </label>
-                        <select
-                          value={docForm.docType}
-                          onChange={(e) =>
-                            setDocForm({ ...docForm, docType: e.target.value as DocumentType })
-                          }
-                          className="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs"
-                        >
-                          <option value="PAN">PAN</option>
-                          <option value="AADHAAR">Aadhaar</option>
-                          <option value="DEGREE">Degree</option>
-                          <option value="OFFER_LETTER">Offer Letter</option>
-                          <option value="NDA">NDA</option>
-                          <option value="OTHER">Other</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                          File Name
-                        </label>
-                        <input
-                          required
-                          placeholder="pan_card.pdf"
-                          value={docForm.fileName}
-                          onChange={(e) => setDocForm({ ...docForm, fileName: e.target.value })}
-                          className="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                          Document URL
-                        </label>
-                        <input
-                          required
-                          placeholder="https://..."
-                          value={docForm.fileUrl}
-                          onChange={(e) => setDocForm({ ...docForm, fileUrl: e.target.value })}
-                          className="w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs"
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        disabled={docBusy}
-                        className="px-3 py-1.5 rounded-lg bg-[#072b53] hover:bg-[#051e3b] text-white shadow-xs text-xs font-semibold hover:bg-slate-800 disabled:opacity-50"
-                      >
-                        Add to Vault
-                      </button>
-                    </form>
-                  )}
-
-                  {selected.documents.length === 0 ? (
-                    <div className="p-6 text-center text-xs text-slate-500">
-                      No KYC documents uploaded (or restricted by RBAC).
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-slate-100 dark:divide-slate-800/70 border border-slate-200 rounded-lg">
-                      {selected.documents.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className="p-3.5 flex items-center justify-between text-xs"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <FileText className="w-4 h-4 text-slate-500" />
-                            <div>
-                              <div className="font-semibold text-slate-900">
-                                {doc.docType} &bull; {doc.fileName}
-                              </div>
-                              <a
-                                href={doc.fileUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-[11px] text-indigo-600 hover:underline"
-                              >
-                                Open Document
-                              </a>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {doc.isVerified ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                                <BadgeCheck className="w-3.5 h-3.5" />
-                                Verified
-                              </span>
-                            ) : canVerifyKyc ? (
-                              <button
-                                type="button"
-                                disabled={docBusy}
-                                onClick={() => void handleVerifyDoc(doc.id)}
-                                className="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700"
-                              >
-                                Verify KYC
-                              </button>
-                            ) : (
-                              <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
-                                Pending HR Verification
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {dossierTab === 'qr' && (
-                <div className="flex flex-col sm:flex-row gap-6 items-start">
-                  <div className="p-5 rounded-lg border border-slate-200 bg-slate-50 flex flex-col items-center gap-2 min-w-[180px]">
-                    <QrCode className="w-24 h-24 text-slate-900" />
-                    <span className="text-xs font-mono font-bold text-slate-800">
-                      {qrBadge?.employeeId ?? selected.user.employeeId}
-                    </span>
-                    <span className="text-[11px] text-slate-500">Mark Anthony Realty ID</span>
-                  </div>
-                  <div className="flex-1 space-y-2 text-xs">
-                    <div className="font-bold text-slate-900">vCard Digital Business Card</div>
-                    <pre className="p-3 rounded-lg bg-slate-900 text-slate-100 text-[11px] overflow-x-auto">
-                      {qrBadge?.vCard ?? 'Loading vCard...'}
-                    </pre>
-                    <button
-                      type="button"
-                      onClick={() => void copyVCard()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                      {copiedVCard ? 'Copied!' : 'Copy vCard'}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       )}

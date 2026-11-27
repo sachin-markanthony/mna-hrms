@@ -1,11 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { LeaveType } from '@prisma/client';
-import { IsDateString, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class ApplyLeaveDto {
-  @ApiProperty({ enum: LeaveType, example: LeaveType.CASUAL })
+  @ApiPropertyOptional({ enum: LeaveType, default: LeaveType.LOP, example: LeaveType.LOP })
+  @IsOptional()
   @IsEnum(LeaveType)
-  leaveType: LeaveType;
+  leaveType?: LeaveType;
 
   @ApiProperty({ example: '2026-12-01' })
   @IsDateString()

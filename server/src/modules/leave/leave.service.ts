@@ -24,9 +24,9 @@ import type { LeaveDecisionDto } from './dto/leave-decision.dto.js';
 import type { QueryLeaveDto } from './dto/query-leave.dto.js';
 
 const DEFAULT_ALLOCATIONS: Record<LeaveType, number> = {
-  [LeaveType.CASUAL]: 12,
-  [LeaveType.SICK]: 8,
-  [LeaveType.EARNED]: 15,
+  [LeaveType.CASUAL]: 0,
+  [LeaveType.SICK]: 0,
+  [LeaveType.EARNED]: 0,
   [LeaveType.LOP]: 0,
 };
 
@@ -219,30 +219,15 @@ export class LeaveService {
 
     await this.ensureUserBalances(currentUser.id, year);
 
-    if (dto.leaveType !== LeaveType.LOP) {
-      const balance = await this.prisma.leaveBalance.findUnique({
-        where: {
-          userId_leaveType_year: {
-            userId: currentUser.id,
-            leaveType: dto.leaveType,
-            year,
-          },
-        },
-      });
-
-      if (!balance || balance.remainingDays < totalDays) {
-        throw new BadRequestException(
-          `Insufficient ${dto.leaveType} leave balance. Available: ${balance?.remainingDays ?? 0} day(s), requested: ${totalDays} day(s)`,
-        );
-      }
-    }
+    // Company policy: no paid leave quotas; all leave requests are Loss of Pay (LOP)
+    const effectiveLeaveType = LeaveType.LOP;
 
     const requiresTeamLeadApproval = currentUser.role === AppRole.EMPLOYEE;
 
     const created = await this.prisma.leaveRequest.create({
       data: {
         userId: currentUser.id,
-        leaveType: dto.leaveType,
+        leaveType: effectiveLeaveType,
         startDate: start,
         endDate: end,
         totalDays,
@@ -419,43 +404,27 @@ export class LeaveService {
 
       if (nextOverallStatus === LeaveStatus.APPROVED) {
         const year = current.startDate.getUTCFullYear();
-        const balance = await tx.leaveBalance.findUnique({
+        const lopBalance = await tx.leaveBalance.findUnique({
           where: {
             userId_leaveType_year: {
               userId: current.userId,
-              leaveType: current.leaveType,
+              leaveType: LeaveType.LOP,
               year,
             },
           },
         });
 
-        if (current.leaveType !== LeaveType.LOP) {
-          if (!balance || balance.remainingDays < current.totalDays) {
-            throw new BadRequestException(
-              `Cannot finalize approval: insufficient ${current.leaveType} balance remaining`,
-            );
-          }
+        if (lopBalance) {
           await tx.leaveBalance.update({
-            where: { id: balance.id },
-            data: {
-              usedDays: { increment: current.totalDays },
-              remainingDays: { decrement: current.totalDays },
-            },
-          });
-        } else if (balance) {
-          await tx.leaveBalance.update({
-            where: { id: balance.id },
+            where: { id: lopBalance.id },
             data: {
               usedDays: { increment: current.totalDays },
             },
           });
         }
 
-        // Sync every approved leave date into attendance_master
-        const attendanceStatus =
-          current.leaveType === LeaveType.LOP
-            ? AttendanceStatus.LOP
-            : AttendanceStatus.ON_LEAVE;
+        // Sync every approved leave date into attendance_master as LOP for salary deduction
+        const attendanceStatus = AttendanceStatus.LOP;
 
         const cursor = new Date(current.startDate);
         while (cursor <= current.endDate) {
@@ -469,13 +438,13 @@ export class LeaveService {
             },
             update: {
               status: attendanceStatus,
-              remarks: `Approved ${current.leaveType} leave`,
+              remarks: 'Approved LOP leave (salary deducted)',
             },
             create: {
               userId: current.userId,
               attendanceDate: day,
               status: attendanceStatus,
-              remarks: `Approved ${current.leaveType} leave`,
+              remarks: 'Approved LOP leave (salary deducted)',
             },
           });
           cursor.setUTCDate(cursor.getUTCDate() + 1);

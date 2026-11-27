@@ -85,7 +85,6 @@ export function LeaveManagement() {
 
   // Apply modal state
   const [modalOpen, setModalOpen] = useState(false);
-  const [leaveType, setLeaveType] = useState<LeaveType>('CASUAL');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [reason, setReason] = useState('');
@@ -146,7 +145,7 @@ export function LeaveManagement() {
     }
     setSubmitting(true);
     try {
-      await leaveApi.applyLeave({ leaveType, startDate, endDate, reason });
+      await leaveApi.applyLeave({ leaveType: 'LOP', startDate, endDate, reason });
       setModalOpen(false);
       setStartDate('');
       setEndDate('');
@@ -244,43 +243,59 @@ export function LeaveManagement() {
         </div>
       )}
 
-      {/* Balance Ledger Cards */}
+      {/* LOP Policy Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {(['CASUAL', 'SICK', 'EARNED', 'LOP'] as LeaveType[]).map((lt) => {
-          const bal = balances.find((b) => b.leaveType === lt);
-          const meta = LEAVE_TYPE_META[lt];
-          return (
-            <div
-              key={lt}
-              className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between"
-            >
-              <div className="flex items-center justify-between">
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${meta.bg} ${meta.accent}`}>
-                  {meta.label}
-                </span>
-                <span className="text-[11px] font-semibold text-slate-400">
-                  {bal?.year ?? new Date().getUTCFullYear()}
-                </span>
-              </div>
-              <div className="mt-4 flex items-baseline justify-between">
-                <div>
-                  <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
-                    {lt === 'LOP' ? bal?.usedDays ?? 0 : bal?.remainingDays ?? 0}
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    {lt === 'LOP' ? 'Days Taken (Unpaid)' : 'Days Remaining'}
-                  </p>
-                </div>
-                {lt !== 'LOP' && (
-                  <div className="text-right text-[11px] text-slate-500">
-                    <div>Allocated: {bal?.allocatedDays ?? 0}</div>
-                    <div>Used: {bal?.usedDays ?? 0}</div>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-lg border bg-amber-50 border-amber-200 text-amber-700">
+              Loss of Pay (LOP)
+            </span>
+            <span className="text-[11px] font-semibold text-slate-400">
+              {new Date().getUTCFullYear()}
+            </span>
+          </div>
+          <div className="mt-4">
+            <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+              {balances.find((b) => b.leaveType === 'LOP')?.usedDays ?? 0}
+            </p>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Approved LOP Days (Salary Deducted)
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            Pending Requests
+          </span>
+          <div className="mt-4">
+            <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+              {requests.filter((r) => r.status === 'PENDING').length}
+            </p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Awaiting TL / HR approval</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            Approved Requests
+          </span>
+          <div className="mt-4">
+            <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+              {requests.filter((r) => r.status === 'APPROVED').length}
+            </p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Synced to Attendance as LOP</p>
+          </div>
+        </div>
+
+        <div className="bg-amber-50/60 dark:bg-amber-950/20 rounded-lg border border-amber-200/80 dark:border-amber-800/60 p-5 shadow-xs flex flex-col justify-between">
+          <span className="text-xs font-bold text-amber-800 dark:text-amber-300">
+            Leave &amp; Salary Policy
+          </span>
+          <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-2 leading-relaxed">
+            No paid leave quotas apply. Every approved leave day is treated as Loss of Pay (LOP) and deducted from monthly salary.
+          </p>
+        </div>
       </div>
 
       {/* Tabs & Filters */}
@@ -530,20 +545,8 @@ export function LeaveManagement() {
                 </div>
               )}
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Leave Type
-                </label>
-                <select
-                  value={leaveType}
-                  onChange={(e) => setLeaveType(e.target.value as LeaveType)}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
-                >
-                  <option value="CASUAL">Casual Leave</option>
-                  <option value="SICK">Sick Leave</option>
-                  <option value="EARNED">Earned Leave</option>
-                  <option value="LOP">Loss of Pay (LOP)</option>
-                </select>
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800">
+                <span className="font-bold">Loss of Pay (LOP):</span> Salary for approved leave days will be deducted proportionally.
               </div>
 
               <div className="grid grid-cols-2 gap-3">

@@ -204,11 +204,11 @@ describe('LeaveService', () => {
     expect(prisma.attendanceMaster.upsert).not.toHaveBeenCalled();
   });
 
-  it('should finalize approval, deduct balance, and sync attendance_master when BOTH Team Lead and HR approve', async () => {
+  it('should finalize approval, increment LOP usedDays, and sync AttendanceStatus.LOP when BOTH Team Lead and HR approve', async () => {
     prisma.leaveRequest.findUnique.mockResolvedValue({
       id: 'req-1',
       userId: 'emp-1',
-      leaveType: LeaveType.CASUAL,
+      leaveType: LeaveType.LOP,
       startDate: new Date('2026-12-01T00:00:00Z'),
       endDate: new Date('2026-12-02T00:00:00Z'),
       totalDays: 2,
@@ -218,8 +218,8 @@ describe('LeaveService', () => {
     });
     prisma.leaveBalance.findUnique.mockResolvedValue({
       id: 'bal-1',
-      remainingDays: 10,
-      usedDays: 2,
+      remainingDays: 0,
+      usedDays: 1,
     });
     prisma.leaveBalance.update.mockResolvedValue({});
     prisma.attendanceMaster.upsert.mockResolvedValue({});
@@ -243,13 +243,12 @@ describe('LeaveService', () => {
       where: { id: 'bal-1' },
       data: {
         usedDays: { increment: 2 },
-        remainingDays: { decrement: 2 },
       },
     });
     expect(prisma.attendanceMaster.upsert).toHaveBeenCalledTimes(2);
     expect(prisma.attendanceMaster.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        create: expect.objectContaining({ status: AttendanceStatus.ON_LEAVE }),
+        create: expect.objectContaining({ status: AttendanceStatus.LOP }),
       }),
     );
     expect(auditService.log).toHaveBeenCalledWith(
@@ -257,7 +256,7 @@ describe('LeaveService', () => {
     );
   });
 
-  it('should reject leave application when balance is insufficient', async () => {
+  it('should force leaveType to LOP even if another type is submitted', async () => {
     prisma.leaveRequest.findFirst.mockResolvedValue(null);
     prisma.leaveBalance.findMany.mockResolvedValue([
       { leaveType: LeaveType.CASUAL },
@@ -265,22 +264,28 @@ describe('LeaveService', () => {
       { leaveType: LeaveType.EARNED },
       { leaveType: LeaveType.LOP },
     ]);
-    prisma.leaveBalance.findUnique.mockResolvedValue({
-      id: 'bal-1',
-      remainingDays: 1,
+    prisma.leaveRequest.create.mockResolvedValue({
+      id: 'req-lop-1',
+      leaveType: LeaveType.LOP,
+      status: LeaveStatus.PENDING,
     });
 
-    await expect(
-      service.applyLeave(
-        employeeUser,
-        {
-          leaveType: LeaveType.CASUAL,
-          startDate: '2026-12-01',
-          endDate: '2026-12-03',
-          reason: 'Out of station',
-        },
-        {},
-      ),
-    ).rejects.toThrow(BadRequestException);
+    const created = await service.applyLeave(
+      employeeUser,
+      {
+        leaveType: LeaveType.CASUAL,
+        startDate: '2026-12-01',
+        endDate: '2026-12-03',
+        reason: 'Out of station',
+      },
+      {},
+    );
+
+    expect(created.leaveType).toBe(LeaveType.LOP);
+    expect(prisma.leaveRequest.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ leaveType: LeaveType.LOP }),
+      }),
+    );
   });
 });

@@ -54,28 +54,34 @@ describe('EmployeesService', () => {
     );
   });
 
-  it('should mask salary and KYC fields when an EMPLOYEE views another employee', async () => {
-    prisma.employee.findMany.mockResolvedValue([
-      {
-        id: 'e-1',
-        userId: 'other-user',
-        salary: 120000,
-        panNumber: 'ABCDE1234F',
-        aadhaarNumber: '123456789012',
-        bankAccountNumber: '9988776655',
-        bankIfsc: 'HDFC0001234',
-        bankName: 'HDFC',
-        uanNumber: '100200300',
-        documents: [{ id: 'doc-1' }],
-        user: { id: 'other-user', employeeId: 'EMP-001', name: 'Other', email: 'other@markanthony.in', role: Role.SUPER_ADMIN, teamId: null, team: null },
-        department: null,
-      },
-    ]);
+  it('should scope directory listing to self and forbid viewing another employee dossier for EMPLOYEE', async () => {
+    prisma.employee.findMany.mockResolvedValue([]);
 
-    const rows = await service.findAll(regularEmployee, {});
-    expect(rows[0].salary).toBeNull();
-    expect(rows[0].panNumber).toBeNull();
-    expect(rows[0].documents).toEqual([]);
+    await service.findAll(regularEmployee, {});
+    expect(prisma.employee.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          userId: regularEmployee.id,
+        }),
+      }),
+    );
+
+    prisma.employee.findFirst.mockResolvedValue({
+      id: 'e-1',
+      userId: 'other-user',
+      salary: 120000,
+      panNumber: 'ABCDE1234F',
+      aadhaarNumber: '123456789012',
+      bankAccountNumber: '9988776655',
+      bankIfsc: 'HDFC0001234',
+      bankName: 'HDFC',
+      uanNumber: '100200300',
+      documents: [{ id: 'doc-1' }],
+      user: { id: 'other-user', employeeId: 'EMP-001', name: 'Other', email: 'other@markanthony.in', role: Role.SUPER_ADMIN, teamId: null, team: null },
+      department: null,
+    });
+
+    await expect(service.findOne('e-1', regularEmployee)).rejects.toThrow(ForbiddenException);
   });
 
   it('should create employee, initialize 4 leave balances, and record EMPLOYEE_CREATED audit log', async () => {
@@ -104,9 +110,9 @@ describe('EmployeesService', () => {
     expect(prisma.leaveBalance.createMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.arrayContaining([
-          expect.objectContaining({ leaveType: 'CASUAL', allocatedDays: 12 }),
-          expect.objectContaining({ leaveType: 'SICK', allocatedDays: 8 }),
-          expect.objectContaining({ leaveType: 'EARNED', allocatedDays: 15 }),
+          expect.objectContaining({ leaveType: 'CASUAL', allocatedDays: 0 }),
+          expect.objectContaining({ leaveType: 'SICK', allocatedDays: 0 }),
+          expect.objectContaining({ leaveType: 'EARNED', allocatedDays: 0 }),
           expect.objectContaining({ leaveType: 'LOP', allocatedDays: 0 }),
         ]),
       }),
