@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { MailService } from '../../shared/mail/mail.service.js';
 import {
   CandidateRecruitmentStatus,
   InterviewRoundType,
@@ -19,9 +20,12 @@ export interface RequestMeta {
 
 @Injectable()
 export class RecruitmentService {
+  private readonly logger = new Logger(RecruitmentService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly mailService: MailService,
   ) {}
 
   async getTeamLeaders() {
@@ -424,6 +428,18 @@ export class RecruitmentService {
       });
     }
 
+    if (dto.result === RoundEvaluationResult.REJECTED) {
+      const stageLabel =
+        dto.round === InterviewRoundType.HR_ROUND ? 'HR Interview Round' : 'MR Interview Round';
+      await this.sendRejectionEmail(
+        updatedCandidate,
+        stageLabel,
+        dto.rejectionReason,
+        actor,
+        meta,
+      );
+    }
+
     return {
       candidate: updatedCandidate,
       evaluation,
@@ -472,7 +488,115 @@ export class RecruitmentService {
       });
     }
 
+    if (
+      (dto.status === CandidateRecruitmentStatus.REJECTED_HR ||
+        dto.status === CandidateRecruitmentStatus.REJECTED_MR) &&
+      candidate.status !== dto.status
+    ) {
+      const stageLabel =
+        dto.status === CandidateRecruitmentStatus.REJECTED_HR
+          ? 'HR Interview Round'
+          : 'MR Interview Round';
+      await this.sendRejectionEmail(
+        updated,
+        stageLabel,
+        dto.rejectionReason ?? undefined,
+        actor,
+        meta,
+      );
+    }
+
     return updated;
+  }
+
+  private async sendRejectionEmail(
+    candidate: { id: string; fullName: string; email: string; appliedRole: string },
+    stageLabel: string,
+    rejectionReason?: string,
+    actorUserId?: string,
+    meta?: RequestMeta,
+  ) {
+    if (!candidate.email || !this.mailService.isConfigured()) {
+      return;
+    }
+
+    const isMrRound = stageLabel.toLowerCase().includes('mr');
+    const subject = isMrRound
+      ? `Application Update (Management Round): ${candidate.appliedRole} — Mark Anthony Ventures`
+      : `Application Update (HR Round): ${candidate.appliedRole} — Mark Anthony Ventures`;
+
+    const text = isMrRound
+      ? `Dear ${candidate.fullName},
+
+Thank you for clearing the initial stage and taking the time to participate in the Management Round (MR Round) interview with Mark Anthony Ventures for the position of ${candidate.appliedRole}.
+
+After careful review of your Management Round evaluation, we regret to inform you that we will not be moving forward with your candidature at this stage.
+
+We truly appreciate the time and effort you invested in our selection process and wish you every success in your future career endeavors.
+
+Best regards,
+Shilpa Kumari.P
+Head of Human Resource /Finance
+Mark Anthony Ventures`
+      : `Dear ${candidate.fullName},
+
+Thank you for taking the time to attend the HR Round interview with Mark Anthony Ventures for the position of ${candidate.appliedRole}.
+
+After careful consideration of your profile and HR Round discussion, we regret to inform you that we will not be moving forward to the next round at this time.
+
+We appreciate your interest in Mark Anthony Ventures and wish you every success in your future career endeavors.
+
+Best regards,
+Shilpa Kumari.P
+Head of Human Resource /Finance
+Mark Anthony Ventures`;
+
+    const paragraphs = text.split('\n\n');
+    const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color: #1e293b; margin: 0; padding: 12px 0;">
+  ${paragraphs
+    .map(
+      (p) =>
+        `<p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.6; color: #1e293b;">${p.replace(/\n/g, '<br>')}</p>`,
+    )
+    .join('\n')}
+</body>
+</html>`.trim();
+
+    try {
+      const result = await this.mailService.sendMail({
+        to: candidate.email,
+        subject,
+        text,
+        html,
+      });
+
+      const actor = actorUserId || (await this.resolveFallbackActorId());
+      if (actor) {
+        await this.auditService.log({
+          actorUserId: actor,
+          actionType: 'CANDIDATE_REJECTION_EMAILED',
+          ipAddress: meta?.ipAddress,
+          userAgent: meta?.userAgent,
+          newValuePayload: {
+            candidateId: candidate.id,
+            candidateName: candidate.fullName,
+            recipientEmail: candidate.email,
+            stage: stageLabel,
+            rejectionReason: rejectionReason || null,
+            subject,
+            messageId: result.messageId,
+            sentAt: new Date().toISOString(),
+          },
+        });
+      }
+    } catch (err) {
+      this.logger.error(
+        `Failed to send rejection email to ${candidate.email}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 
   private async resolveFallbackActorId(): Promise<string | undefined> {

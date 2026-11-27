@@ -9,6 +9,7 @@ import { EmployeeDirectory } from './modules/employees';
 import { AttendanceManagement } from './modules/attendance';
 import { SettingsManagement } from './modules/settings';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
+import { LettersManagement } from './modules/letters/LettersManagement';
 function ProtectedRoute({
   children,
   withLayout = true,
@@ -160,10 +161,7 @@ function AppRoutes() {
             allowedRoles={['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR']}
             requiredPermissions={['letters:release']}
           >
-            <SectionPlaceholder
-              title="Automated Letters Releasing"
-              description="One-click PDF generation and email release of Offer & Experience Letters with audit logs."
-            />
+            <LettersManagement />
           </ProtectedRoute>
         }
       />

@@ -59,6 +59,7 @@ model User {
   inductionProgress      InductionProgress[]
   inductionNotifications InductionNotification[]
   assignedCandidates     Candidate[]              @relation("CandidateTeamLeader")
+  createdLetters         OfficialLetter[]         @relation("LetterCreator")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -162,6 +163,7 @@ model Employee {
   department            Department?        @relation(fields: [departmentId], references: [id])
   user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   documents             EmployeeDocument[]
+  officialLetters       OfficialLetter[]
 
   @@map("employees")
 }
@@ -433,6 +435,7 @@ model Candidate {
   createdAt       DateTime                   @default(now())
   updatedAt       DateTime                   @updatedAt
   evaluations     RoundEvaluation[]
+  officialLetters OfficialLetter[]
 
   @@index([teamLeaderId])
   @@map("candidates")
@@ -560,3 +563,62 @@ model ShiftSetting {
 
   @@map("shift_settings")
 }
+
+// ====================================================
+// Official Corporate Letters & Document Releasing
+// ====================================================
+enum LetterType {
+  OFFER_LETTER
+  EXPERIENCE_LETTER
+  INTERNSHIP_LETTER
+}
+
+enum LetterStatus {
+  DRAFT
+  ISSUED
+  REVOKED
+}
+
+model OfficialLetter {
+  id              String        @id @default(uuid())
+  refNumber       String        @unique
+  letterType      LetterType    @default(OFFER_LETTER)
+  status          LetterStatus  @default(ISSUED)
+  recipientName   String
+  recipientEmail  String
+  recipientPhone  String?
+  designation     String
+  department      String
+  annualGrossCtc  Float?
+  monthlyGross    Float?
+  joiningDate     DateTime?
+  relievingDate   DateTime?
+  employeeCode    String?
+  recipientGender String?
+  workLocation    String?       @default("Bangalore, Karnataka")
+  probationMonths Int?          @default(3)
+  validUntil      DateTime?
+  ceoName         String        @default("Mark Anthony Fegradoe")
+  ceoTitle        String        @default("Founder & Chief Executive Officer")
+  headOfHrName    String        @default("Shilpa Kumari P")
+  headOfHrTitle   String        @default("Head of Finance and Human Resources")
+  customNotes     String?
+  candidateId     String?
+  candidate       Candidate?    @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+  employeeId      String?
+  employee        Employee?     @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  emailSentAt     DateTime?
+  emailSentTo     String?
+  candidateResponse String?
+  respondedAt     DateTime?
+  responseRemarks String?
+  createdById     String?
+  createdBy       User?         @relation("LetterCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([letterType, status])
+  @@index([recipientEmail])
+  @@map("official_letters")
+}
+

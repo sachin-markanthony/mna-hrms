@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { X, Star, CheckCircle2, XCircle, Award, AlertTriangle, Lock } from 'lucide-react';
+import { X, Star, CheckCircle2, XCircle, Award, AlertTriangle } from 'lucide-react';
 import type { Candidate, InterviewRoundType, RoundEvaluationResult, EvaluateRoundPayload } from '../types';
 
 interface EvaluateRoundModalProps {
@@ -290,7 +290,6 @@ export function EvaluateRoundModal({
             </button>
           </div>
         </form>
-        )}
       </div>
     </div>
   );

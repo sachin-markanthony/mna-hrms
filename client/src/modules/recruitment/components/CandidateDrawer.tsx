@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import {
   X,
   Star,
@@ -11,6 +12,7 @@ import {
   XCircle,
   AlertOctagon,
   Users,
+  FileCheck,
 } from 'lucide-react';
 import type { Candidate } from '../types';
 import { STATUS_CONFIG } from '../types';
@@ -32,6 +34,7 @@ export function CandidateDrawer({
   onClose,
   onEvaluateRound,
 }: CandidateDrawerProps) {
+  const navigate = useNavigate();
   if (!isOpen || !candidate) return null;
 
   const statusInfo = STATUS_CONFIG[candidate.status];
@@ -282,6 +285,19 @@ export function CandidateDrawer({
           >
             Close
           </button>
+
+          {candidate.status === 'SELECTED' && canEvaluate && (
+            <button
+              onClick={() => {
+                onClose();
+                navigate(`/letters?candidateId=${candidate.id}`);
+              }}
+              className="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+            >
+              <FileCheck className="w-4 h-4 text-emerald-200" />
+              Issue Official Offer Letter
+            </button>
+          )}
 
           {canEvaluate &&
             candidate.status !== 'SELECTED' &&

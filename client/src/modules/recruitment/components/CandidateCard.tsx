@@ -124,6 +124,17 @@ export function CandidateCard({
             Evaluate {candidate.status === 'MR_ROUND' ? 'MR' : 'HR'}
             <ChevronRight className="w-3 h-3" />
           </button>
+        ) : canEvaluate && candidate.status === 'SELECTED' ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails(candidate);
+            }}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 transition-all cursor-pointer"
+          >
+            <span>View & Issue Offer</span>
+            <ChevronRight className="w-3 h-3 text-emerald-500" />
+          </button>
         ) : (
           <button
             onClick={(e) => {
