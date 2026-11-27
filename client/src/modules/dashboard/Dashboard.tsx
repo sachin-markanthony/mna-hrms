@@ -6,7 +6,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Calendar,
-  SlidersHorizontal,
+  // SlidersHorizontal,
   ArrowRight,
   ShieldCheck,
   MapPin,

@@ -1,17 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  LayoutDashboard,
   GraduationCap,
-  BookOpen,
   CheckSquare,
-  BarChart3,
-  Award,
   HelpCircle,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Sparkles,
   Building2,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import type { Employee } from '../types/induction.types';
 
@@ -33,6 +31,36 @@ interface InductionSidebarProps {
   onLogout?: () => void;
 }
 
+// Define hierarchical groups for navigation
+const navGroups = [
+  {
+    id: 'learning',
+    label: 'My Learning',
+    icon: GraduationCap,
+    items: [
+      { id: 'overview' as const, label: 'Induction Overview', badge: 'Active' },
+      { id: 'induction' as const, label: 'Learning Chapters', badge: '22 Docs' },
+      { id: 'materials' as const, label: 'Learning Materials', badge: '' },
+    ],
+  },
+  {
+    id: 'assessment',
+    label: 'My Assessments',
+    icon: CheckSquare,
+    items: [
+      { id: 'assessments' as const, label: 'Assessments', badge: 'Locked' },
+      { id: 'progress' as const, label: 'My Progress', badge: '35%' },
+      { id: 'certificates' as const, label: 'Certificates', badge: 'Milestone' },
+    ],
+  },
+  {
+    id: 'support',
+    label: 'Help & Support',
+    icon: HelpCircle,
+    items: [], // No sub‑items, acts as direct link
+  },
+];
+
 export const InductionSidebar: React.FC<InductionSidebarProps> = ({
   currentTab,
   onTabChange,
@@ -41,20 +69,15 @@ export const InductionSidebar: React.FC<InductionSidebarProps> = ({
   employee,
   onLogout,
 }) => {
-  const navItems = [
-    { id: 'overview' as const, label: 'Overview', icon: LayoutDashboard, badge: 'Active' },
-    { id: 'induction' as const, label: 'My Induction', icon: GraduationCap, badge: 'Phase 1' },
-    { id: 'materials' as const, label: 'Learning Materials', icon: BookOpen, badge: '22 Docs' },
-    { id: 'assessments' as const, label: 'Assessments', icon: CheckSquare, badge: 'Locked' },
-    { id: 'progress' as const, label: 'My Progress', icon: BarChart3, badge: '35%' },
-    { id: 'certificates' as const, label: 'Certificates', icon: Award, badge: 'Milestone' },
-    { id: 'support' as const, label: 'Help & Support', icon: HelpCircle },
-  ];
+  const [openGroup, setOpenGroup] = useState<string | null>('learning'); // default to first group open
+
+  const handleGroupToggle = (groupId: string) => {
+    setOpenGroup(openGroup === groupId ? null : groupId);
+  };
 
   return (
     <aside
-      className={`relative flex flex-col bg-[#1A120B] text-stone-200 border-r border-[#3E2723]/30 transition-all duration-300 select-none z-30 ${collapsed ? 'w-20' : 'w-72'
-        }`}
+      className={`relative flex flex-col bg-[#1A120B] text-stone-200 border-r border-[#3E2723]/30 transition-all duration-300 select-none z-30 ${collapsed ? 'w-20' : 'w-72'}`}
     >
       {/* Top Brand Section */}
       <div className="flex items-center justify-between p-4.5 border-b border-[#2C1810]">
@@ -80,7 +103,6 @@ export const InductionSidebar: React.FC<InductionSidebarProps> = ({
             </div>
           )}
         </div>
-
         {/* Desktop Collapse Toggle */}
         <button
           onClick={onToggleCollapse}
@@ -94,46 +116,58 @@ export const InductionSidebar: React.FC<InductionSidebarProps> = ({
 
       {/* Navigation Links */}
       <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-        {!collapsed && (
-          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-stone-400/80">
-            Induction Curriculum
-          </div>
-        )}
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = currentTab === item.id;
-          return (
+        {navGroups.map((group) => (
+          <div key={group.id}>
+            {/* Group Header */}
             <button
-              key={item.id}
-              onClick={() => onTabChange(item.id)}
-              className={`w-full group flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition cursor-pointer relative ${isActive
-                  ? 'bg-gradient-to-r from-[#3D2217] to-[#2B1810] text-[#FAF7F2] font-semibold border-l-4 border-[#D4AF37] shadow-sm'
-                  : 'text-stone-400 hover:text-stone-200 hover:bg-[#2B1810]/50'
-                } ${collapsed ? 'justify-center px-0' : ''}`}
-              title={collapsed ? item.label : undefined}
+              className={`flex w-full items-center gap-1 px-2 py-2 rounded-lg text-xs font-medium uppercase transition cursor-pointer ${collapsed ? 'justify-center' : ''} ${openGroup === group.id ? 'bg-gradient-to-r from-[#3D2217] to-[#2B1810] text-[#FAF7F2] font-semibold' : 'text-stone-400 hover:text-stone-200 hover:bg-[#2B1810]/50'}`}
+              onClick={() => {
+                if (group.items.length === 0) {
+                  // Direct link without sub‑items
+                  onTabChange(group.id as InductionNavTab);
+                } else {
+                  handleGroupToggle(group.id);
+                }
+              }}
             >
-              <Icon
-                className={`w-4.5 h-4.5 shrink-0 transition-transform ${isActive ? 'text-[#D4AF37]' : 'text-stone-400 group-hover:text-stone-300'
-                  }`}
-              />
+              <group.icon className={`w-4.5 h-4.5 shrink-0 transition-transform ${openGroup === group.id ? 'text-[#D4AF37]' : 'text-stone-400'}`} />
               {!collapsed && (
                 <>
-                  <span className="truncate flex-1 text-left">{item.label}</span>
-                  {item.badge && (
-                    <span
-                      className={`text-[9px] px-2 py-0.5 rounded-full font-semibold shrink-0 ${isActive
-                          ? 'bg-[#D4AF37] text-[#1A120B]'
-                          : 'bg-[#2A1810] text-stone-400 border border-stone-800'
-                        }`}
-                    >
-                      {item.badge}
-                    </span>
+                  <span className="flex-1 text-left truncate">{group.label}</span>
+                  {group.items.length > 0 && (
+                    <span>{openGroup === group.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}</span>
                   )}
                 </>
               )}
             </button>
-          );
-        })}
+
+            {/* Sub‑items */}
+            {!collapsed && openGroup === group.id && group.items.length > 0 && (
+              <div className="ml-4 mt-1 space-y-1">
+                {group.items.map((item) => {
+                  const isActive = currentTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => onTabChange(item.id)}
+                      className={`flex w-full items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${isActive ? 'bg-gradient-to-r from-[#3D2217] to-[#2B1810] text-[#FAF7F2] font-semibold border-l-4 border-[#D4AF37]' : 'text-stone-400 hover:text-stone-200 hover:bg-[#2B1810]/50'}`}
+                      title={item.label}
+                    >
+                      <span className="flex-1 truncate text-left">{item.label}</span>
+                      {item.badge && (
+                        <span
+                          className={`text-[9px] px-2 py-0.5 rounded-full font-semibold ${isActive ? 'bg-[#D4AF37] text-[#1A120B]' : 'bg-[#2A1810] text-stone-400 border border-stone-800'}`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ))}
       </nav>
 
       {/* Bottom Employee Profile Card */}
@@ -164,7 +198,6 @@ export const InductionSidebar: React.FC<InductionSidebarProps> = ({
                 </p>
               </div>
             </div>
-
             <div className="mt-3 pt-2.5 border-t border-[#3A2218] flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
                 <Sparkles className="w-3 h-3 text-[#D4AF37]" />

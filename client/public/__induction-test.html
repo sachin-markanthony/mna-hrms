@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Induction test auth</title>
+  </head>
+  <body>
+    <script>
+      localStorage.setItem(
+        'mna_user',
+        JSON.stringify({
+          id: 'emp-1042',
+          name: 'Rahul Sharma',
+          email: 'rahul.sharma@maventures.com',
+          role: 'EMPLOYEE',
+          employeeId: 'MA-2026-089',
+          department: 'Real Estate Advisory & Investments',
+          designation: 'Senior Investment Advisor',
+        }),
+      );
+      localStorage.setItem('mna_token', 'test-token');
+      localStorage.setItem('mna_refresh_token', 'test-refresh');
+      localStorage.removeItem('mav_induction_learning_v1');
+      location.replace('/induction');
+    </script>
+  </body>
+</html>

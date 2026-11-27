@@ -1,12 +1,12 @@
-import { InductionDashboard } from './pages/InductionDashboard';
+import { InductionApp } from './InductionApp';
 
 /**
  * Main Induction Module Entry Point
  * Phase 1 — MA Ventures Employee Induction Learning Dashboard
  */
 export function Induction() {
-  return <InductionDashboard />;
+  return <InductionApp />;
 }
 
 export default Induction;
-export { InductionDashboard };
+export { InductionApp };
