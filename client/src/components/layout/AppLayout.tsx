@@ -76,6 +76,11 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         permissions: ['payroll:run', 'payroll:salary_manage'],
         badge: 'Nov 26',
       },
+      {
+        name: 'Official Letters',
+        path: '/official-letters',
+        icon: FileCheck,
+      },
     ],
   },
   {

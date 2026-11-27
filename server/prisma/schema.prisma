@@ -59,6 +59,10 @@ model User {
   inductionProgress      InductionProgress[]
   inductionNotifications InductionNotification[]
   assignedCandidates     Candidate[]              @relation("CandidateTeamLeader")
+  generatedPayrollRuns   PayrollRun[]             @relation("PayrollGenerator")
+  lockedPayrollRuns      PayrollRun[]             @relation("PayrollLocker")
+  paidPayrollRuns        PayrollRun[]             @relation("PayrollPayer")
+  payslips               Payslip[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -559,4 +563,78 @@ model ShiftSetting {
   updatedAt          DateTime @updatedAt
 
   @@map("shift_settings")
+}
+
+// ============================================================================
+// Payroll Engine & Payslips (DRAFT -> LOCKED -> PAID)
+// ============================================================================
+
+enum PayrollRunStatus {
+  DRAFT
+  LOCKED
+  PAID
+}
+
+model PayrollRun {
+  id                 String           @id @default(uuid())
+  month              Int
+  year               Int
+  status             PayrollRunStatus @default(DRAFT)
+  totalEmployees     Int              @default(0)
+  totalGross         Float            @default(0)
+  totalDeductions    Float            @default(0)
+  totalNetPay        Float            @default(0)
+  generatedById      String
+  lockedById         String?
+  lockedAt           DateTime?
+  paidById           String?
+  paidAt             DateTime?
+  isPayslipVisible   Boolean          @default(false)
+  payslipsReleasedAt DateTime?
+  emailsDispatchedAt DateTime?
+  notes              String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  generatedBy User      @relation("PayrollGenerator", fields: [generatedById], references: [id])
+  lockedBy    User?     @relation("PayrollLocker", fields: [lockedById], references: [id])
+  paidBy      User?     @relation("PayrollPayer", fields: [paidById], references: [id])
+  payslips    Payslip[]
+
+  @@unique([month, year])
+  @@index([year, month])
+  @@map("payroll_runs")
+}
+
+model Payslip {
+  id                 String    @id @default(uuid())
+  payrollRunId       String
+  userId             String
+  month              Int
+  year               Int
+  workingDaysInMonth Int
+  presentDays        Float     @default(0)
+  halfDays           Int       @default(0)
+  lopDays            Float     @default(0)
+  monthlyGross       Float     @default(0)
+  basicPay           Float     @default(0)
+  hra                Float     @default(0)
+  specialAllowance   Float     @default(0)
+  lopDeduction       Float     @default(0)
+  professionalTax    Float     @default(0)
+  otherDeductions    Float     @default(0)
+  bonus              Float     @default(0)
+  netPay             Float     @default(0)
+  emailSentAt        DateTime?
+  emailMessageId     String?
+  remarks            String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  payrollRun PayrollRun @relation(fields: [payrollRunId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([payrollRunId, userId])
+  @@index([userId, year, month])
+  @@map("payslips")
 }

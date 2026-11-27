@@ -9,6 +9,7 @@ import { EmployeeDirectory, EmployeeDetailsPage } from './modules/employees';
 import { AttendanceManagement } from './modules/attendance';
 import { SettingsManagement } from './modules/settings';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
+import { PayrollManagement, MyPayslips } from './modules/payroll';
 function ProtectedRoute({
   children,
   withLayout = true,
@@ -146,12 +147,21 @@ function AppRoutes() {
           <ProtectedRoute
             requiredPermissions={['payroll:run', 'payroll:salary_manage']}
           >
-            <SectionPlaceholder
-              title="Simplified Payroll Engine"
-              description="DRAFT → LOCKED (Super Admin) → PAID state machine, auto-LOP calculation & automated PDF payslip emails."
-            />
+            <PayrollManagement />
           </ProtectedRoute>
         }
+      />
+      <Route
+        path="/official-letters"
+        element={
+          <ProtectedRoute>
+            <MyPayslips />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/my-payslips"
+        element={<Navigate to="/official-letters" replace />}
       />
       <Route
         path="/recruitment"
