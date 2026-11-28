@@ -63,6 +63,7 @@ model User {
   lockedPayrollRuns      PayrollRun[]             @relation("PayrollLocker")
   paidPayrollRuns        PayrollRun[]             @relation("PayrollPayer")
   payslips               Payslip[]
+  assetAssignments       AssetAssignment[]
   createdLetters         OfficialLetter[]         @relation("LetterCreator")
   offboardingRequests    OffboardingRequest[]     @relation("OffboardingUser")
   initiatedOffboardings  OffboardingRequest[]     @relation("OffboardingInitiator")
@@ -768,4 +769,59 @@ model OffboardingRequest {
   @@index([userId, status])
   @@index([status])
   @@map("offboarding_requests")
+// ============================================================================
+// Asset Management (Laptop Collection Report)
+// ============================================================================
+
+enum AssetType {
+  LAPTOP
+  MOUSE
+  KEYBOARD
+  SIM_CARD
+  OTHER
+}
+
+enum AssetStatus {
+  ASSIGNED
+  RETURNED
+  DAMAGED
+  LOST
+}
+
+model AssetAssignment {
+  id                       String      @id @default(uuid())
+  assetTag                 String      @unique
+  assetType                AssetType   @default(LAPTOP)
+  reportDate               DateTime
+  userId                   String?
+  employeeName             String
+  employeeCode             String
+  department               String
+  designation              String
+  contactNumber            String
+  laptopBrand              String
+  model                    String
+  serialNumber             String      @unique
+  chargerReceived          Boolean     @default(true)
+  mouseReceived            Boolean     @default(false)
+  keyboardReceived         Boolean     @default(false)
+  simCardReceived          Boolean     @default(false)
+  simCardNumber            String?
+  collectedAt              DateTime
+  employeeSignature        String?
+  employeeSignedDate       DateTime?
+  authorizedRepresentative String?
+  authorizedSignedDate     DateTime?
+  status                   AssetStatus @default(ASSIGNED)
+  returnedAt               DateTime?
+  returnNotes              String?
+  createdById              String?
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([employeeCode])
+  @@index([status])
+  @@map("asset_assignments")
 }

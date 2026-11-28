@@ -66,7 +66,7 @@ const CONTACT_CARDS = [
     icon: MessageCircle,
     title: 'Ask your manager or buddy',
     description: 'For day-to-day questions about your role and team.',
-    action: 'mailto:induction@maventures.com?subject=Induction%20buddy%20question',
+    action: 'mailto:hr@markanthony.co.in?subject=Induction%20buddy%20question',
     actionLabel: 'Contact your induction buddy',
   },
 ];
@@ -134,9 +134,8 @@ export function SupportPage() {
                   >
                     <span className="text-[11.5px] font-bold text-[#3B2314]">{faq.question}</span>
                     <ChevronDown
-                      className={`h-4 w-4 shrink-0 text-[#B8893A] transition-transform ${
-                        open ? 'rotate-180' : ''
-                      }`}
+                      className={`h-4 w-4 shrink-0 text-[#B8893A] transition-transform ${open ? 'rotate-180' : ''
+                        }`}
                     />
                   </button>
                   {open && (

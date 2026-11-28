@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import {
-  AlertCircle,
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
@@ -82,59 +81,54 @@ export function AssessmentRunner({
   }
 
   return (
-    <div className="space-y-5">
-      <section className="relative overflow-hidden rounded-3xl border border-[#E9DED2] bg-white p-5 shadow-[0_10px_35px_rgba(59,35,20,0.05)] sm:p-7">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[#FBF5EA]" />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="mx-auto max-w-3xl space-y-5">
+      {/* Assessment heading */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#0f172a] sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FBF5EA] text-[#9A7A45]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#1e3a8a] dark:bg-blue-950/50 dark:text-blue-300">
               <ClipboardCheck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-[#9A7A45]">
+              <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-[#1e3a8a] dark:text-blue-400">
                 {isFinal ? 'Final assessment' : `Chapter ${chapterNumber} assessment`}
               </p>
-              <h1 className="mt-1 font-serif text-xl font-bold tracking-tight text-[#3B2314] sm:text-2xl">
+              <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                 {chapterTitle}
               </h1>
-              <p className="mt-1.5 max-w-2xl text-[11px] leading-5 text-[#8A7A6C]">
+              <p className="mt-1.5 max-w-xl text-[11.5px] leading-5 text-slate-500 dark:text-slate-400">
                 {assessment.instructions}
               </p>
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#CFE3D6] bg-[#EEF6F0] px-2.5 py-1 text-[9.5px] font-bold text-[#356B4A]">
-              <ShieldCheck className="h-3 w-3" />
-              {INDUCTION_CONFIG.passingPercentage}% to pass
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E9DED2] bg-[#FFFCF7] px-2.5 py-1 text-[9.5px] font-bold text-[#6E5B4C]">
-              Attempt {attemptCount + 1}
-            </span>
-          </div>
+          <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[9.5px] font-bold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <ShieldCheck className="h-3 w-3" />
+            {INDUCTION_CONFIG.passingPercentage}% to pass
+          </span>
         </div>
 
-        <div className="mt-5 grid gap-2 sm:grid-cols-3">
-          <div className="rounded-xl border border-[#EFE5D9] bg-[#FFFCF7] px-3 py-2">
-            <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#A09182]">
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <div className="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-800 dark:bg-slate-800/40">
+            <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">
               Questions
             </p>
-            <p className="mt-0.5 text-sm font-extrabold text-[#3B2314]">{total}</p>
+            <p className="mt-0.5 text-sm font-extrabold text-slate-900 dark:text-white">{total}</p>
           </div>
-          <div className="rounded-xl border border-[#EFE5D9] bg-[#FFFCF7] px-3 py-2">
-            <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#A09182]">
+          <div className="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-800 dark:bg-slate-800/40">
+            <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">
               Pass mark
             </p>
-            <p className="mt-0.5 text-sm font-extrabold text-[#3B2314]">
-              {passMark} of {total} correct
+            <p className="mt-0.5 text-sm font-extrabold text-slate-900 dark:text-white">
+              {passMark} correct
             </p>
           </div>
-          <div className="rounded-xl border border-[#EFE5D9] bg-[#FFFCF7] px-3 py-2">
-            <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#A09182]">
-              Answered
+          <div className="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2 dark:border-slate-800 dark:bg-slate-800/40">
+            <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">
+              Attempt
             </p>
-            <p className="mt-0.5 text-sm font-extrabold text-[#3B2314]">
-              {answeredCount} of {total}
+            <p className="mt-0.5 text-sm font-extrabold text-slate-900 dark:text-white">
+              {attemptCount + 1}
             </p>
           </div>
         </div>
@@ -142,210 +136,176 @@ export function AssessmentRunner({
 
       {error && <ErrorState title="Assessment not submitted" message={error} onRetry={handleSubmit} />}
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="space-y-4">
-          <section className="rounded-3xl border border-[#E9DED2] bg-white shadow-[0_10px_35px_rgba(59,35,20,0.05)]">
-            <div className="border-b border-[#F0E7DC] px-5 py-4 sm:px-6">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-[#9A7A45]">
-                    Question {currentIndex + 1} of {total}
-                  </p>
-                  <p className="mt-1 text-[10.5px] font-semibold text-[#8A7A6C]">
-                    {answeredCount} answered · {total - answeredCount} remaining
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-32 overflow-hidden rounded-full bg-[#F0E7DC]">
-                    <div
-                      className="h-full rounded-full bg-[#B8893A] transition-all duration-300"
-                      style={{ width: `${questionProgress}%` }}
-                    />
-                  </div>
-                  <span className="text-[10px] font-extrabold text-[#3B2314]">
-                    {questionProgress}%
-                  </span>
-                </div>
-              </div>
+      {/* Question */}
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-[#0f172a]">
+        <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800 sm:px-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-[#1e3a8a] dark:text-blue-400">
+                Question {currentIndex + 1} of {total}
+              </p>
+              <p className="mt-0.5 text-[10.5px] font-medium text-slate-400">
+                {answeredCount} answered · {total - answeredCount} remaining
+              </p>
             </div>
-
-            <div className="px-5 py-5 sm:px-6 sm:py-6">
-              <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#FBF5EA] text-[11px] font-extrabold text-[#8A6427]">
-                  {currentQuestion.number}
-                </span>
-                <h2 className="pt-0.5 text-[14px] font-extrabold leading-6 text-[#3B2314]">
-                  {currentQuestion.prompt}
-                </h2>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-32 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[#1e3a8a] to-amber-400 transition-all duration-300"
+                  style={{ width: `${questionProgress}%` }}
+                />
               </div>
-
-              <div
-                role="radiogroup"
-                aria-label={`Question ${currentQuestion.number}`}
-                className="mt-5 space-y-2.5"
-              >
-                {currentQuestion.options.map((option, index) => {
-                  const selected = answers[currentQuestion.id] === option.key;
-                  return (
-                    <button
-                      key={option.key}
-                      type="button"
-                      role="radio"
-                      aria-checked={selected}
-                      onClick={() => selectAnswer(currentQuestion.id, option.key)}
-                      className={`flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition ${
-                        selected
-                          ? 'border-[#C9A46A] bg-[#FBF5EA] shadow-[0_4px_14px_rgba(184,137,58,0.12)]'
-                          : 'border-[#E9DED2] bg-white hover:border-[#D8C3A4] hover:bg-[#FFFCF8]'
-                      }`}
-                    >
-                      <span
-                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[10px] font-extrabold ${
-                          selected
-                            ? 'border-[#B8893A] bg-[#B8893A] text-white'
-                            : 'border-[#E3D8CB] bg-[#FFFCF7] text-[#9A8B7E]'
-                        }`}
-                      >
-                        {OPTION_LETTERS[index] ?? option.key}
-                      </span>
-                      <span
-                        className={`pt-0.5 text-[12px] leading-6 ${
-                          selected ? 'font-semibold text-[#3B2314]' : 'text-[#5F4B3C]'
-                        }`}
-                      >
-                        {option.text}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <span className="text-[10px] font-extrabold text-slate-700 dark:text-slate-300">
+                {questionProgress}%
+              </span>
             </div>
-
-            <div className="flex flex-col gap-3 border-t border-[#F0E7DC] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
-                  disabled={currentIndex === 0 || submitting}
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  Previous
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setCurrentIndex((index) => Math.min(total - 1, index + 1))}
-                  disabled={currentIndex === total - 1 || submitting}
-                >
-                  Next
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <button
-                  type="button"
-                  onClick={onReviewChapter}
-                  className="inline-flex items-center justify-center gap-1.5 text-[10.5px] font-bold text-[#8A7A6C] transition hover:text-[#3B2314]"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  Review chapter
-                </button>
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="md"
-                  onClick={handleSubmit}
-                  disabled={!allAnswered || submitting}
-                  className="w-full sm:w-auto"
-                >
-                  {submitting ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <CheckCircle2 className="h-4 w-4" />
-                  )}
-                  {submitting ? 'Submitting…' : 'Submit Assessment'}
-                </Button>
-              </div>
-            </div>
-          </section>
-
-          <div className="flex items-start gap-2 rounded-2xl border border-[#E9DED2] bg-[#FFFCF7] px-4 py-3">
-            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#B8893A]" />
-            <p className="text-[10px] leading-5 text-[#8A7A6C]">
-              Your answers are not graded until you submit. You can move between questions and
-              change your selections before submitting. Correct answers are never shown in this
-              assessment.
-            </p>
           </div>
         </div>
 
-        <aside className="space-y-4 lg:sticky lg:top-16 lg:self-start">
-          <section className="rounded-2xl border border-[#E9DED2] bg-white p-4 shadow-[0_8px_24px_rgba(59,35,20,0.04)]">
-            <div className="flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-[0.14em] text-[#9A7A45]">
-              <ClipboardCheck className="h-3 w-3" />
-              Question navigator
-            </div>
-            <div className="mt-3 grid grid-cols-5 gap-1.5">
-              {assessment.questions.map((question, index) => {
-                const answered = Boolean(answers[question.id]);
-                const active = index === currentIndex;
-                return (
-                  <button
-                    key={question.id}
-                    type="button"
-                    onClick={() => setCurrentIndex(index)}
-                    aria-label={`Go to question ${index + 1}${answered ? ', answered' : ''}`}
-                    className={`flex h-8 items-center justify-center rounded-lg border text-[10px] font-extrabold transition ${
-                      active
-                        ? 'border-[#3B2314] bg-[#3B2314] text-white'
-                        : answered
-                          ? 'border-[#D8C3A4] bg-[#FBF5EA] text-[#8A6427]'
-                          : 'border-[#E9DED2] bg-white text-[#A09182] hover:border-[#D8C3A4]'
+        <div className="px-5 py-5 sm:px-6 sm:py-6">
+          <div className="flex items-start gap-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[11px] font-extrabold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              {currentQuestion.number}
+            </span>
+            <h2 className="pt-0.5 text-[14px] font-bold leading-6 text-slate-900 dark:text-white">
+              {currentQuestion.prompt}
+            </h2>
+          </div>
+
+          <div
+            role="radiogroup"
+            aria-label={`Question ${currentQuestion.number}`}
+            className="mt-5 space-y-2.5"
+          >
+            {currentQuestion.options.map((option, index) => {
+              const selected = answers[currentQuestion.id] === option.key;
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => selectAnswer(currentQuestion.id, option.key)}
+                  className={`flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                    selected
+                      ? 'border-[#1e3a8a] bg-blue-50/70 shadow-sm ring-1 ring-[#1e3a8a]/15 dark:border-blue-500 dark:bg-blue-950/30'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span
+                    className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border text-[10px] font-extrabold ${
+                      selected
+                        ? 'border-[#1e3a8a] bg-[#1e3a8a] text-white'
+                        : 'border-slate-200 bg-slate-50 text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500'
                     }`}
                   >
-                    {index + 1}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="mt-3 flex items-center justify-between text-[9.5px] font-semibold text-[#8A7A6C]">
-              <span className="inline-flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-[#B8893A]" />
-                Answered
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-[#E3D8CB]" />
-                Not answered
-              </span>
-            </div>
-          </section>
+                    {OPTION_LETTERS[index] ?? option.key}
+                  </span>
+                  <span
+                    className={`pt-0.5 text-[12.5px] leading-6 ${
+                      selected
+                        ? 'font-semibold text-slate-900 dark:text-white'
+                        : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    {option.text}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-          <section className="rounded-2xl border border-[#E9DED2] bg-[#FFFCF7] p-4">
-            <div className="flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-[0.14em] text-[#9A7A45]">
-              <ShieldCheck className="h-3 w-3" />
-              Before you submit
-            </div>
-            <ul className="mt-2.5 space-y-2 text-[10.5px] leading-5 text-[#8A7A6C]">
-              <li className="flex gap-2">
-                <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-[#4F7F61]" />
-                Answer all {total} questions.
-              </li>
-              <li className="flex gap-2">
-                <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-[#4F7F61]" />
-                Score at least {passMark} of {total} ({INDUCTION_CONFIG.passingPercentage}%) to pass.
-              </li>
-              <li className="flex gap-2">
-                <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-[#4F7F61]" />
-                A failed attempt keeps the next chapter locked. You can retry.
-              </li>
-            </ul>
-          </section>
-        </aside>
-      </div>
+        <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
+              disabled={currentIndex === 0 || submitting}
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Previous
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setCurrentIndex((index) => Math.min(total - 1, index + 1))}
+              disabled={currentIndex === total - 1 || submitting}
+            >
+              Next
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={onReviewChapter}
+              className="inline-flex items-center justify-center gap-1.5 text-[10.5px] font-bold text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Review chapter
+            </button>
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+              onClick={handleSubmit}
+              disabled={!allAnswered || submitting}
+              className="w-full sm:w-auto"
+            >
+              {submitting ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" />
+              )}
+              {submitting ? 'Submitting…' : 'Submit assessment'}
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Question navigator */}
+      <section className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-[#0f172a]">
+        <div className="flex items-center justify-between">
+          <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-slate-400">
+            Question navigator
+          </p>
+          <p className="text-[10px] font-medium text-slate-400">
+            {answeredCount} of {total} answered
+          </p>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {assessment.questions.map((question, index) => {
+            const answered = Boolean(answers[question.id]);
+            const active = index === currentIndex;
+            return (
+              <button
+                key={question.id}
+                type="button"
+                onClick={() => setCurrentIndex(index)}
+                aria-label={`Go to question ${index + 1}${answered ? ', answered' : ''}`}
+                className={`flex h-8 w-8 items-center justify-center rounded-md border text-[10px] font-extrabold transition ${
+                  active
+                    ? 'border-[#0b2b52] bg-[#0b2b52] text-white dark:border-[#1e3a8a] dark:bg-[#1e3a8a]'
+                    : answered
+                      ? 'border-blue-200 bg-blue-50 text-[#1e3a8a] dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300'
+                      : 'border-slate-200 bg-white text-slate-400 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500'
+                }`}
+              >
+                {index + 1}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-3 text-[10px] leading-5 text-slate-400 dark:text-slate-500">
+          Answer all {total} questions. You can move between questions and change your selections
+          before submitting. A failed attempt keeps the next chapter locked.
+        </p>
+      </section>
     </div>
   );
 }

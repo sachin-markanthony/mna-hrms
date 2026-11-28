@@ -1,85 +1,68 @@
-import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardCheck,
-  GraduationCap,
-  Home,
-  LifeBuoy,
+  CheckCircle2,
+  LockKeyhole,
   LogOut,
-  Sparkles,
-  TrendingUp,
+  Trophy,
   X,
 } from 'lucide-react';
 import { BrandLogo } from '../../../../components/ui/BrandLogo';
 import { useAuth } from '../../../auth';
-import type { EmployeeProfile, InductionSummary } from '../../types/learning.types';
+import { MODULE_GROUPS } from '../../data/chapterCatalog';
+import type {
+  ChapterView,
+  EmployeeProfile,
+  InductionSummary,
+} from '../../types/learning.types';
 import { getInitials } from '../../utils/chapterStatus';
 
 interface InductionSidebarProps {
   employee: EmployeeProfile;
   summary: InductionSummary;
-  collapsed: boolean;
+  learningChapters: ChapterView[];
+  finalAssessment: ChapterView;
   mobileOpen: boolean;
-  onToggleCollapse: () => void;
   onCloseMobile: () => void;
-  onResetProgress: () => void;
 }
-
-const NAV_SECTIONS = [
-  {
-    label: 'My Learning',
-    items: [
-      { label: 'Induction Overview', to: '/induction', icon: Home, end: true },
-      { label: 'Learning Chapters', to: '/induction/chapters', icon: BookOpen },
-    ],
-  },
-  {
-    label: 'My Progress',
-    items: [
-      { label: 'My Assessments', to: '/induction/assessments', icon: ClipboardCheck },
-      { label: 'My Progress', to: '/induction/progress', icon: TrendingUp },
-    ],
-  },
-  {
-    label: 'Help & Support',
-    items: [
-      { label: 'Help & Support', to: '/induction/support', icon: LifeBuoy },
-    ],
-  },
-];
 
 export function InductionSidebar({
   employee,
   summary,
-  collapsed,
+  learningChapters,
+  finalAssessment,
   mobileOpen,
-  onToggleCollapse,
   onCloseMobile,
-  onResetProgress,
 }: InductionSidebarProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [profileOpen, setProfileOpen] = useState(false);
+  const location = useLocation();
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const activeItem = navRef.current?.querySelector<HTMLElement>('[data-active="true"]');
+    activeItem?.scrollIntoView({ block: 'nearest' });
+  }, [location.pathname, mobileOpen]);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const handleReset = () => {
-    if (
-      window.confirm(
-        'Reset your induction progress and assessment history back to Chapter 1? This cannot be undone.',
-      )
-    ) {
-      onResetProgress();
-      setProfileOpen(false);
-      navigate('/induction');
-    }
+  const openChapter = (chapterNumber: number) => {
+    navigate(`/induction/chapters/${chapterNumber}`);
+    onCloseMobile();
   };
+
+  const openFinalAssessment = () => {
+    navigate('/induction/final-assessment');
+    onCloseMobile();
+  };
+
+  const finalActive =
+    location.pathname.startsWith('/induction/final-assessment') ||
+    location.pathname === '/induction/chapters/21' ||
+    location.pathname.startsWith('/induction/chapters/21/');
 
   return (
     <>
@@ -88,205 +71,239 @@ export function InductionSidebar({
           type="button"
           aria-label="Close navigation"
           onClick={onCloseMobile}
-          className="fixed inset-0 z-40 bg-[#2B1810]/35 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-[2px] lg:hidden"
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen shrink-0 flex-col border-r border-[#E9DED2] bg-[#FFFCF7] transition-all duration-300 lg:static lg:z-30 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[286px] shrink-0 flex-col border-r border-slate-200/80 bg-white transition-transform duration-300 dark:border-slate-800/80 dark:bg-[#0f172a] lg:static lg:z-30 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } ${collapsed ? 'w-[84px]' : 'w-[272px]'}`}
+        }`}
       >
-        <div className="flex h-[76px] shrink-0 items-center justify-between border-b border-[#EFE5D9] px-4">
-          {collapsed ? (
-            <button
-              type="button"
-              onClick={onToggleCollapse}
-              className="mx-auto rounded-xl p-1 transition hover:bg-[#F7EFE4]"
-              title="Expand sidebar"
-            >
-              <BrandLogo size="sm" collapsed />
-            </button>
-          ) : (
-            <BrandLogo size="md" showSubtitle />
-          )}
-
-          {!collapsed && (
-            <button
-              type="button"
-              onClick={onToggleCollapse}
-              className="hidden rounded-lg p-1.5 text-[#9A8B7E] transition hover:bg-[#F5EDE2] hover:text-[#3B2314] lg:inline-flex"
-              title="Collapse sidebar"
-              aria-label="Collapse sidebar"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-          )}
+        {/* Brand */}
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-slate-100 px-5 dark:border-slate-800/80">
+          <BrandLogo size="md" showSubtitle />
           <button
             type="button"
             onClick={onCloseMobile}
-            className="rounded-lg p-1.5 text-[#9A8B7E] transition hover:bg-[#F5EDE2] hover:text-[#3B2314] lg:hidden"
+            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 lg:hidden"
             aria-label="Close navigation"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-5">
-          {collapsed && (
-            <button
-              type="button"
-              onClick={onToggleCollapse}
-              className="mx-auto mb-4 hidden h-8 w-8 items-center justify-center rounded-lg text-[#9A8B7E] transition hover:bg-[#F5EDE2] hover:text-[#3B2314] lg:flex"
-              title="Expand sidebar"
-              aria-label="Expand sidebar"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          )}
+        {/* Overall progress */}
+        <div className="shrink-0 border-b border-slate-100 px-5 py-4 dark:border-slate-800/80">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+              Induction progress
+            </p>
+            <span className="text-[11px] font-extrabold text-slate-900 dark:text-white">
+              {summary.overallPercentage}%
+            </span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#1e3a8a] to-amber-400 transition-all duration-500"
+              style={{ width: `${summary.overallPercentage}%` }}
+            />
+          </div>
+          <p className="mt-1.5 text-[10.5px] font-medium text-slate-500 dark:text-slate-400">
+            {summary.completedChapters} of {summary.totalLearningChapters} chapters complete
+          </p>
+        </div>
 
-          {NAV_SECTIONS.map((section) => (
-            <div key={section.label} className="mb-5">
-              {!collapsed && (
-                <p className="mb-2 px-3 text-[9.5px] font-extrabold uppercase tracking-[0.16em] text-[#A69788]">
-                  {section.label}
-                </p>
-              )}
-              <div className="space-y-1">
-                {section.items.map((item) => {
-                  const Icon = item.icon;
+        {/* Chapters */}
+        <nav ref={navRef} className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4">
+          {MODULE_GROUPS.map((group) => (
+            <div key={group.moduleNumber} className="mb-4 last:mb-0">
+              <p className="mb-1.5 px-2 text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+                {group.moduleLabel}
+              </p>
+
+              <div className="space-y-0.5">
+                {group.chapters.map((entry) => {
+                  const chapter = learningChapters.find(
+                    (item) => item.chapterNumber === entry.chapterNumber,
+                  );
+                  if (!chapter) return null;
+
+                  const chapterPath = `/induction/chapters/${chapter.chapterNumber}`;
+                  const active =
+                    location.pathname === chapterPath ||
+                    location.pathname.startsWith(`${chapterPath}/`);
+                  const locked = !chapter.isUnlocked;
+                  const failed = chapter.status === 'assessment_failed';
+
+                  const helper = chapter.completed
+                    ? chapter.bestScore
+                      ? `Passed · ${chapter.bestScore}%`
+                      : 'Completed'
+                    : failed
+                      ? 'Retake assessment'
+                      : locked
+                        ? 'Locked'
+                        : chapter.readingStatus === 'reading'
+                          ? 'In progress'
+                          : `${chapter.estimatedMinutes} min`;
+
                   return (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      end={item.end}
-                      onClick={onCloseMobile}
-                      title={collapsed ? item.label : undefined}
-                      className={({ isActive }) =>
-                        `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[12.5px] font-semibold transition ${
-                          isActive
-                            ? 'bg-[#3B2314] text-[#FFFDF9] shadow-[0_8px_18px_rgba(59,35,20,0.16)]'
-                            : 'text-[#6E5B4C] hover:bg-[#F6EEE3] hover:text-[#3B2314]'
-                        } ${collapsed ? 'justify-center px-0' : ''}`
-                      }
+                    <button
+                      key={chapter.chapterNumber}
+                      type="button"
+                      disabled={locked}
+                      onClick={() => openChapter(chapter.chapterNumber)}
+                      data-active={active ? 'true' : undefined}
+                      aria-current={active ? 'page' : undefined}
+                      title={locked ? 'Pass the previous assessment to unlock' : chapter.title}
+                      className={`group flex w-full items-start gap-2.5 rounded-lg px-2 py-2 text-left transition ${
+                        active
+                          ? 'bg-[#0b2b52] text-white shadow-sm dark:bg-[#1e3a8a]'
+                          : locked
+                            ? 'cursor-not-allowed opacity-55'
+                            : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/60'
+                      }`}
                     >
-                      {({ isActive }) => (
-                        <>
-                          <Icon
-                            className={`h-[17px] w-[17px] shrink-0 ${
-                              isActive ? 'text-[#E6C687]' : 'text-[#A28F7D]'
-                            }`}
-                          />
-                          {!collapsed && <span className="truncate">{item.label}</span>}
-                        </>
-                      )}
-                    </NavLink>
+                      <span
+                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-extrabold ${
+                          chapter.completed
+                            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400'
+                            : locked
+                              ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
+                              : active
+                                ? 'bg-white/15 text-amber-300'
+                                : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                        }`}
+                      >
+                        {chapter.completed ? (
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        ) : locked ? (
+                          <LockKeyhole className="h-3 w-3" />
+                        ) : (
+                          chapter.chapterNumber
+                        )}
+                      </span>
+
+                      <span className="min-w-0 flex-1">
+                        <span className="line-clamp-2 block text-[12px] font-semibold leading-5">
+                          {chapter.title}
+                        </span>
+                        <span
+                          className={`mt-0.5 block text-[9.5px] font-medium ${
+                            active
+                              ? 'text-blue-100'
+                              : chapter.completed
+                                ? 'text-emerald-600 dark:text-emerald-400'
+                                : failed
+                                  ? 'text-amber-600 dark:text-amber-400'
+                                  : locked
+                                    ? 'text-slate-400 dark:text-slate-500'
+                                    : 'text-slate-400 dark:text-slate-500'
+                          }`}
+                        >
+                          {helper}
+                        </span>
+                      </span>
+                    </button>
                   );
                 })}
               </div>
             </div>
           ))}
 
-          {!collapsed && (
-            <div className="mt-2 rounded-2xl border border-[#EFE1CE] bg-[#FBF5EA] p-3.5">
-              <div className="flex items-center gap-1.5 text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-[#9A7A45]">
-                <Sparkles className="h-3 w-3" />
-                Your journey
-              </div>
-              <p className="mt-1.5 text-[12px] font-bold text-[#3B2314]">
-                {summary.completedChapters} of {summary.totalLearningChapters} chapters
-              </p>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#EDE2D2]">
-                <div
-                  className="h-full rounded-full bg-[#B8893A] transition-all duration-500"
-                  style={{ width: `${summary.overallPercentage}%` }}
-                />
-              </div>
-              <p className="mt-1.5 text-[10px] font-semibold text-[#8A7765]">
-                {summary.overallPercentage}% complete
-              </p>
-            </div>
-          )}
-        </nav>
-
-        <div className="shrink-0 border-t border-[#EFE5D9] p-3">
-          {collapsed ? (
+          {/* Final assessment */}
+          <div className="mt-1 border-t border-slate-100 pt-3 dark:border-slate-800/80">
+            <p className="mb-1.5 px-2 text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+              Final step
+            </p>
             <button
               type="button"
-              onClick={onToggleCollapse}
-              className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#3B2314] text-[11px] font-extrabold text-[#F3DFC0]"
-              title={employee.fullName}
+              disabled={!finalAssessment.isUnlocked}
+              onClick={openFinalAssessment}
+              data-active={finalActive ? 'true' : undefined}
+              aria-current={finalActive ? 'page' : undefined}
+              className={`group flex w-full items-start gap-2.5 rounded-lg px-2 py-2 text-left transition ${
+                finalActive
+                  ? 'bg-[#0b2b52] text-white shadow-sm dark:bg-[#1e3a8a]'
+                  : finalAssessment.isUnlocked
+                    ? 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/60'
+                    : 'cursor-not-allowed opacity-55'
+              }`}
             >
-              {getInitials(employee.fullName)}
-            </button>
-          ) : (
-            <div className="rounded-2xl border border-[#EDE2D6] bg-white p-3">
-              <button
-                type="button"
-                onClick={() => setProfileOpen((open) => !open)}
-                className="flex w-full items-center gap-3 text-left"
-                aria-expanded={profileOpen}
+              <span
+                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${
+                  finalAssessment.completed
+                    ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400'
+                    : finalAssessment.isUnlocked
+                      ? finalActive
+                        ? 'bg-white/15 text-amber-300'
+                        : 'bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400'
+                      : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
+                }`}
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#3B2314] text-[11px] font-extrabold text-[#F3DFC0]">
-                  {getInitials(employee.fullName)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[12px] font-bold text-[#3B2314]">
-                    {employee.fullName}
-                  </p>
-                  <p className="truncate text-[10px] font-semibold text-[#9A7A45]">
-                    {employee.employeeCode}
-                  </p>
-                  <p className="truncate text-[10px] text-[#8A7A6C]">
-                    {employee.designation}
-                  </p>
-                </div>
-              </button>
+                {finalAssessment.completed ? (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                ) : finalAssessment.isUnlocked ? (
+                  <Trophy className="h-3.5 w-3.5" />
+                ) : (
+                  <LockKeyhole className="h-3 w-3" />
+                )}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[12px] font-semibold leading-5">
+                  The Grand Final Quiz
+                </span>
+                <span
+                  className={`mt-0.5 block text-[9.5px] font-medium ${
+                    finalActive
+                      ? 'text-blue-100'
+                      : finalAssessment.completed
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : finalAssessment.isUnlocked
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-slate-400 dark:text-slate-500'
+                  }`}
+                >
+                  {finalAssessment.completed
+                    ? finalAssessment.bestScore
+                      ? `Passed · ${finalAssessment.bestScore}%`
+                      : 'Completed'
+                    : finalAssessment.isUnlocked
+                      ? 'Ready when you are'
+                      : `Complete ${summary.totalLearningChapters} chapters`}
+                </span>
+              </span>
+            </button>
+          </div>
+        </nav>
 
-              {profileOpen && (
-                <div className="mt-3 space-y-1 border-t border-[#F0E7DC] pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      navigate('/induction/progress');
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-[#6E5B4C] transition hover:bg-[#F8F1E7]"
-                  >
-                    <TrendingUp className="h-3.5 w-3.5 text-[#A28F7D]" />
-                    View my progress
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-[#9A6420] transition hover:bg-[#FDF3E1]"
-                  >
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Reset demo progress
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[11px] font-semibold text-[#A34C35] transition hover:bg-[#FDF2EE]"
-                  >
-                    <LogOut className="h-3.5 w-3.5" />
-                    Sign out
-                  </button>
-                </div>
-              )}
+        {/* Employee */}
+        <div className="shrink-0 border-t border-slate-100 p-3 dark:border-slate-800/80">
+          <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-2.5 dark:bg-slate-800/60">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-[#072b53] to-[#1e40af] text-[11px] font-black text-white ring-1 ring-slate-200 dark:ring-slate-700">
+              {getInitials(employee.fullName)}
             </div>
-          )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[12px] font-bold text-slate-900 dark:text-white">
+                {employee.fullName}
+              </p>
+              <p className="truncate text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                {employee.designation}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Sign out"
+              aria-label="Sign out"
+              className="shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 dark:hover:text-rose-400"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </aside>
     </>
-  );
-}
-
-export function InductionSidebarBadge() {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-[#E8D9C2] bg-[#FBF5EA] px-2 py-0.5 text-[9px] font-bold text-[#8A6427]">
-      <GraduationCap className="h-2.5 w-2.5" />
-      Induction
-    </span>
   );
 }

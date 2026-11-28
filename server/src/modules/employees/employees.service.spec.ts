@@ -43,6 +43,7 @@ describe('EmployeesService', () => {
       roleDefinition: { findUnique: vi.fn() },
       employee: { findMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
       leaveBalance: { createMany: vi.fn() },
+      officialLetter: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       employeeDocument: { create: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
       $transaction: vi.fn(async (cb) => cb(prisma)),
     };
@@ -51,6 +52,7 @@ describe('EmployeesService', () => {
     service = new EmployeesService(
       prisma as unknown as PrismaService,
       auditService as unknown as AuditService,
+      { isConfigured: vi.fn().mockReturnValue(false), sendMail: vi.fn() } as any,
     );
   });
 
