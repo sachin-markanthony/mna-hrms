@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { CheckCircle2, Building2, Loader2, Send } from 'lucide-react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Building2, Check, CheckCircle2, ChevronDown, Loader2, Send } from 'lucide-react';
 import { recruitmentApi } from './recruitment.api';
 import type { RecruitmentDepartment } from './types';
 import { notifyError, notifySuccess } from '../../services/toast';
@@ -33,6 +33,18 @@ export function WalkInPublicForm() {
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submittedCandidate, setSubmittedCandidate] = useState<string | null>(null);
+  const [deptDropdownOpen, setDeptDropdownOpen] = useState(false);
+  const deptDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (deptDropdownRef.current && !deptDropdownRef.current.contains(e.target as Node)) {
+        setDeptDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
 
   const isExperienced = experienceType === 'EXPERIENCED';
   const expNum = isExperienced ? Number(experienceYears) : 0;
@@ -272,24 +284,59 @@ export function WalkInPublicForm() {
                 )}
               </div>
 
-              <div>
+              <div ref={deptDropdownRef} className="relative">
                 <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">
                   Department *
                 </label>
-                <div className="relative">
-                  <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                  <select
-                    value={department}
-                    onChange={(e) => {
-                      setDepartment(e.target.value as RecruitmentDepartment);
-                      clearFieldError('department');
-                    }}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#072b53]/20"
-                  >
-                    <option value="SALES">Sales</option>
-                    <option value="DIGITAL">Digital</option>
-                  </select>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setDeptDropdownOpen((prev) => !prev)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm text-slate-800 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-[#072b53]/20 cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="font-medium">
+                      {department === 'SALES' ? 'Sales' : 'Digital'}
+                    </span>
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-400 transition-transform ${
+                      deptDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {deptDropdownOpen && (
+                  <div className="absolute left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-30 overflow-hidden py-1">
+                    {(
+                      [
+                        { value: 'SALES', label: 'Sales' },
+                        { value: 'DIGITAL', label: 'Digital' },
+                      ] as const
+                    ).map((opt) => {
+                      const active = department === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => {
+                            setDepartment(opt.value);
+                            clearFieldError('department');
+                            setDeptDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3.5 py-2 text-xs sm:text-sm text-left transition cursor-pointer ${
+                            active
+                              ? 'bg-[#072b53]/5 text-[#072b53] font-bold'
+                              : 'text-slate-700 hover:bg-slate-50 font-medium'
+                          }`}
+                        >
+                          <span>{opt.label}</span>
+                          {active && <Check className="w-4 h-4 text-[#072b53]" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div>
