@@ -15,6 +15,7 @@ import { WalkInPublicForm } from './modules/recruitment/WalkInPublicForm';
 import { PayrollManagement, MyPayslips } from './modules/payroll';
 import { LettersManagement } from './modules/letters';
 import { OffboardingManagement } from './modules/offboarding';
+import { AssetsManagement } from './modules/assets';
 function ProtectedRoute({
   children,
   withLayout = true,
@@ -184,6 +185,12 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <OffboardingManagement />
+        path="/assets"
+        element={
+          <ProtectedRoute
+            requiredPermissions={['assets:manage_all']}
+          >
+            <AssetsManagement />
           </ProtectedRoute>
         }
       />

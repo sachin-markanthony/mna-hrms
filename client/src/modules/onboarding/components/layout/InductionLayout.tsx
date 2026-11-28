@@ -5,17 +5,16 @@ import { InductionSidebar } from './InductionSidebar';
 import { InductionTopbar } from './InductionTopbar';
 import '../../induction.css';
 
+/**
+ * Minimal, reading-first shell for the induction experience.
+ *
+ * The sidebar is the single navigation surface: it lists every learning
+ * chapter in order, with locked chapters disabled until the previous
+ * assessment has been passed. Everything else lives in the reading area.
+ */
 export function InductionLayout() {
-  const {
-    employee,
-    chapters,
-    summary,
-    notifications,
-    markNotificationRead,
-    markAllNotificationsRead,
-    resetProgress,
-  } = useInductionLearning();
-  const [collapsed, setCollapsed] = useState(false);
+  const { employee, chapters, learningChapters, finalAssessment, summary } =
+    useInductionLearning();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -23,27 +22,24 @@ export function InductionLayout() {
       <InductionSidebar
         employee={employee}
         summary={summary}
-        collapsed={collapsed}
+        learningChapters={learningChapters}
+        finalAssessment={finalAssessment}
         mobileOpen={mobileOpen}
-        onToggleCollapse={() => setCollapsed((value) => !value)}
         onCloseMobile={() => setMobileOpen(false)}
-        onResetProgress={resetProgress}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <InductionTopbar
           chapters={chapters}
-          notifications={notifications}
+          summary={summary}
           onOpenMobileSidebar={() => setMobileOpen(true)}
-          onMarkNotificationRead={markNotificationRead}
-          onMarkAllNotificationsRead={markAllNotificationsRead}
         />
 
         <main
           id="induction-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth p-4 sm:p-6 lg:p-8"
+          className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth"
         >
-          <div className="w-full">
+          <div className="mx-auto w-full max-w-[1120px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             <Outlet />
           </div>
         </main>

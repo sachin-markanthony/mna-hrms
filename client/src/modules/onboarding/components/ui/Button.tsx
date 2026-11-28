@@ -4,24 +4,25 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'gold' | 'danger
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 const BASE =
-  'inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8893A]/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55';
+  'inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg font-bold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-[#3B2314] text-[#FFFDF9] shadow-[0_8px_20px_rgba(59,35,20,0.18)] hover:bg-[#54331F] active:translate-y-px',
+    'bg-[#0b2b52] text-white shadow-sm hover:bg-[#143b68] active:translate-y-px dark:bg-[#1e3a8a] dark:hover:bg-[#1d4ed8]',
   secondary:
-    'border border-[#E4D8CA] bg-white text-[#3B2314] shadow-[0_2px_8px_rgba(59,35,20,0.04)] hover:border-[#C9A46A] hover:bg-[#FBF7F0]',
-  ghost: 'text-[#6F5B4B] hover:bg-[#F3ECE2] hover:text-[#3B2314]',
+    'border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800',
+  ghost:
+    'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white',
   gold:
-    'bg-[#B8893A] text-white shadow-[0_8px_20px_rgba(184,137,58,0.22)] hover:bg-[#A3772D] active:translate-y-px',
+    'bg-amber-500 text-[#0f172a] shadow-sm hover:bg-amber-400 active:translate-y-px',
   danger:
-    'border border-[#E9C9C1] bg-[#FDF5F2] text-[#9B3F2E] hover:bg-[#FAEAE4]',
+    'border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-950/60',
 };
 
 const SIZES: Record<ButtonSize, string> = {
   sm: 'px-3 py-2 text-[11px]',
   md: 'px-4 py-2.5 text-xs',
-  lg: 'px-6 py-3.5 text-sm',
+  lg: 'px-6 py-3 text-sm',
 };
 
 export function buttonStyles(

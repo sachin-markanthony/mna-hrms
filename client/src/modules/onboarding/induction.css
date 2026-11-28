@@ -19,7 +19,7 @@
 .dark .induction-page {
   --induction-surface: var(--color-brand-surface);
   --induction-soft: color-mix(in srgb, var(--primary) 12%, var(--induction-surface));
-  --induction-page-bg: var(--color-primary-950);
+  --induction-page-bg: #091020;
   --induction-text: var(--color-brand-card);
   --induction-muted: color-mix(in srgb, var(--color-brand-muted) 88%, var(--color-brand-card));
   --induction-border: color-mix(in srgb, var(--color-brand-surface) 82%, var(--color-brand-card));
@@ -45,21 +45,8 @@
 }
 
 .induction-shell>aside {
-  width: 264px;
   background-color: var(--induction-surface);
   border-color: var(--induction-border);
-}
-
-.induction-shell>aside[class*="w-[84px]"] {
-  width: 84px;
-}
-
-.induction-shell>aside[class*="w-[272px]"] {
-  width: 264px;
-}
-
-.induction-shell>aside>div:first-child {
-  height: 64px;
 }
 
 .induction-shell .induction-topbar {
