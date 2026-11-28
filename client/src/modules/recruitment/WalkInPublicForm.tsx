@@ -24,55 +24,58 @@ export function WalkInPublicForm() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [department, setDepartment] = useState<RecruitmentDepartment>('SALES');
-  const [experienceYears, setExperienceYears] = useState('0');
+  const [experienceType, setExperienceType] = useState<'FRESHER' | 'EXPERIENCED'>('FRESHER');
+  const [experienceYears, setExperienceYears] = useState('');
   const [currentCompany, setCurrentCompany] = useState('');
   const [currentCtc, setCurrentCtc] = useState('');
   const [expectedSalary, setExpectedSalary] = useState('');
   const [skillsInput, setSkillsInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submittedCandidate, setSubmittedCandidate] = useState<string | null>(null);
 
-  const expNum = Number(experienceYears);
-  const isExperienced = experienceYears.trim() !== '' && !Number.isNaN(expNum) && expNum > 0;
+  const isExperienced = experienceType === 'EXPERIENCED';
+  const expNum = isExperienced ? Number(experienceYears) : 0;
 
   const validateAllFields = (): FieldErrors => {
     const errs: FieldErrors = {};
     const nameTrimmed = fullName.trim();
     const emailTrimmed = email.trim().toLowerCase();
     const phoneTrimmed = phone.trim();
-    const phoneDigits = phoneTrimmed.replace(/\D/g, '');
 
     if (!nameTrimmed) {
       errs.fullName = 'Full name is required.';
     } else if (nameTrimmed.length < 2) {
-      errs.fullName = 'Name must be at least 2 characters.';
-    } else if (!/^[a-zA-Z\s.'-]+$/.test(nameTrimmed)) {
-      errs.fullName = 'Name should contain only letters and spaces.';
+      errs.fullName = 'Full name must be at least 2 characters.';
+    } else if (!/^[a-zA-Z\s]+$/.test(nameTrimmed)) {
+      errs.fullName = 'Full name must contain only alphabetic characters.';
     }
 
     if (!emailTrimmed) {
       errs.email = 'Email address is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailTrimmed)) {
       errs.email = 'Please enter a valid email address.';
     }
 
     if (!phoneTrimmed) {
       errs.phone = 'Mobile number is required.';
-    } else if (!/^[+\d\s-]+$/.test(phoneTrimmed) || phoneDigits.length < 10 || phoneDigits.length > 15) {
-      errs.phone = 'Enter a valid 10 to 15 digit mobile number.';
+    } else if (!/^[6-9]\d{9}$/.test(phoneTrimmed)) {
+      errs.phone = 'Enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.';
     }
 
     if (department !== 'SALES' && department !== 'DIGITAL') {
-      errs.department = 'Please select a valid department.';
-    }
-
-    if (experienceYears.trim() === '' || Number.isNaN(expNum) || expNum < 0 || expNum > 50) {
-      errs.experienceYears = 'Enter 0 for Fresher or valid years (0–50).';
+      errs.department = 'Please select Sales or Digital.';
     }
 
     if (isExperienced) {
+      if (
+        experienceYears.trim() === '' ||
+        Number.isNaN(expNum) ||
+        expNum <= 0 ||
+        expNum > 50
+      ) {
+        errs.experienceYears = 'Enter valid years of experience (greater than 0, up to 50).';
+      }
       if (!currentCompany.trim() || currentCompany.trim().length < 2) {
         errs.currentCompany = 'Current / Previous company name is required.';
       }
@@ -95,14 +98,10 @@ export function WalkInPublicForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
 
     const errs = validateAllFields();
     setFieldErrors(errs);
-    const firstErr = Object.values(errs).find(Boolean);
-    if (firstErr) {
-      setError(firstErr);
-      notifyError(firstErr);
+    if (Object.values(errs).some(Boolean)) {
       return;
     }
 
@@ -114,7 +113,7 @@ export function WalkInPublicForm() {
 
     if (isExperienced && currentCtc.trim()) {
       tags.push(`Current CTC: ${currentCtc.trim()}`);
-    } else if (!isExperienced) {
+    } else {
       tags.push('Fresher');
     }
 
@@ -134,7 +133,6 @@ export function WalkInPublicForm() {
       setSubmittedCandidate(fullName.trim());
     } catch (err: any) {
       const msg = err?.message || 'Unable to submit your walk-in registration. Please inform HR.';
-      setError(msg);
       notifyError(msg);
     } finally {
       setSubmitting(false);
@@ -142,8 +140,8 @@ export function WalkInPublicForm() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-3 py-3 sm:p-4">
-      <div className="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+    <div className="h-full w-full overflow-y-auto bg-slate-50 flex flex-col items-center px-3 py-4 sm:p-6">
+      <div className="w-full max-w-xl my-auto bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden shrink-0">
         {/* Brand Header (White Mark Anthony Ventures, no HRMS badge) */}
         <div className="bg-[#072b53] px-4 py-3 sm:px-5 sm:py-3.5 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -177,25 +175,6 @@ export function WalkInPublicForm() {
               received by our HR team. Please have a seat in the reception area — our HR Coordinator
               will call you shortly.
             </p>
-            <button
-              type="button"
-              onClick={() => {
-                setSubmittedCandidate(null);
-                setFullName('');
-                setEmail('');
-                setPhone('');
-                setExperienceYears('0');
-                setCurrentCompany('');
-                setCurrentCtc('');
-                setExpectedSalary('');
-                setSkillsInput('');
-                setFieldErrors({});
-                setError('');
-              }}
-              className="mt-2 px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-            >
-              Register Another Candidate
-            </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate className="p-4 sm:p-5 space-y-3">
@@ -207,12 +186,6 @@ export function WalkInPublicForm() {
               </p>
             </div>
 
-            {error && (
-              <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
-                {error}
-              </div>
-            )}
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
               <div className="sm:col-span-2">
                 <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">
@@ -223,7 +196,8 @@ export function WalkInPublicForm() {
                   required
                   value={fullName}
                   onChange={(e) => {
-                    setFullName(e.target.value);
+                    const onlyChars = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                    setFullName(onlyChars);
                     clearFieldError('fullName');
                   }}
                   placeholder="e.g. Rohan Deshmukh"
@@ -250,7 +224,7 @@ export function WalkInPublicForm() {
                     setEmail(e.target.value);
                     clearFieldError('email');
                   }}
-                  placeholder="rohan@example.com"
+                  placeholder="rohan@gmail.com"
                   className={`w-full px-3 py-2 rounded-xl border text-xs sm:text-sm focus:outline-none focus:ring-2 ${
                     fieldErrors.email
                       ? 'border-rose-400 focus:ring-rose-200'
@@ -268,13 +242,25 @@ export function WalkInPublicForm() {
                 </label>
                 <input
                   type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
                   required
                   value={phone}
                   onChange={(e) => {
-                    setPhone(e.target.value.replace(/[^+\d\s-]/g, ''));
+                    const rawDigits = e.target.value.replace(/\D/g, '');
+                    if (rawDigits.length > 0 && /^[0-5]/.test(rawDigits)) {
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        phone: 'Please enter a mobile number starting with 6, 7, 8, or 9.',
+                      }));
+                      const validDigits = rawDigits.replace(/^[0-5]+/, '').slice(0, 10);
+                      setPhone(validDigits);
+                      return;
+                    }
+                    setPhone(rawDigits.slice(0, 10));
                     clearFieldError('phone');
                   }}
-                  placeholder="+91 98765 43210"
+                  placeholder="10-digit mobile (6-9...)"
                   className={`w-full px-3 py-2 rounded-xl border text-xs sm:text-sm focus:outline-none focus:ring-2 ${
                     fieldErrors.phone
                       ? 'border-rose-400 focus:ring-rose-200'
@@ -308,37 +294,78 @@ export function WalkInPublicForm() {
 
               <div>
                 <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">
-                  Experience (Years) *
+                  Experience Level *
                 </label>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  required
-                  value={experienceYears}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/[^0-9.]/g, '');
-                    setExperienceYears(val);
-                    clearFieldError('experienceYears');
-                  }}
-                  placeholder="0 for Fresher"
-                  className={`w-full px-3 py-2 rounded-xl border text-xs sm:text-sm focus:outline-none focus:ring-2 ${
-                    fieldErrors.experienceYears
-                      ? 'border-rose-400 focus:ring-rose-200'
-                      : 'border-slate-300 focus:ring-[#072b53]/20'
-                  }`}
-                />
-                {fieldErrors.experienceYears ? (
-                  <p className="text-[10px] text-rose-600 mt-0.5">{fieldErrors.experienceYears}</p>
-                ) : (
-                  <p className="text-[10px] text-slate-400 mt-0.5">
-                    Put <strong>0</strong> if Fresher, otherwise mention years.
-                  </p>
-                )}
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExperienceType('FRESHER');
+                      setExperienceYears('');
+                      setCurrentCompany('');
+                      setCurrentCtc('');
+                      setExpectedSalary('');
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        experienceYears: undefined,
+                        currentCompany: undefined,
+                        currentCtc: undefined,
+                        expectedSalary: undefined,
+                      }));
+                    }}
+                    className={`py-2 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                      experienceType === 'FRESHER'
+                        ? 'bg-[#072b53] text-white border-[#072b53]'
+                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    Fresher
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setExperienceType('EXPERIENCED')}
+                    className={`py-2 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                      experienceType === 'EXPERIENCED'
+                        ? 'bg-[#072b53] text-white border-[#072b53]'
+                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    Experienced
+                  </button>
+                </div>
               </div>
 
               {isExperienced && (
                 <>
-                  <div className="sm:col-span-2">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">
+                      Years of Experience *
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      required
+                      value={experienceYears}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9.]/g, '');
+                        setExperienceYears(val);
+                        clearFieldError('experienceYears');
+                      }}
+                      placeholder="e.g. 2.5"
+                      className={`w-full px-3 py-2 rounded-xl border text-xs sm:text-sm focus:outline-none focus:ring-2 ${
+                        fieldErrors.experienceYears
+                          ? 'border-rose-400 focus:ring-rose-200'
+                          : 'border-slate-300 focus:ring-[#072b53]/20'
+                      }`}
+                    />
+                    {fieldErrors.experienceYears && (
+                      <p className="text-[10px] text-rose-600 mt-0.5">
+                        {fieldErrors.experienceYears}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
                     <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">
                       Current / Previous Company *
                     </label>
