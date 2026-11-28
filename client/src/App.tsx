@@ -185,6 +185,10 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <OffboardingManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/assets"
         element={
           <ProtectedRoute

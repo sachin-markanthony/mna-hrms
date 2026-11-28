@@ -227,8 +227,8 @@ export function CandidateDrawer({
                     onChange={(e) => setDept(e.target.value as RecruitmentDepartment)}
                     className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
                   >
-                    <option value="SALES">Sales &amp; Leasing</option>
-                    <option value="DIGITAL">Digital Marketing</option>
+                    <option value="SALES">Sales</option>
+                    <option value="DIGITAL">Digital</option>
                   </select>
                 </div>
                 <div>
