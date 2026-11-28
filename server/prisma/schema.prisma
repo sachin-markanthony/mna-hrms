@@ -697,6 +697,7 @@ model OfficialLetter {
 
   candidate Candidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
   employee  Employee?  @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  createdBy  User?      @relation("LetterCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@map("official_letters")
 }
