@@ -6,6 +6,8 @@ import type {
   EvaluateRoundPayload,
   CandidateStatus,
   TeamLeaderSummary,
+  HrCoordinatorSummary,
+  VerifyCandidatePayload,
 } from './types';
 
 export const recruitmentApi = {
@@ -35,6 +37,21 @@ export const recruitmentApi = {
   // 3. Get team leaders for walk-in candidate assignment
   getTeamLeaders: async (): Promise<TeamLeaderSummary[]> => {
     return httpClient.get<TeamLeaderSummary[]>('/recruitment/team-leaders');
+  },
+
+  // 3b. Get HR Coordinators for HR Round interviewer dropdown
+  getHrCoordinators: async (): Promise<HrCoordinatorSummary[]> => {
+    return httpClient.get<HrCoordinatorSummary[]>('/recruitment/hr-coordinators');
+  },
+
+  // 3c. Public QR walk-in self-registration
+  registerWalkIn: async (payload: CreateCandidatePayload): Promise<Candidate> => {
+    return httpClient.post<Candidate>('/recruitment/walk-in', payload);
+  },
+
+  // 3d. HR verify walk-in candidate, assign Team Lead & confidential notes, and optionally forward to HR Round
+  verifyCandidate: async (id: string, payload: VerifyCandidatePayload): Promise<Candidate> => {
+    return httpClient.patch<Candidate>(`/recruitment/candidates/${id}/verify`, payload);
   },
 
   // 4. Register a walk-in candidate into Neon PostgreSQL

@@ -13,8 +13,12 @@ export const employeesApi = {
   getMeta: () =>
     httpClient.get<{ departments: DepartmentOption[]; teams: TeamOption[] }>('/employees/meta'),
 
-  getAll: (params?: { search?: string; departmentId?: string; teamId?: string }) =>
-    httpClient.get<EmployeeRecord[]>('/employees', { params }),
+  getAll: (params?: {
+    search?: string;
+    departmentId?: string;
+    teamId?: string;
+    employmentStatus?: string;
+  }) => httpClient.get<EmployeeRecord[]>('/employees', { params }),
 
   getOne: (id: string) => httpClient.get<EmployeeRecord>(`/employees/${id}`),
 

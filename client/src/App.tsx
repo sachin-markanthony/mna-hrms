@@ -11,6 +11,7 @@ import { EmployeeDirectory, EmployeeDetailsPage } from './modules/employees';
 import { AttendanceManagement } from './modules/attendance';
 import { SettingsManagement } from './modules/settings';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
+import { WalkInPublicForm } from './modules/recruitment/WalkInPublicForm';
 import { PayrollManagement, MyPayslips } from './modules/payroll';
 import { LettersManagement } from './modules/letters';
 import { OffboardingManagement } from './modules/offboarding';
@@ -82,6 +83,7 @@ function AppRoutes() {
         element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />}
       />
       <Route path="/login" element={<Login />} />
+      <Route path="/walk-in" element={<WalkInPublicForm />} />
 
       {/* Authenticated Routes wrapped in AppLayout */}
       <Route

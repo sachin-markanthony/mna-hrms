@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { useAuth, ROLES } from '../../modules/auth';
 import { useTheme } from '../../services/theme';
+import { notificationsApi, type PortalNotification } from '../../services/notifications.api';
+import { notifyInfo } from '../../services/toast';
 import { BrandLogo } from '../ui/BrandLogo';
 
 interface NavItem {
@@ -127,6 +129,57 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<PortalNotification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const seenNotifIdsRef = useRef<Set<string> | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    const fetchNotifications = async () => {
+      try {
+        const res = await notificationsApi.list();
+        if (!active) return;
+        const items = res.items || [];
+        if (seenNotifIdsRef.current === null) {
+          seenNotifIdsRef.current = new Set(items.map((n) => n.id));
+        } else {
+          const freshUnread = items.filter(
+            (n) => !n.isRead && !seenNotifIdsRef.current?.has(n.id),
+          );
+          if (freshUnread.length > 0) {
+            freshUnread.forEach((n) => seenNotifIdsRef.current?.add(n.id));
+            notifyInfo(`${freshUnread[0].title}: ${freshUnread[0].message}`);
+            window.dispatchEvent(new CustomEvent('hrms:new-notification'));
+          }
+        }
+        setNotifications(items);
+        setUnreadCount(res.unreadCount || 0);
+      } catch {
+        // non-blocking
+      }
+    };
+    void fetchNotifications();
+    const timer = setInterval(fetchNotifications, 5000);
+    window.addEventListener('focus', fetchNotifications);
+    return () => {
+      active = false;
+      clearInterval(timer);
+      window.removeEventListener('focus', fetchNotifications);
+    };
+  }, [user]);
+
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
 
   if (!user) return null;
   const roleConfig = ROLES[user.role] || { title: user.role, scope: 'Global' };
@@ -362,13 +415,100 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </button>
 
             {/* Notification Bell */}
-            <button
-              className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition relative cursor-pointer"
-              title="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" />
-            </button>
+            <div ref={notifRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setNotifOpen((prev) => !prev)}
+                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition relative cursor-pointer"
+                title="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {notifOpen && (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                        Notifications
+                      </h4>
+                      <p className="text-[10px] text-slate-400">
+                        {unreadCount} unread
+                      </p>
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await notificationsApi.markAllRead();
+                          setUnreadCount(0);
+                          setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+                        }}
+                        className="text-[11px] font-semibold text-[#072b53] dark:text-amber-400 hover:underline cursor-pointer"
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-xs text-slate-400">
+                        No notifications yet.
+                      </div>
+                    ) : (
+                      notifications.map((n) => (
+                        <button
+                          key={n.id}
+                          type="button"
+                          onClick={async () => {
+                            if (!n.isRead) {
+                              await notificationsApi.markRead(n.id);
+                              setUnreadCount((c) => Math.max(0, c - 1));
+                              setNotifications((prev) =>
+                                prev.map((item) =>
+                                  item.id === n.id ? { ...item, isRead: true } : item,
+                                ),
+                              );
+                            }
+                            setNotifOpen(false);
+                            if (n.link) navigate(n.link);
+                          }}
+                          className={`w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer ${
+                            !n.isRead ? 'bg-amber-50/40 dark:bg-amber-500/5' : ''
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-xs font-bold text-slate-900 dark:text-white">
+                              {n.title}
+                            </span>
+                            {!n.isRead && (
+                              <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0 mt-1" />
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
+                            {n.message}
+                          </p>
+                          <p className="text-[10px] text-slate-400 mt-1">
+                            {new Date(n.createdAt).toLocaleString('en-IN', {
+                              day: '2-digit',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

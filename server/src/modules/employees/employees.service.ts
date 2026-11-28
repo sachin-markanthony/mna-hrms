@@ -83,10 +83,32 @@ export class EmployeesService {
     const scopeWhere = await this.buildDirectoryWhere(currentUser);
     const search = query.search?.trim();
 
+    const statusFilter = query.employmentStatus?.toUpperCase();
+    const statusWhere: Prisma.UserWhereInput =
+      statusFilter === 'ALL'
+        ? {}
+        : statusFilter === 'INACTIVE'
+          ? {
+              OR: [
+                { employmentStatus: EmploymentStatus.INACTIVE },
+                { offboardingRequests: { some: { status: 'COMPLETED' } } },
+              ],
+            }
+          : statusFilter === 'ON_NOTICE'
+            ? {
+                employmentStatus: EmploymentStatus.ON_NOTICE,
+                offboardingRequests: { none: { status: 'COMPLETED' } },
+              }
+            : {
+                employmentStatus: { in: [EmploymentStatus.ACTIVE, EmploymentStatus.ON_NOTICE] },
+                offboardingRequests: { none: { status: 'COMPLETED' } },
+              };
+
     const where: Prisma.EmployeeWhereInput = {
       ...scopeWhere,
       user: {
         isArchived: false,
+        ...statusWhere,
         ...(scopeWhere.user as Prisma.UserWhereInput | undefined),
         ...(query.teamId ? { teamId: query.teamId } : {}),
         ...(search
@@ -141,16 +163,28 @@ export class EmployeesService {
     actorUserId: string,
     meta: RequestMeta,
   ) {
-    const normalizedEmail = dto.email.toLowerCase();
+    const normalizedEmail = dto.email.trim().toLowerCase();
+    const trimmedPhone = dto.phone?.trim();
+    const phoneDigits = trimmedPhone ? trimmedPhone.replace(/\D/g, '') : '';
+    const last10Digits = phoneDigits.length >= 10 ? phoneDigits.slice(-10) : phoneDigits;
+
     const existing = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email: normalizedEmail }, { employeeId: dto.employeeId }],
+        OR: [
+          { email: normalizedEmail },
+          { employeeId: dto.employeeId },
+          ...(trimmedPhone ? [{ phone: trimmedPhone }] : []),
+          ...(last10Digits.length === 10 ? [{ phone: { endsWith: last10Digits } }] : []),
+        ],
       },
-      select: { id: true },
+      select: { id: true, email: true, employeeId: true, phone: true },
     });
 
     if (existing) {
-      throw new ConflictException('Employee with this email or employee ID already exists');
+      if (existing.email.toLowerCase() === normalizedEmail || existing.employeeId === dto.employeeId) {
+        throw new ConflictException('Employee with this email or employee ID already exists');
+      }
+      throw new ConflictException('Employee with this mobile number already exists');
     }
 
     const targetRole = (dto.role ?? AppRole.EMPLOYEE) as unknown as Role;

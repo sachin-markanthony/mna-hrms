@@ -5,6 +5,7 @@ import { STATUS_CONFIG } from '../types';
 interface CandidateCardProps {
   candidate: Candidate;
   canEvaluate?: boolean;
+  canEvaluateMr?: boolean;
   showTeamLeader?: boolean;
   onOpenDetails: (candidate: Candidate) => void;
   onEvaluateRound: (candidate: Candidate) => void;
@@ -14,6 +15,7 @@ interface CandidateCardProps {
 export function CandidateCard({
   candidate,
   canEvaluate = true,
+  canEvaluateMr = false,
   showTeamLeader = true,
   onOpenDetails,
   onEvaluateRound,
@@ -109,10 +111,7 @@ export function CandidateCard({
           Expected: {candidate.expectedSalary || 'N/A'}
         </span>
 
-        {canEvaluate &&
-        candidate.status !== 'SELECTED' &&
-        candidate.status !== 'REJECTED_HR' &&
-        candidate.status !== 'REJECTED_MR' ? (
+        {canEvaluate && candidate.status === 'HR_ROUND' ? (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -121,7 +120,30 @@ export function CandidateCard({
             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-2xs cursor-pointer"
           >
             <Award className="w-3 h-3 text-amber-400" />
-            Evaluate {candidate.status === 'MR_ROUND' ? 'MR' : 'HR'}
+            Evaluate HR
+            <ChevronRight className="w-3 h-3" />
+          </button>
+        ) : canEvaluateMr && candidate.status === 'MR_ROUND' ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEvaluateRound(candidate);
+            }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-2xs cursor-pointer"
+          >
+            <Award className="w-3 h-3 text-amber-400" />
+            Evaluate MR
+            <ChevronRight className="w-3 h-3" />
+          </button>
+        ) : canEvaluate && candidate.status === 'REGISTERED' ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails(candidate);
+            }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 border border-amber-200 dark:border-amber-800 transition-all cursor-pointer"
+          >
+            Verify &amp; Forward
             <ChevronRight className="w-3 h-3" />
           </button>
         ) : canEvaluate && candidate.status === 'SELECTED' ? (

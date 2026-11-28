@@ -13,6 +13,11 @@ import {
   RefreshCw,
   Eye,
   Award,
+  QrCode,
+  Copy,
+  ExternalLink,
+  Printer,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../auth';
 import { notifyError, notifySuccess } from '../../services/toast';
@@ -43,6 +48,10 @@ const PIPELINE_COLUMNS: CandidateStatus[] = [
 export function RecruitmentPipeline() {
   const { user } = useAuth();
   const isTeamLeader = user?.role === 'TEAM_LEADER';
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+  const canEvaluateMr = isSuperAdmin || isTeamLeader;
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const walkInUrl = `${window.location.origin}/walk-in`;
   const todayStr = new Date().toISOString().split('T')[0];
 
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -63,12 +72,23 @@ export function RecruitmentPipeline() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadData();
+    void loadData();
+    const interval = setInterval(() => {
+      void loadData(true);
+    }, 6000);
+    const handleFocus = () => void loadData(true);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('hrms:new-notification', handleFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('hrms:new-notification', handleFocus);
+    };
   }, [selectedDate, isTeamLeader, user?.id]);
 
-  const loadData = async () => {
+  const loadData = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setLoadError(null);
       const dateParam = selectedDate === 'ALL' ? undefined : selectedDate;
       const tlParams = isTeamLeader && user
@@ -82,10 +102,12 @@ export function RecruitmentPipeline() {
       setCandidates(candsData || []);
       setStats(statsData);
     } catch (err: any) {
-      console.error('Failed to load recruitment data from database:', err);
-      setLoadError(err?.message || 'Failed to connect to Neon PostgreSQL database.');
+      if (!silent) {
+        console.error('Failed to load recruitment data from database:', err);
+        setLoadError(err?.message || 'Failed to connect to Neon PostgreSQL database.');
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -203,7 +225,7 @@ export function RecruitmentPipeline() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             type="button"
             onClick={() => void loadData()}
@@ -214,13 +236,23 @@ export function RecruitmentPipeline() {
             Refresh
           </button>
           {!isTeamLeader && (
-            <button
-              onClick={() => setAddModalOpen(true)}
-              className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer"
-            >
-              <Plus className="w-4 h-4 text-amber-400" />
-              Register Office Walk-In
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setQrModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 text-xs font-bold text-[#072b53] dark:text-amber-300 hover:bg-amber-100 transition-colors cursor-pointer"
+              >
+                <QrCode className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                Walk-In QR Code
+              </button>
+              <button
+                onClick={() => setAddModalOpen(true)}
+                className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer"
+              >
+                <Plus className="w-4 h-4 text-amber-400" />
+                Register Office Walk-In
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -511,6 +543,7 @@ export function RecruitmentPipeline() {
                         key={candidate.id}
                         candidate={candidate}
                         canEvaluate={!isTeamLeader}
+                        canEvaluateMr={canEvaluateMr}
                         showTeamLeader={!isTeamLeader}
                         onOpenDetails={setDrawerCandidate}
                         onEvaluateRound={setEvaluateCandidate}
@@ -592,7 +625,10 @@ export function RecruitmentPipeline() {
                         {isTeamLeader ||
                         c.status === 'SELECTED' ||
                         c.status === 'REJECTED_HR' ||
-                        c.status === 'REJECTED_MR' ? (
+                        c.status === 'REJECTED_MR' ||
+                        c.status === 'REGISTERED' ||
+                        (c.status === 'HR_ROUND' && isTeamLeader) ||
+                        (c.status === 'MR_ROUND' && !canEvaluateMr) ? (
                           <button
                             type="button"
                             onClick={(e) => {
@@ -602,7 +638,13 @@ export function RecruitmentPipeline() {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5 text-slate-500" />
-                            View Details
+                            {c.status === 'REGISTERED'
+                              ? isTeamLeader
+                                ? 'View Details'
+                                : 'Verify & Forward'
+                              : c.status === 'MR_ROUND' && !canEvaluateMr
+                                ? 'Awaiting MR'
+                                : 'View Details'}
                           </button>
                         ) : (
                           <button
@@ -634,13 +676,86 @@ export function RecruitmentPipeline() {
         candidate={drawerCandidate}
         isOpen={Boolean(drawerCandidate)}
         canEvaluate={!isTeamLeader}
+        canEvaluateMr={canEvaluateMr}
         showTeamLeader={!isTeamLeader}
         onClose={() => setDrawerCandidate(null)}
+        onVerified={(updated) => {
+          setDrawerCandidate(updated);
+          void loadData();
+        }}
         onEvaluateRound={(c) => {
           setDrawerCandidate(null);
           setEvaluateCandidate(c);
         }}
       />
+
+      {qrModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <QrCode className="w-5 h-5 text-[#072b53] dark:text-amber-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Walk-In Candidate QR Registration
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setQrModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 text-center space-y-4">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Candidates can scan this QR code at reception to fill the walk-in form. Submissions
+                automatically appear in <strong>Walk-In Registered</strong> for HR verification.
+              </p>
+              <div className="inline-block p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(walkInUrl)}`}
+                  alt="Walk-In Registration QR Code"
+                  className="w-48 h-48 mx-auto"
+                />
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-600 dark:text-slate-300 break-all">
+                {walkInUrl}
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(walkInUrl);
+                    notifySuccess('Walk-in registration link copied!');
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 cursor-pointer"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  Copy Link
+                </button>
+                <a
+                  href={walkInUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Open Form
+                </a>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#072b53] text-white text-xs font-bold hover:bg-[#0a3869] cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5 text-amber-400" />
+                  Print QR
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {evaluateCandidate && (
         <EvaluateRoundModal

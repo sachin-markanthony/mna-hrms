@@ -33,6 +33,7 @@ export function EmployeeDirectory() {
   const [search, setSearch] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [teamFilter, setTeamFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'INACTIVE' | 'ON_NOTICE' | 'ALL'>('ACTIVE');
 
   // Create Employee Modal
   const [createOpen, setCreateOpen] = useState(false);
@@ -70,6 +71,7 @@ export function EmployeeDirectory() {
           search: search || undefined,
           departmentId: departmentFilter || undefined,
           teamId: teamFilter || undefined,
+          employmentStatus: statusFilter,
         }),
       ]);
       setDepartments(metaRes.departments);
@@ -80,7 +82,7 @@ export function EmployeeDirectory() {
     } finally {
       setLoading(false);
     }
-  }, [search, departmentFilter, teamFilter]);
+  }, [search, departmentFilter, teamFilter, statusFilter]);
 
   useEffect(() => {
     void loadDirectory();
@@ -266,7 +268,7 @@ export function EmployeeDirectory() {
 
       {/* Filters + Table */}
       <div className="bg-white dark:bg-[#0f172a] rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 grid grid-cols-1 md:grid-cols-4 gap-3">
           <div className="relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
@@ -300,6 +302,18 @@ export function EmployeeDirectory() {
                 {t.name}
               </option>
             ))}
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as 'ACTIVE' | 'INACTIVE' | 'ON_NOTICE' | 'ALL')
+            }
+            className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
+          >
+            <option value="ACTIVE">Status: Active</option>
+            <option value="INACTIVE">Status: Inactive / Exited</option>
+            <option value="ON_NOTICE">Status: On Notice</option>
+            <option value="ALL">Status: All</option>
           </select>
         </div>
 
@@ -354,6 +368,16 @@ export function EmployeeDirectory() {
                               <span className="font-mono text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded ml-1">
                                 {emp.user.employeeId}
                               </span>
+                              {emp.user.employmentStatus === 'INACTIVE' && (
+                                <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 ml-1">
+                                  INACTIVE
+                                </span>
+                              )}
+                              {emp.user.employmentStatus === 'ON_NOTICE' && (
+                                <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 ml-1">
+                                  ON NOTICE
+                                </span>
+                              )}
                             </div>
                             <div className="text-[11px] text-slate-500">{emp.user.email}</div>
                           </div>
