@@ -19,6 +19,8 @@ import { CreateCandidateDto } from './dto/create-candidate.dto.js';
 import { EvaluateRoundDto } from './dto/evaluate-round.dto.js';
 import { UpdateCandidateStatusDto } from './dto/update-candidate-status.dto.js';
 import { CandidateFilterDto } from './dto/candidate-filter.dto.js';
+import { VerifyCandidateDto } from './dto/verify-candidate.dto.js';
+import { InterviewRoundType } from '@prisma/client';
 
 @ApiTags('Recruitment ATS & Walk-In Tracker')
 @ApiBearerAuth('JWT-auth')
@@ -32,6 +34,26 @@ export class RecruitmentController {
   @ApiResponse({ status: 200, description: 'Team leaders list retrieved.' })
   async getTeamLeaders() {
     return this.recruitmentService.getTeamLeaders();
+  }
+
+  @Get('hr-coordinators')
+  @ApiOperation({ summary: 'Get list of active HR Coordinators for HR Round interviewer dropdown' })
+  @ApiResponse({ status: 200, description: 'HR Coordinators list retrieved.' })
+  async getHrCoordinators() {
+    return this.recruitmentService.getHrCoordinators();
+  }
+
+  @Post('walk-in')
+  @Public()
+  @ApiOperation({ summary: 'Public QR walk-in candidate self-registration endpoint' })
+  @ApiResponse({ status: 201, description: 'Walk-in candidate registered in REGISTERED status.' })
+  async registerWalkIn(@Body() dto: CreateCandidateDto, @Req() req: Request) {
+    return this.recruitmentService.createCandidate(
+      dto,
+      undefined,
+      this.extractMeta(req),
+      'QR_WALKIN',
+    );
   }
 
   @Get('stats')
@@ -80,8 +102,31 @@ export class RecruitmentController {
   @ApiOperation({ summary: 'Get candidate details with HR and MR evaluation logs' })
   @ApiResponse({ status: 200, description: 'Candidate profile found.' })
   @ApiResponse({ status: 404, description: 'Candidate not found.' })
-  async getCandidateById(@Param('id') id: string) {
-    return this.recruitmentService.getCandidateById(id);
+  async getCandidateById(
+    @Param('id') id: string,
+    @CurrentUser() actor?: AuthenticatedUser,
+  ) {
+    return this.recruitmentService.getCandidateById(id, actor);
+  }
+
+  @Patch('candidates/:id/verify')
+  @ApiOperation({ summary: 'HR validates walk-in candidate, assigns Team Lead & confidential notes, and forwards to HR Round' })
+  @ApiResponse({ status: 200, description: 'Candidate verified and optionally moved to HR_ROUND.' })
+  async verifyCandidate(
+    @Param('id') id: string,
+    @Body() dto: VerifyCandidateDto,
+    @CurrentUser() actor: AuthenticatedUser,
+    @Req() req: Request,
+  ) {
+    if (!actor || !['SUPER_ADMIN', 'HR_ADMIN', 'HR_COORDINATOR'].includes(actor.role)) {
+      throw new ForbiddenException('Only HR or Management can verify walk-in candidates.');
+    }
+    return this.recruitmentService.verifyAndForwardCandidate(
+      id,
+      dto,
+      actor,
+      this.extractMeta(req),
+    );
   }
 
   @Post('candidates')
@@ -112,8 +157,18 @@ export class RecruitmentController {
     @CurrentUser() actor: AuthenticatedUser,
     @Req() req: Request,
   ) {
-    if (actor?.role === 'TEAM_LEADER') {
-      throw new ForbiddenException('Team Leaders do not have permission to evaluate interview rounds.');
+    if (actor?.role === 'EMPLOYEE') {
+      throw new ForbiddenException('You do not have permission to evaluate interview rounds.');
+    }
+    if (dto.round === InterviewRoundType.HR_ROUND && actor?.role === 'TEAM_LEADER') {
+      throw new ForbiddenException('Team Leaders can only evaluate the MR Round.');
+    }
+    if (
+      dto.round === InterviewRoundType.MR_ROUND &&
+      actor?.role !== 'SUPER_ADMIN' &&
+      actor?.role !== 'TEAM_LEADER'
+    ) {
+      throw new ForbiddenException('Only Team Leaders or Management (MR) can evaluate the MR Round.');
     }
     return this.recruitmentService.evaluateRound(id, dto, actor?.id, this.extractMeta(req));
   }

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   X,
@@ -13,16 +14,23 @@ import {
   AlertOctagon,
   Users,
   FileCheck,
+  Lock,
+  ArrowRight,
+  Save,
 } from 'lucide-react';
-import type { Candidate } from '../types';
+import { recruitmentApi } from '../recruitment.api';
+import { notifyError, notifySuccess } from '../../../services/toast';
+import type { Candidate, RecruitmentDepartment, TeamLeaderSummary } from '../types';
 import { STATUS_CONFIG } from '../types';
 
 interface CandidateDrawerProps {
   candidate: Candidate | null;
   isOpen: boolean;
   canEvaluate?: boolean;
+  canEvaluateMr?: boolean;
   showTeamLeader?: boolean;
   onClose: () => void;
+  onVerified?: (updated: Candidate) => void;
   onEvaluateRound: (candidate: Candidate) => void;
 }
 
@@ -30,12 +38,60 @@ export function CandidateDrawer({
   candidate,
   isOpen,
   canEvaluate = true,
+  canEvaluateMr = false,
   showTeamLeader = true,
   onClose,
+  onVerified,
   onEvaluateRound,
 }: CandidateDrawerProps) {
   const navigate = useNavigate();
+  const [teamLeaders, setTeamLeaders] = useState<TeamLeaderSummary[]>([]);
+  const [dept, setDept] = useState<RecruitmentDepartment>('SALES');
+  const [appliedRole, setAppliedRole] = useState('');
+  const [expectedSalary, setExpectedSalary] = useState('');
+  const [teamLeaderId, setTeamLeaderId] = useState('');
+  const [confidentialNotes, setConfidentialNotes] = useState('');
+  const [savingVerify, setSavingVerify] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !candidate) return;
+    setDept(candidate.department);
+    setAppliedRole(candidate.appliedRole);
+    setExpectedSalary(candidate.expectedSalary || '');
+    setTeamLeaderId(candidate.teamLeaderId || '');
+    setConfidentialNotes(candidate.confidentialNotes || '');
+    if (canEvaluate) {
+      recruitmentApi.getTeamLeaders().then(setTeamLeaders).catch(() => {});
+    }
+  }, [isOpen, candidate, canEvaluate]);
+
   if (!isOpen || !candidate) return null;
+
+  const handleVerifySave = async (proceedToHr: boolean) => {
+    try {
+      setSavingVerify(true);
+      const selectedTl = teamLeaders.find((tl) => tl.id === teamLeaderId);
+      const updated = await recruitmentApi.verifyCandidate(candidate.id, {
+        department: dept,
+        appliedRole: appliedRole.trim() || candidate.appliedRole,
+        expectedSalary: expectedSalary.trim() || undefined,
+        teamLeaderId: teamLeaderId || undefined,
+        teamLeaderName: selectedTl?.name || undefined,
+        confidentialNotes: confidentialNotes.trim() || undefined,
+        proceedToHr,
+      });
+      notifySuccess(
+        proceedToHr
+          ? `${updated.fullName} verified & forwarded to HR Round!`
+          : 'Walk-in verification & confidential details saved.',
+      );
+      onVerified?.(updated);
+    } catch (err: any) {
+      notifyError(err, 'Failed to save verification details.');
+    } finally {
+      setSavingVerify(false);
+    }
+  };
 
   const statusInfo = STATUS_CONFIG[candidate.status];
 
@@ -148,6 +204,124 @@ export function CandidateDrawer({
                 );
               })()}
           </div>
+
+          {/* HR Verification, Team Lead & Confidential Notes (Walk-In Stage) */}
+          {canEvaluate && candidate.status === 'REGISTERED' && (
+            <div className="p-4 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#072b53] dark:text-amber-300">
+                  <Lock className="w-4 h-4 text-amber-600" />
+                  HR Verification &amp; Confidential Assignment
+                </div>
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                  Walk-In Review
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-600 dark:text-slate-300 mb-1">
+                    Department
+                  </label>
+                  <select
+                    value={dept}
+                    onChange={(e) => setDept(e.target.value as RecruitmentDepartment)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                  >
+                    <option value="SALES">Sales &amp; Leasing</option>
+                    <option value="DIGITAL">Digital Marketing</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-600 dark:text-slate-300 mb-1">
+                    Assign Team Lead
+                  </label>
+                  <select
+                    value={teamLeaderId}
+                    onChange={(e) => setTeamLeaderId(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                  >
+                    <option value="">-- Select Team Lead --</option>
+                    {teamLeaders.map((tl) => (
+                      <option key={tl.id} value={tl.id}>
+                        {tl.name} ({tl.employeeId})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-600 dark:text-slate-300 mb-1">
+                    Applied Role
+                  </label>
+                  <input
+                    type="text"
+                    value={appliedRole}
+                    onChange={(e) => setAppliedRole(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-600 dark:text-slate-300 mb-1">
+                    Validated Expected CTC
+                  </label>
+                  <input
+                    type="text"
+                    value={expectedSalary}
+                    onChange={(e) => setExpectedSalary(e.target.value)}
+                    placeholder="e.g. ₹4,80,000 / yr"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-slate-600 dark:text-slate-300 mb-1">
+                  Company Confidential Notes (HR &amp; MR Only)
+                </label>
+                <textarea
+                  rows={2}
+                  value={confidentialNotes}
+                  onChange={(e) => setConfidentialNotes(e.target.value)}
+                  placeholder="Salary band approval, internal referral notes, background remarks..."
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                />
+              </div>
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  disabled={savingVerify}
+                  onClick={() => void handleVerifySave(false)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  Save Details
+                </button>
+                <button
+                  type="button"
+                  disabled={savingVerify}
+                  onClick={() => void handleVerifySave(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#072b53] hover:bg-[#0a3869] text-white text-xs font-bold shadow-xs cursor-pointer"
+                >
+                  Proceed to HR Round
+                  <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Confidential Notes Display (HR & MR only, after Walk-In stage) */}
+          {showTeamLeader && candidate.status !== 'REGISTERED' && candidate.confidentialNotes && (
+            <div className="p-3.5 rounded-lg bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 text-xs space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-300">
+                <Lock className="w-3.5 h-3.5" />
+                Confidential HR / Management Notes
+              </div>
+              <p className="text-slate-700 dark:text-slate-300">{candidate.confidentialNotes}</p>
+              {candidate.hrVerifiedBy && (
+                <p className="text-[10px] text-slate-400">
+                  Verified by {candidate.hrVerifiedBy}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Two-Round Evaluation Tracking Cards */}
           <div className="space-y-4">
@@ -299,18 +473,30 @@ export function CandidateDrawer({
             </button>
           )}
 
-          {canEvaluate &&
-            candidate.status !== 'SELECTED' &&
-            candidate.status !== 'REJECTED_HR' &&
-            candidate.status !== 'REJECTED_MR' && (
+          {canEvaluate && candidate.status === 'HR_ROUND' && (
+            <button
+              onClick={() => onEvaluateRound(candidate)}
+              className="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+            >
+              <Award className="w-4 h-4 text-amber-400" />
+              Evaluate HR Round
+            </button>
+          )}
+
+          {candidate.status === 'MR_ROUND' &&
+            (canEvaluateMr ? (
               <button
                 onClick={() => onEvaluateRound(candidate)}
-                className="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2"
+                className="px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#072b53] hover:bg-[#0a3869] transition-all shadow-sm flex items-center gap-2 cursor-pointer"
               >
                 <Award className="w-4 h-4 text-amber-400" />
-                Evaluate {candidate.status === 'MR_ROUND' ? 'MR Round' : 'HR Round'}
+                Evaluate MR Round
               </button>
-            )}
+            ) : (
+              <span className="px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                Awaiting MR Evaluation (Team Lead / Management)
+              </span>
+            ))}
         </div>
       </div>
     </div>

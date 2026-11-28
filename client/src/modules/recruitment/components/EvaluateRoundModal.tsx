@@ -1,7 +1,15 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { X, Star, CheckCircle2, XCircle, Award, AlertTriangle } from 'lucide-react';
 import { notifyError, notifySuccess } from '../../../services/toast';
-import type { Candidate, InterviewRoundType, RoundEvaluationResult, EvaluateRoundPayload } from '../types';
+import { useAuth } from '../../auth';
+import { recruitmentApi } from '../recruitment.api';
+import type {
+  Candidate,
+  InterviewRoundType,
+  RoundEvaluationResult,
+  EvaluateRoundPayload,
+  HrCoordinatorSummary,
+} from '../types';
 
 interface EvaluateRoundModalProps {
   candidate: Candidate;
@@ -30,16 +38,39 @@ export function EvaluateRoundModal({
   // If candidate is already in MR_ROUND, strictly enforce MR_ROUND; otherwise HR_ROUND
   const activeRound: InterviewRoundType = hasClearedHr ? 'MR_ROUND' : 'HR_ROUND';
 
+  const { user } = useAuth();
   const [round, setRound] = useState<InterviewRoundType>(activeRound);
   const [result, setResult] = useState<RoundEvaluationResult>('PASSED');
+  const [hrCoordinators, setHrCoordinators] = useState<HrCoordinatorSummary[]>([]);
+  const [hrCoordinatorId, setHrCoordinatorId] = useState('');
   const [interviewerName, setInterviewerName] = useState(
-    activeRound === 'HR_ROUND' ? 'Sarah Jenkins (HR)' : 'Alexander Anthony (MR)'
+    activeRound === 'HR_ROUND' ? '' : user?.name || 'Team Lead / MR'
   );
   const [rating, setRating] = useState(4);
   const [feedback, setFeedback] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!isOpen || activeRound !== 'HR_ROUND') return;
+    recruitmentApi
+      .getHrCoordinators()
+      .then((list) => {
+        setHrCoordinators(list || []);
+        if (list && list.length > 0) {
+          const selfMatch = list.find((c) => c.id === user?.id);
+          const chosen = selfMatch || list[0];
+          setHrCoordinatorId(chosen.id);
+          setInterviewerName(chosen.name);
+        } else if (user?.name) {
+          setInterviewerName(user.name);
+        }
+      })
+      .catch(() => {
+        if (user?.name) setInterviewerName(user.name);
+      });
+  }, [isOpen, activeRound, user?.id, user?.name]);
 
   if (!isOpen) return null;
 
@@ -78,7 +109,8 @@ export function EvaluateRoundModal({
       await onSubmit(candidate.id, {
         round,
         result,
-        interviewerName,
+        interviewerName: interviewerName.trim() || user?.name || 'HR Coordinator',
+        ...(round === 'HR_ROUND' && hrCoordinatorId ? { hrCoordinatorId } : {}),
         rating,
         feedback,
         rejectionReason: result === 'REJECTED' ? rejectionReason.trim() : undefined,
@@ -224,15 +256,35 @@ export function EvaluateRoundModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-                Interviewer Name
+                {round === 'HR_ROUND' ? 'Interviewer (HR Coordinator)' : 'Interviewer Name (MR)'}
               </label>
-              <input
-                type="text"
-                required
-                value={interviewerName}
-                onChange={(e) => setInterviewerName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
-              />
+              {round === 'HR_ROUND' && hrCoordinators.length > 0 ? (
+                <select
+                  required
+                  value={hrCoordinatorId}
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    setHrCoordinatorId(id);
+                    const found = hrCoordinators.find((c) => c.id === id);
+                    if (found) setInterviewerName(found.name);
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                >
+                  {hrCoordinators.map((coord) => (
+                    <option key={coord.id} value={coord.id}>
+                      {coord.name} ({coord.employeeId})
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  required
+                  value={interviewerName}
+                  onChange={(e) => setInterviewerName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#072b53]"
+                />
+              )}
             </div>
 
             <div>

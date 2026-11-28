@@ -16,4 +16,11 @@ export class QueryEmployeesDto {
   @IsUUID()
   @IsOptional()
   teamId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by employment status: ACTIVE (default, includes ON_NOTICE), ON_NOTICE, INACTIVE, or ALL',
+  })
+  @IsString()
+  @IsOptional()
+  employmentStatus?: string;
 }

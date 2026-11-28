@@ -47,6 +47,11 @@ export interface Candidate {
   mrRating?: number;
   mrFeedback?: string;
   mrEvaluatedAt?: string;
+  confidentialNotes?: string | null;
+  hrVerifiedBy?: string | null;
+  hrVerifiedAt?: string | null;
+  hrCoordinatorId?: string | null;
+  registrationSource?: string;
   teamLeaderId?: string;
   teamLeaderName?: string;
   evaluations?: RoundEvaluation[];
@@ -79,7 +84,7 @@ export interface CreateCandidatePayload {
   email: string;
   phone: string;
   department: RecruitmentDepartment;
-  appliedRole: string;
+  appliedRole?: string;
   visitDate?: string;
   experienceYears?: number;
   currentCompany?: string;
@@ -97,10 +102,29 @@ export interface TeamLeaderSummary {
   jobTitle?: string;
 }
 
+export interface HrCoordinatorSummary {
+  id: string;
+  name: string;
+  email: string;
+  employeeId: string;
+  jobTitle?: string;
+}
+
+export interface VerifyCandidatePayload {
+  department?: RecruitmentDepartment;
+  appliedRole?: string;
+  expectedSalary?: string;
+  teamLeaderId?: string;
+  teamLeaderName?: string;
+  confidentialNotes?: string;
+  proceedToHr?: boolean;
+}
+
 export interface EvaluateRoundPayload {
   round: InterviewRoundType;
   result: RoundEvaluationResult;
   interviewerName: string;
+  hrCoordinatorId?: string;
   rating: number;
   feedback: string;
   rejectionReason?: string;

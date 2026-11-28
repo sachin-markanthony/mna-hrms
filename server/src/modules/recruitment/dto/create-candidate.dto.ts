@@ -27,10 +27,10 @@ export class CreateCandidateDto {
   @IsNotEmpty()
   department: RecruitmentDepartment;
 
-  @ApiProperty({ example: 'Digital Marketing Specialist' })
+  @ApiPropertyOptional({ example: 'Digital Marketing Specialist' })
   @IsString()
-  @IsNotEmpty()
-  appliedRole: string;
+  @IsOptional()
+  appliedRole?: string;
 
   @ApiPropertyOptional({
     example: '2026-11-25',

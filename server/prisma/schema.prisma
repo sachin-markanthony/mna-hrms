@@ -67,6 +67,7 @@ model User {
   createdLetters         OfficialLetter[]         @relation("LetterCreator")
   offboardingRequests    OffboardingRequest[]     @relation("OffboardingUser")
   initiatedOffboardings  OffboardingRequest[]     @relation("OffboardingInitiator")
+  portalNotifications    PortalNotification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -436,9 +437,14 @@ model Candidate {
   mrRating        Float?
   mrFeedback      String?
   mrEvaluatedAt   DateTime?
-  rejectionReason String?
-  teamLeaderId    String?
-  teamLeaderName  String?
+  rejectionReason    String?
+  confidentialNotes  String?
+  hrVerifiedBy       String?
+  hrVerifiedAt       DateTime?
+  hrCoordinatorId    String?
+  registrationSource String                     @default("HR_PORTAL")
+  teamLeaderId       String?
+  teamLeaderName     String?
   teamLeader      User?                      @relation("CandidateTeamLeader", fields: [teamLeaderId], references: [id], onDelete: SetNull)
   createdAt       DateTime                   @default(now())
   updatedAt       DateTime                   @updatedAt
@@ -462,6 +468,21 @@ model RoundEvaluation {
   evaluatedAt     DateTime              @default(now())
 
   @@map("round_evaluations")
+}
+
+model PortalNotification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("GENERAL")
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@map("portal_notifications")
 }
 
 enum PunchSource {

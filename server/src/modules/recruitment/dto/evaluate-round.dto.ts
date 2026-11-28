@@ -26,6 +26,11 @@ export class EvaluateRoundDto {
   @IsNotEmpty()
   interviewerName: string;
 
+  @ApiPropertyOptional({ example: 'uuid-of-hr-coordinator' })
+  @IsString()
+  @IsOptional()
+  hrCoordinatorId?: string;
+
   @ApiProperty({ example: 4.5, minimum: 1, maximum: 5 })
   @IsNumber()
   @Min(1)
