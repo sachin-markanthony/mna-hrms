@@ -19,7 +19,7 @@ export function ProgressRing({
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (safePercentage / 100) * circumference;
-  const stroke = tone === 'green' ? '#4F7F61' : '#B8893A';
+  const stroke = tone === 'green' ? '#059669' : '#d97706';
 
   return (
     <div
@@ -34,7 +34,8 @@ export function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="transparent"
-          stroke="#EFE7DC"
+          stroke="currentColor"
+          className="text-slate-200 dark:text-slate-800"
           strokeWidth={strokeWidth}
         />
         <circle
@@ -51,11 +52,11 @@ export function ProgressRing({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="text-2xl font-extrabold tracking-tight text-[#3B2314]">
+        <span className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
           {label ?? `${safePercentage}%`}
         </span>
         {caption && (
-          <span className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#8A7A6C]">
+          <span className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
             {caption}
           </span>
         )}
