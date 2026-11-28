@@ -13,6 +13,7 @@ import { SettingsManagement } from './modules/settings';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
 import { PayrollManagement, MyPayslips } from './modules/payroll';
 import { LettersManagement } from './modules/letters';
+import { AssetsManagement } from './modules/assets';
 function ProtectedRoute({
   children,
   withLayout = true,
@@ -168,6 +169,16 @@ function AppRoutes() {
             requiredPermissions={['letters:release']}
           >
             <LettersManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/assets"
+        element={
+          <ProtectedRoute
+            requiredPermissions={['assets:manage_all']}
+          >
+            <AssetsManagement />
           </ProtectedRoute>
         }
       />
