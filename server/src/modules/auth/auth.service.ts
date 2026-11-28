@@ -59,6 +59,33 @@ export class AuthService {
       throw new ForbiddenException('Account is inactive or archived');
     }
 
+    // Enforce 7-day portal access grace period after offboarding completion
+    const completedOffboarding = await this.prisma.offboardingRequest.findFirst({
+      where: { userId: user.id, status: 'COMPLETED', completedAt: { not: null } },
+      orderBy: { completedAt: 'desc' },
+    });
+    if (completedOffboarding?.completedAt) {
+      const expiry = completedOffboarding.completedAt.getTime() + 7 * 24 * 60 * 60 * 1000;
+      if (Date.now() > expiry) {
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { employmentStatus: EmploymentStatus.INACTIVE, refreshTokenHash: null },
+        });
+        await this.auditService.log({
+          actorUserId: user.id,
+          targetUserId: user.id,
+          actionType: 'OFFBOARDING_ACCOUNT_DEACTIVATED',
+          ipAddress: meta.ipAddress,
+          userAgent: meta.userAgent,
+          newValuePayload: {
+            offboardingId: completedOffboarding.id,
+            reason: '7-day post-offboarding portal access window expired on login attempt',
+          },
+        });
+        throw new ForbiddenException('Your 7-day post-offboarding portal access has expired.');
+      }
+    }
+
     const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
@@ -100,6 +127,7 @@ export class AuthService {
         name: user.name,
         role: user.role as unknown as AppRole,
         permissions,
+        isOffboardedGraceAccess: Boolean(completedOffboarding),
       }),
     };
   }
@@ -197,6 +225,11 @@ export class AuthService {
     });
 
     const permissions = await this.loadUserPermissions(user.roleId, user.role);
+    const completedOffboarding = await this.prisma.offboardingRequest.findFirst({
+      where: { userId: user.id, status: 'COMPLETED', completedAt: { not: null } },
+      orderBy: { completedAt: 'desc' },
+      select: { completedAt: true },
+    });
 
     return {
       accessToken: tokens.accessToken,
@@ -208,6 +241,10 @@ export class AuthService {
         name: user.name,
         role: user.role as unknown as AppRole,
         permissions,
+        isOffboardedGraceAccess: Boolean(
+          completedOffboarding?.completedAt &&
+            Date.now() <= completedOffboarding.completedAt.getTime() + 7 * 24 * 60 * 60 * 1000,
+        ),
       }),
     };
   }
@@ -515,6 +552,7 @@ Mark Anthony Ventures`;
     name: string;
     role: AppRole;
     permissions?: string[];
+    isOffboardedGraceAccess?: boolean;
   }): AuthUserViewDto {
     return {
       id: user.id,
@@ -523,6 +561,7 @@ Mark Anthony Ventures`;
       name: user.name,
       role: user.role,
       permissions: user.permissions ?? [],
+      isOffboardedGraceAccess: user.isOffboardedGraceAccess,
     };
   }
 }

@@ -15,4 +15,5 @@ export interface AuthenticatedUser {
   role: AppRole;
   roleId?: string;
   permissions: string[];
+  isOffboardedGraceAccess?: boolean;
 }

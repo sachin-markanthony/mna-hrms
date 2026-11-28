@@ -15,6 +15,7 @@ import {
   Award,
 } from 'lucide-react';
 import { useAuth } from '../auth';
+import { notifyError, notifySuccess } from '../../services/toast';
 import { recruitmentApi } from './recruitment.api';
 import type {
   Candidate,
@@ -161,9 +162,10 @@ export function RecruitmentPipeline() {
   const handleCreateCandidate = async (payload: CreateCandidatePayload) => {
     try {
       await recruitmentApi.createCandidate(payload);
+      notifySuccess('Candidate registered successfully.');
       await loadData();
     } catch (err: any) {
-      alert(`Database Error: Could not create candidate. ${err?.message || ''}`);
+      notifyError(err, 'Could not create candidate.');
     }
   };
 
@@ -171,12 +173,13 @@ export function RecruitmentPipeline() {
   const handleEvaluateRound = async (candidateId: string, payload: EvaluateRoundPayload) => {
     try {
       const res = await recruitmentApi.evaluateRound(candidateId, payload);
+      notifySuccess('Round evaluation saved.');
       await loadData();
       if (drawerCandidate && drawerCandidate.id === candidateId && res?.candidate) {
         setDrawerCandidate(res.candidate);
       }
     } catch (err: any) {
-      alert(`Database Error: Could not save round evaluation. ${err?.message || ''}`);
+      notifyError(err, 'Could not save round evaluation.');
     }
   };
 

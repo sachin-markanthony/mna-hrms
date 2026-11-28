@@ -4,6 +4,7 @@ import { X, Mail, CheckCircle2, Download, Check, XCircle, Clock, UserPlus } from
 import { LetterDocument } from './LetterDocument';
 import { SendEmailModal } from './SendEmailModal';
 import { lettersApi } from '../letters.api';
+import { notifyError, notifySuccess } from '../../../services/toast';
 import { downloadElementAsPdf } from '../utils/pdfExport';
 import type { OfficialLetter } from '../types';
 
@@ -63,9 +64,10 @@ export function LetterViewModal({
     try {
       setUpdatingResponse(true);
       const updated = await lettersApi.recordResponse(letter.id, response, remarks);
+      notifySuccess(`Letter marked as ${response}.`);
       onUpdated?.(updated);
     } catch (err: any) {
-      alert(err?.message || 'Failed to record response.');
+      notifyError(err, 'Failed to record response.');
     } finally {
       setUpdatingResponse(false);
     }

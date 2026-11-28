@@ -9,6 +9,7 @@ import {
   Menu,
 } from 'lucide-react';
 import type { Employee, InductionNotification, InductionChapter } from '../types/induction.types';
+import { notifyInfo } from '../../../services/toast';
 
 interface InductionHeaderProps {
   employee: Employee | null;
@@ -202,8 +203,8 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
           {/* Help Center Popover */}
           <button
             onClick={() =>
-              alert(
-                'MA Ventures Employee Learning Help Center\n\nFor queries regarding real estate induction modules, handbook chapters, or assessment deadlines, reach out to HR L&D at induction@maventures.com.'
+              notifyInfo(
+                'MA Ventures Employee Learning Help Center: Reach out to HR L&D at induction@maventures.com for induction modules or assessment queries.'
               )
             }
             className="p-2 rounded-lg bg-white border border-[#DDD3C9] text-[#2B1810] hover:bg-[#F5ECE1] transition shadow-2xs cursor-pointer"
@@ -267,7 +268,7 @@ export const InductionHeader: React.FC<InductionHeaderProps> = ({
                 <div className="mt-3 pt-2 border-t border-[#EFE7DE] text-center">
                   <button
                     onClick={() => {
-                      alert('Profile management is linked with MA Ventures HRMS Master Profile.');
+                      notifyInfo('Profile management is linked with MA Ventures HRMS Master Profile.');
                       setShowProfileDropdown(false);
                     }}
                     className="w-full py-1.5 text-[11px] font-bold text-[#2B1810] hover:bg-[#F5ECE1] rounded-lg transition"

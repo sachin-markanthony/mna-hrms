@@ -65,6 +65,8 @@ model User {
   payslips               Payslip[]
   assetAssignments       AssetAssignment[]
   createdLetters         OfficialLetter[]         @relation("LetterCreator")
+  offboardingRequests    OffboardingRequest[]     @relation("OffboardingUser")
+  initiatedOffboardings  OffboardingRequest[]     @relation("OffboardingInitiator")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -169,6 +171,7 @@ model Employee {
   user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   documents             EmployeeDocument[]
   officialLetters       OfficialLetter[]
+  offboardingRequests   OffboardingRequest[]
 
   @@map("employees")
 }
@@ -703,6 +706,69 @@ model OfficialLetter {
   @@map("official_letters")
 }
 
+// ==========================================
+// Offboarding & 1-Month Notice Period NOC
+// ==========================================
+
+enum OffboardingStatus {
+  PENDING_APPROVAL
+  IN_NOTICE
+  COMPLETED
+  WITHDRAWN
+}
+
+enum NocStatus {
+  PENDING
+  CLEARED
+}
+
+model OffboardingRequest {
+  id                  String            @id @default(uuid())
+  userId              String
+  user                User              @relation("OffboardingUser", fields: [userId], references: [id], onDelete: Cascade)
+  employeeId          String
+  employee            Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  initiatedById       String?
+  initiatedBy         User?             @relation("OffboardingInitiator", fields: [initiatedById], references: [id], onDelete: SetNull)
+  offboardingType     String            @default("RESIGNATION")
+  status              OffboardingStatus @default(PENDING_APPROVAL)
+  resignationDate     DateTime          @default(now())
+  lastWorkingDay      DateTime
+  lastDayNotifiedAt   DateTime?
+  noticePeriodDays    Int               @default(30)
+  reason              String
+  handoverNotes       String?
+  earlyReleaseRemarks String?
+  approvedAt          DateTime?
+  completedAt         DateTime?
+  withdrawnAt         DateTime?
+
+  handoverNocStatus   NocStatus         @default(PENDING)
+  handoverClearedBy   String?
+  handoverClearedAt   DateTime?
+  handoverRemarks     String?
+
+  assetsNocStatus     NocStatus         @default(PENDING)
+  assetsClearedBy     String?
+  assetsClearedAt     DateTime?
+  assetsRemarks       String?
+
+  financeNocStatus    NocStatus         @default(PENDING)
+  financeClearedBy    String?
+  financeClearedAt    DateTime?
+  financeRemarks      String?
+
+  hrNocStatus         NocStatus         @default(PENDING)
+  hrClearedBy         String?
+  hrClearedAt         DateTime?
+  hrRemarks           String?
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@index([userId, status])
+  @@index([status])
+  @@map("offboarding_requests")
 // ============================================================================
 // Asset Management (Laptop Collection Report)
 // ============================================================================
