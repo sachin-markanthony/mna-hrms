@@ -18,6 +18,8 @@ export function AssessmentResultPage() {
       <AccessDenied
         title="Result not found"
         message="This assessment result is not part of the employee induction programme."
+        backTo="/induction"
+        backLabel="Back to induction"
       />
     );
   }
@@ -26,9 +28,9 @@ export function AssessmentResultPage() {
     return (
       <AccessDenied
         title="No assessment result"
-        message="Chapter 20 is a reference resource and does not have an assessment."
+        message="This reference resource does not have an assessment."
         backTo="/induction/reference"
-        backLabel="Open reference library"
+        backLabel="Open reference notes"
       />
     );
   }
@@ -37,7 +39,9 @@ export function AssessmentResultPage() {
     return (
       <AccessDenied
         title={`Chapter ${chapter.chapterNumber} is locked`}
-        message="Complete the previous chapter and pass its assessment to view this result."
+        message="Pass the previous chapter assessment to view this result."
+        backTo="/induction"
+        backLabel="Back to my current chapter"
       />
     );
   }
@@ -47,7 +51,7 @@ export function AssessmentResultPage() {
       <EmptyState
         icon={FileText}
         title="No assessment attempt yet"
-        description="Once you submit the chapter assessment, your score and attempt history will appear here."
+        description="Once you submit the chapter assessment, your score and next step will appear here."
         action={
           <Link
             to={`/induction/chapters/${chapterNumber}/assessment`}
@@ -70,8 +74,12 @@ export function AssessmentResultPage() {
       : null;
 
   const goToNext = () => {
+    if (isFinal) {
+      navigate('/dashboard');
+      return;
+    }
     if (!nextChapter) {
-      navigate('/induction/progress');
+      navigate('/induction');
       return;
     }
     if (nextChapter.kind === 'final_assessment') {
@@ -82,18 +90,18 @@ export function AssessmentResultPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <div className="mx-auto mb-4 flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link
           to={isFinal ? '/induction/final-assessment' : `/induction/chapters/${chapterNumber}`}
-          className="inline-flex w-fit items-center gap-1.5 rounded-xl border border-[#E9DED2] bg-white px-3.5 py-2 text-[10.5px] font-bold text-[#6E5B4C] shadow-sm transition hover:border-[#C9A46A] hover:text-[#3B2314]"
+          className={buttonStyles('secondary', 'sm', 'w-fit')}
         >
-          <ArrowLeft className="h-3.5 w-3.5 text-[#B8893A]" />
+          <ArrowLeft className="h-3.5 w-3.5" />
           {isFinal ? 'Back to final assessment' : 'Back to chapter'}
         </Link>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#EBDCC4] bg-[#FBF5EA] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-[#8A6427]">
-          <ClipboardCheck className="h-3 w-3" />
-          {isFinal ? 'Grand Final Quiz result' : `Chapter ${chapter.chapterNumber} result`}
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+          <ClipboardCheck className="h-3 w-3 text-amber-500" />
+          {isFinal ? 'Final quiz result' : `Chapter ${chapter.chapterNumber} result`}
         </span>
       </div>
 
@@ -101,7 +109,6 @@ export function AssessmentResultPage() {
         attempt={chapter.latestAttempt}
         chapter={chapter}
         assessment={assessment}
-        attempts={chapter.attempts}
         nextChapter={nextChapter}
         onRetry={() => navigate(`/induction/chapters/${chapterNumber}/assessment`)}
         onReview={() =>
@@ -110,7 +117,6 @@ export function AssessmentResultPage() {
           )
         }
         onContinue={goToNext}
-        onViewProgress={() => navigate('/induction/progress')}
       />
     </div>
   );

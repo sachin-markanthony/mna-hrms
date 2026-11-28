@@ -17,8 +17,8 @@ export const INDUCTION_CONFIG = {
   trainerOnlyChapters: [19, 22],
   storageKey: 'mav_induction_learning_v1',
   storeVersion: 1,
-  supportEmail: 'induction@maventures.com',
-  supportPhone: '+91 80 4000 1200',
+  supportEmail: 'hr@markanthony.co.in',
+  supportPhone: '+91 81 4740 5703',
 } as const;
 
 const FALLBACK_EMPLOYEE: EmployeeProfile = {
