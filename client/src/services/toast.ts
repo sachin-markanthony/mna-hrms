@@ -8,3 +8,7 @@ export function notifyError(err: unknown, fallback = 'Something went wrong') {
   const message = err instanceof Error ? err.message : typeof err === 'string' ? err : fallback;
   toast.error(message || fallback);
 }
+
+export function notifyInfo(message: string) {
+  toast.info(message);
+}

@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FileCheck,
   Plus,
@@ -11,6 +11,7 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { lettersApi } from './letters.api';
+import { notifyError, notifySuccess } from '../../services/toast';
 import { recruitmentApi } from '../recruitment/recruitment.api';
 import { CreateLetterModal } from './components/CreateLetterModal';
 import { LetterViewModal } from './components/LetterViewModal';
@@ -20,8 +21,10 @@ import type { Candidate } from '../recruitment/types';
 
 export function LettersManagement() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const preSelectedCandidateId = searchParams.get('candidateId');
+  const prefillExperience = (location.state as any)?.prefillExperienceFromOffboarding || null;
 
   const [letters, setLetters] = useState<OfficialLetter[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,13 +38,19 @@ export function LettersManagement() {
   const [emailLetter, setEmailLetter] = useState<OfficialLetter | null>(null);
   const [preSelectedCandidate, setPreSelectedCandidate] = useState<Candidate | null>(null);
   const [respondingId, setRespondingId] = useState<string | null>(null);
+  const [returnToOffboarding, setReturnToOffboarding] = useState(false);
+  const [offboardingEmailSent, setOffboardingEmailSent] = useState(false);
+  const offboardingRedirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     loadLetters();
     if (preSelectedCandidateId) {
       loadPreSelectedCandidate(preSelectedCandidateId);
     }
-  }, [preSelectedCandidateId]);
+    if (prefillExperience) {
+      setCreateModalOpen(true);
+    }
+  }, [preSelectedCandidateId, prefillExperience]);
 
   const loadLetters = async () => {
     try {
@@ -74,12 +83,13 @@ export function LettersManagement() {
     }
     try {
       await lettersApi.revokeLetter(id);
+      notifySuccess('Official letter revoked.');
       await loadLetters();
       if (viewLetter?.id === id) {
         setViewLetter(null);
       }
     } catch (err: any) {
-      alert(err?.message || 'Failed to revoke letter.');
+      notifyError(err, 'Failed to revoke letter.');
     }
   };
 
@@ -103,9 +113,10 @@ export function LettersManagement() {
     try {
       setRespondingId(letter.id);
       await lettersApi.recordResponse(letter.id, response, remarks);
+      notifySuccess(`Letter response recorded as ${response}.`);
       await loadLetters();
     } catch (err: any) {
-      alert(err?.message || 'Failed to record response.');
+      notifyError(err, 'Failed to record response.');
     } finally {
       setRespondingId(null);
     }
@@ -494,11 +505,17 @@ export function LettersManagement() {
       <CreateLetterModal
         isOpen={createModalOpen}
         preSelectedCandidate={preSelectedCandidate}
+        prefillExperience={prefillExperience}
         onClose={() => setCreateModalOpen(false)}
         onSuccess={(created) => {
           setCreateModalOpen(false);
+          if (prefillExperience?.fromOffboarding) {
+            setReturnToOffboarding(true);
+            setOffboardingEmailSent(false);
+          }
+          navigate(location.pathname, { replace: true, state: null });
           loadLetters();
-          setViewLetter(created);
+          setEmailLetter(created);
         }}
       />
 
@@ -520,9 +537,31 @@ export function LettersManagement() {
       <SendEmailModal
         letter={emailLetter}
         isOpen={Boolean(emailLetter)}
-        onClose={() => setEmailLetter(null)}
+        onClose={() => {
+          if (offboardingRedirectTimerRef.current) {
+            clearTimeout(offboardingRedirectTimerRef.current);
+            offboardingRedirectTimerRef.current = null;
+          }
+          const shouldReturn = returnToOffboarding && offboardingEmailSent;
+          setEmailLetter(null);
+          setReturnToOffboarding(false);
+          setOffboardingEmailSent(false);
+          if (shouldReturn) {
+            navigate('/offboarding', { replace: true });
+          }
+        }}
         onSuccess={() => {
           loadLetters();
+          if (returnToOffboarding) {
+            setOffboardingEmailSent(true);
+            offboardingRedirectTimerRef.current = setTimeout(() => {
+              offboardingRedirectTimerRef.current = null;
+              setEmailLetter(null);
+              setReturnToOffboarding(false);
+              setOffboardingEmailSent(false);
+              navigate('/offboarding', { replace: true });
+            }, 1200);
+          }
         }}
       />
     </div>

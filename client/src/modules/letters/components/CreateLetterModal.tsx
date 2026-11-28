@@ -16,9 +16,23 @@ import type { Candidate } from '../../recruitment/types';
 import type { EmployeeRecord } from '../../employees/types';
 import type { OfficialLetter, CreateLetterPayload } from '../types';
 
+interface PrefillExperiencePayload {
+  fromOffboarding?: boolean;
+  employeeId?: string;
+  employeeCode?: string;
+  recipientName?: string;
+  recipientEmail?: string;
+  recipientPhone?: string;
+  designation?: string;
+  department?: string;
+  joiningDate?: string;
+  relievingDate?: string;
+}
+
 interface CreateLetterModalProps {
   isOpen: boolean;
   preSelectedCandidate?: Candidate | null;
+  prefillExperience?: PrefillExperiencePayload | null;
   onClose: () => void;
   onSuccess: (letter: OfficialLetter) => void;
 }
@@ -26,6 +40,7 @@ interface CreateLetterModalProps {
 export function CreateLetterModal({
   isOpen,
   preSelectedCandidate,
+  prefillExperience,
   onClose,
   onSuccess,
 }: CreateLetterModalProps) {
@@ -137,6 +152,28 @@ export function CreateLetterModal({
       clearTimeout(timer);
     };
   }, [isOpen, letterType, employeeQuery]);
+
+  // Synchronize when prefillExperience changes (from Offboarding -> Issue Experience Letter)
+  useEffect(() => {
+    if (prefillExperience) {
+      setLetterType('EXPERIENCE_LETTER');
+      setEmployeeId(prefillExperience.employeeId || '');
+      setEmployeeCode(prefillExperience.employeeCode || 'MNA001');
+      setRecipientGender('MR');
+      setRecipientName(prefillExperience.recipientName || '');
+      setRecipientEmail(prefillExperience.recipientEmail || '');
+      setRecipientPhone(prefillExperience.recipientPhone || '');
+      setDesignation(prefillExperience.designation || '');
+      const deptName = (prefillExperience.department || '').toUpperCase();
+      setDepartment(deptName.includes('DIGITAL') ? 'DIGITAL' : 'SALES');
+      if (prefillExperience.joiningDate) {
+        setJoiningDate(prefillExperience.joiningDate);
+      }
+      if (prefillExperience.relievingDate) {
+        setRelievingDate(prefillExperience.relievingDate);
+      }
+    }
+  }, [prefillExperience]);
 
   // Synchronize when preSelectedCandidate changes
   useEffect(() => {

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider, useAuth, Login, type UserRole } from './modules/auth';
@@ -13,6 +13,7 @@ import { SettingsManagement } from './modules/settings';
 import { RecruitmentPipeline } from './modules/recruitment/RecruitmentPipeline';
 import { PayrollManagement, MyPayslips } from './modules/payroll';
 import { LettersManagement } from './modules/letters';
+import { OffboardingManagement } from './modules/offboarding';
 function ProtectedRoute({
   children,
   withLayout = true,
@@ -25,6 +26,7 @@ function ProtectedRoute({
   requiredPermissions?: string[];
 }) {
   const { user, loading, hasPermission } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -36,6 +38,10 @@ function ProtectedRoute({
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (user.isOffboardedGraceAccess && location.pathname !== '/official-letters') {
+    return <Navigate to="/official-letters" replace />;
   }
 
   if (allowedRoles || requiredPermissions) {
@@ -168,6 +174,14 @@ function AppRoutes() {
             requiredPermissions={['letters:release']}
           >
             <LettersManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/offboarding"
+        element={
+          <ProtectedRoute>
+            <OffboardingManagement />
           </ProtectedRoute>
         }
       />

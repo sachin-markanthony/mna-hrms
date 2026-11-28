@@ -16,6 +16,7 @@ export interface User {
   designation?: string;
   avatar?: string;
   biometricId?: string;
+  isOffboardedGraceAccess?: boolean;
 }
 
 export interface RoleConfig {

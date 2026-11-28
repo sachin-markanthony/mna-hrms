@@ -16,6 +16,7 @@ import {
   Sun,
   Moon,
   LogOut,
+  UserX,
 } from 'lucide-react';
 import { useAuth, ROLES } from '../../modules/auth';
 import { useTheme } from '../../services/theme';
@@ -63,6 +64,11 @@ const NAVIGATION_SECTIONS: NavSection[] = [
         name: 'Leave Management',
         path: '/leave',
         icon: CalendarDays,
+      },
+      {
+        name: 'Offboarding & NOC',
+        path: '/offboarding',
+        icon: UserX,
       },
     ],
   },
@@ -190,12 +196,16 @@ export function AppLayout({ children }: { children: ReactNode }) {
         {/* Dynamic Categorized Navigation (Independent Scroll) */}
         <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto overflow-x-hidden">
           {NAVIGATION_SECTIONS.map((section) => {
-            const visibleItems = section.items.filter(
-              (item) =>
+            const visibleItems = section.items.filter((item) => {
+              if (user.isOffboardedGraceAccess) {
+                return item.path === '/official-letters';
+              }
+              return (
                 !item.permissions ||
                 item.permissions.length === 0 ||
-                item.permissions.some((perm) => hasPermission(perm)),
-            );
+                item.permissions.some((perm) => hasPermission(perm))
+              );
+            });
             if (visibleItems.length === 0) return null;
 
             return (

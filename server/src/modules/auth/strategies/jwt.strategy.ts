@@ -67,6 +67,17 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       permissions = fallbackRole?.permissions.map((rp) => rp.permission.key) ?? [];
     }
 
+    const completedOffboarding = await this.prisma.offboardingRequest.findFirst({
+      where: { userId: user.id, status: 'COMPLETED', completedAt: { not: null } },
+      orderBy: { completedAt: 'desc' },
+      select: { completedAt: true },
+    });
+
+    const isOffboardedGraceAccess = Boolean(
+      completedOffboarding?.completedAt &&
+        Date.now() <= completedOffboarding.completedAt.getTime() + 7 * 24 * 60 * 60 * 1000,
+    );
+
     return {
       id: user.id,
       email: user.email,
@@ -75,6 +86,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       role: user.role as unknown as AppRole,
       roleId: user.roleId ?? undefined,
       permissions,
+      isOffboardedGraceAccess,
     };
   }
 }

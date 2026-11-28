@@ -385,6 +385,51 @@ export class LettersService {
       },
     });
 
+    // Automatically clear Experience & Relieving Letter NOC checkpoint on matching Offboarding
+    if (letter.letterType === LetterType.EXPERIENCE_LETTER) {
+      const offboarding = await this.prisma.offboardingRequest.findFirst({
+        where: {
+          status: { in: ['PENDING_APPROVAL', 'IN_NOTICE'] },
+          OR: [
+            ...(letter.employeeId ? [{ employeeId: letter.employeeId }] : []),
+            ...(letter.employeeCode ? [{ user: { employeeId: letter.employeeCode } }] : []),
+            { user: { email: letter.recipientEmail.toLowerCase() } },
+          ],
+        },
+        include: { user: { select: { id: true, employeeId: true } } },
+      });
+
+      if (offboarding) {
+        await this.prisma.offboardingRequest.update({
+          where: { id: offboarding.id },
+          data: {
+            hrNocStatus: 'CLEARED',
+            hrClearedBy: 'System (Experience Letter Emailed)',
+            hrClearedAt: now,
+            hrRemarks: `Experience Letter ${letter.refNumber} issued & emailed`,
+          },
+        });
+
+        const nocActor = actorUserId || (await this.resolveFallbackActorId());
+        if (nocActor) {
+          await this.auditService.log({
+            actorUserId: nocActor,
+            targetUserId: offboarding.userId,
+            actionType: 'OFFBOARDING_NOC_UPDATED',
+            ipAddress: meta?.ipAddress,
+            userAgent: meta?.userAgent,
+            newValuePayload: {
+              offboardingId: offboarding.id,
+              employeeId: offboarding.user.employeeId,
+              checkpoint: 'EXPERIENCE_LETTER',
+              status: 'CLEARED',
+              autoClearedByLetter: letter.refNumber,
+            },
+          });
+        }
+      }
+    }
+
     const nowIso = now.toISOString();
     const actor = actorUserId || (await this.resolveFallbackActorId());
     if (actor) {
